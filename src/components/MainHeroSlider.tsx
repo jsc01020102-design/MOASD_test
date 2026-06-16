@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, Play, Pause, ArrowLeft, ArrowRight, Cpu, Award, Compass } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { imageAssets } from '../imageAssets';
 
 interface SlideItem {
   id: number;
@@ -40,7 +41,7 @@ export const MainHeroSlider: React.FC = () => {
         ? "Next-generation manufacturing facility for hybrid supercapacitor cells, engineered to connect with solar and wind grids, delivering rapid charging and semi-permanent lifecycle integrity."
         : "차세대 친환경 태양광·풍력 전력계통과 결합하여 고속 충전, 반영구적 수명을 보장하는 하이브리드 슈퍼커패시터 핵심 셀 제조 라인입니다. 카메라 무빙에 마이크로 디바이스 조립 흐름을 반영합니다.",
       accentColor: "cyan-400",
-      bgUrl: "/src/assets/images/supercapacitor_factory_1781621879548.jpg",
+      bgUrl: imageAssets.supercapacitorFactory,
       ctaTextFirst: isEn ? "Solution Specs" : "솔루션 세부스펙",
       ctaLinkFirst: "#services-section",
       ctaTextSecond: isEn ? "Simulate Grid Match" : "모의 에너지 진단",
@@ -57,7 +58,7 @@ export const MainHeroSlider: React.FC = () => {
         ? "Vertical smart assembly line producing carbon-neutral e-mobility packages with integrated ultra-density power cells for extended range and tactical maneuverability."
         : "당사 고용량 축전 셀을 빌트인하여 긴 주행거리와 기동력을 제공하는 친환경 탄소중립 모빌리티의 수직 정렬 조립 라인입니다.",
       accentColor: "purple-500",
-      bgUrl: "/src/assets/images/ev_assembly_line_1781621897327.jpg",
+      bgUrl: imageAssets.evAssemblyLine,
       ctaTextFirst: isEn ? "Live Factory Line" : "공장 생산라인 현황",
       ctaLinkFirst: "#simulator-section",
       ctaTextSecond: isEn ? "Partner References" : "협력기업 정보",
@@ -74,7 +75,7 @@ export const MainHeroSlider: React.FC = () => {
         ? "High-volume automated production line for DOOHYUN INFRA TECH's flagship HGE3D00 hybrid generators. Watch the active belt movement and precise mechanical integration simulation."
         : "(주)두현인프라텍의 핵심 기술을 집약한 HGE3D00 발전 유닛 전용 첨단 양산 라인입니다. 자동 벨지 기동 벨트 및 정밀 기계 실장 공정이 생산라인을 지나가듯 역동적으로 시뮬레이션됩니다.",
       accentColor: "amber-500",
-      bgUrl: "/src/assets/images/generator_assembly_line_1781624380514.jpg",
+      bgUrl: imageAssets.generatorAssemblyLine,
       ctaTextFirst: isEn ? "View HGE3D00 Specs" : "HGE3D00 사양 보기",
       ctaLinkFirst: "#services-section",
       ctaTextSecond: isEn ? "Simulate Power Output" : "실시간 발전량 시뮬레이션",
@@ -91,7 +92,7 @@ export const MainHeroSlider: React.FC = () => {
         ? "Maximizing energy transport speeds and electrical load retention to establish a new paradigm in sub-nanoscale battery electrodes. View authentic American CAS registry metrics."
         : "탁월한 에너지 전달 보강과 전도 효율을 극대화하여 나노 레벨의 배터리 극판 기술 패러다임을 바꿉니다. 미국 화학회 CAS 고유 등록 정보는 고정 이미지로 정적 제공됩니다.",
       accentColor: "emerald-400",
-      bgUrl: "/src/assets/images/sam_material_lab_1781621914194.jpg",
+      bgUrl: imageAssets.samMaterialLab,
       ctaTextFirst: isEn ? "Submit Proposal" : "기술 정보 제안",
       ctaLinkFirst: "#proposal-section",
       ctaTextSecond: isEn ? "Key Solutions" : "에너지 솔루션",
