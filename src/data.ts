@@ -1,4 +1,5 @@
 import { Service, Strength, CaseStudy } from './types';
+import { imageAssets } from './imageAssets';
 
 export const MOASD_SERVICES: Service[] = [
   {
@@ -186,7 +187,7 @@ export const MOASD_SERVICES: Service[] = [
     ],
     iconName: 'BatteryCharging',
     impactScore: 97,
-    imageUrl: '/src/assets/images/hge3d00_generator_1781622900745.jpg'
+    imageUrl: imageAssets.hge3d00Generator
   }
 ];
 
