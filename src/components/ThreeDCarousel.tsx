@@ -22,6 +22,24 @@ export const ThreeDCarousel: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    const handleCarouselChange = (e: Event) => {
+      const customEvent = e as CustomEvent<{ index: number }>;
+      if (customEvent.detail && typeof customEvent.detail.index === 'number') {
+        setActiveIndex(customEvent.detail.index);
+        setShowDetail(true);
+        const section = document.getElementById('services-section');
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    };
+    window.addEventListener('moasd-change-carousel-idx', handleCarouselChange);
+    return () => {
+      window.removeEventListener('moasd-change-carousel-idx', handleCarouselChange);
+    };
+  }, []);
+
   const total = MOASD_SERVICES.length;
 
   const navigate = (direction: 'next' | 'prev') => {

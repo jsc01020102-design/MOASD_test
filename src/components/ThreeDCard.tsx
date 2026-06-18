@@ -16,6 +16,7 @@ interface ThreeDCardProps {
   scaleOnHover?: number; // Scale on hover, defaults to 1.03
   glowColor?: string; // Tailwind format, e.g. blue-500/20
   id?: string;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
 export const ThreeDCard: React.FC<ThreeDCardProps> = ({
@@ -25,6 +26,7 @@ export const ThreeDCard: React.FC<ThreeDCardProps> = ({
   scaleOnHover = 1.03,
   glowColor = 'cyan-500/10',
   id,
+  onClick,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [rotateX, setRotateX] = useState<number>(0);
@@ -69,6 +71,7 @@ export const ThreeDCard: React.FC<ThreeDCardProps> = ({
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={onClick}
       style={{ perspective: '1200px' }}
     >
       <motion.div

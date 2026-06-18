@@ -34,11 +34,11 @@ export const MainHeroSlider: React.FC = () => {
       id: 0,
       badge: "RENEWABLE ENERGY & HYBRID SUPERCAPACITOR",
       badgeIcon: <Cpu className="w-3.5 h-3.5 text-cyan-400" />,
-      titleTop: isEn ? "Renewable Energy High-Power Revolution" : "신재생에너지 고출력 혁명",
-      titleBottom: isEn ? "Hybrid Supercapacitor Cells" : "하이브리드 슈퍼커패시터 솔루션",
+      titleTop: isEn ? "Renewable High-Power Revolution" : "신재생에너지 고출력 혁명",
+      titleBottom: isEn ? "Hybrid Supercapacitor Cells" : "하이브리드 슈퍼커패시터",
       description: isEn 
-        ? "Next-generation manufacturing facility for hybrid supercapacitor cells, engineered to connect with solar and wind grids, delivering rapid charging and semi-permanent lifecycle integrity."
-        : "차세대 친환경 태양광·풍력 전력계통과 결합하여 고속 충전, 반영구적 수명을 보장하는 하이브리드 슈퍼커패시터 핵심 셀 제조 라인입니다. 카메라 무빙에 마이크로 디바이스 조립 흐름을 반영합니다.",
+        ? "Next-gen grid-tied charging and semi-permanent storage."
+        : "태양광·풍력 연계 고속 충전 및 반영구 축전 셀 솔루션",
       accentColor: "cyan-400",
       bgUrl: "/src/assets/images/supercapacitor_factory_1781621879548.jpg",
       ctaTextFirst: isEn ? "Solution Specs" : "솔루션 세부스펙",
@@ -51,11 +51,11 @@ export const MainHeroSlider: React.FC = () => {
       id: 1,
       badge: "ECO SMART EV ASSEMBLY LINE",
       badgeIcon: <Cpu className="w-3.5 h-3.5 text-purple-400" />,
-      titleTop: isEn ? "Next-Generation Eco Micro EV" : "친환경 차세대 마이크로 EV",
-      titleBottom: isEn ? "E-Bike & E-Motorcycle Assembly" : "프리미엄 전기자전거 & 전기오토바이 조립선",
+      titleTop: isEn ? "Next-Gen Eco Micro EV" : "친환경 차세대 마이크로 EV",
+      titleBottom: isEn ? "E-Mobility Assembly Line" : "전기 모빌리티 조립라인",
       description: isEn 
-        ? "Vertical smart assembly line producing carbon-neutral e-mobility packages with integrated ultra-density power cells for extended range and tactical maneuverability."
-        : "당사 고용량 축전 셀을 빌트인하여 긴 주행거리와 기동력을 제공하는 친환경 탄소중립 모빌리티의 수직 정렬 조립 라인입니다.",
+        ? "Eco-mobility integrated with ultra-density power cells."
+        : "고용량 셀 유닛 탑재로 효율을 극대화한 친환경 모빌리티",
       accentColor: "purple-500",
       bgUrl: "/src/assets/images/ev_assembly_line_1781621897327.jpg",
       ctaTextFirst: isEn ? "Live Factory Line" : "공장 생산라인 현황",
@@ -68,11 +68,11 @@ export const MainHeroSlider: React.FC = () => {
       id: 2,
       badge: "HGE3D00 MOBILE HYBRID GENERATOR ASSEMBLY LINE",
       badgeIcon: <Award className="w-3.5 h-3.5 text-amber-500" />,
-      titleTop: isEn ? "Anti-Explosion Hybrid Power Units" : "최신 무폭발 스마트 발전 결합 라인",
-      titleBottom: isEn ? "HGE3D00 Generator & ESS Line" : "HGE3D00 하이브리드 발전기 / ESS",
+      titleTop: isEn ? "Anti-Explosion Hybrid Power Unit" : "최신 무폭발 스마트 발전 결합 라인",
+      titleBottom: isEn ? "HGE3D00 Generator & ESS" : "HGE3D00 하이브리드 발전기",
       description: isEn 
-        ? "High-volume automated production line for DOOHYUN INFRA TECH's flagship HGE3D00 hybrid generators. Watch the active belt movement and precise mechanical integration simulation."
-        : "(주)두현인프라텍의 핵심 기술을 집약한 HGE3D00 발전 유닛 전용 첨단 양산 라인입니다. 자동 벨지 기동 벨트 및 정밀 기계 실장 공정이 생산라인을 지나가듯 역동적으로 시뮬레이션됩니다.",
+        ? "Automated production for flagship hybrid generators system."
+        : "두현인프라텍의 핵심 기술을 집약한 친환경 발전 양산설비",
       accentColor: "amber-500",
       bgUrl: "/src/assets/images/generator_assembly_line_1781624380514.jpg",
       ctaTextFirst: isEn ? "View HGE3D00 Specs" : "HGE3D00 사양 보기",
@@ -85,11 +85,11 @@ export const MainHeroSlider: React.FC = () => {
       id: 3,
       badge: "US CAS REGISTERED PATENTED MATERIAL",
       badgeIcon: <Award className="w-3.5 h-3.5 text-emerald-400" />,
-      titleTop: isEn ? "Patented Original Electrode Material" : "독점 분집전 원천 특허 소재",
-      titleBottom: isEn ? "US CAS-Registered Conductive SAM" : "미국 CAS 공식 등재 고전도성 SAM 신소재",
+      titleTop: isEn ? "Patented Electrode Material" : "독점 분집전 원천 특허 소재",
+      titleBottom: isEn ? "Conductive SAM Material" : "고전도성 특허 소재 SAM",
       description: isEn 
-        ? "Maximizing energy transport speeds and electrical load retention to establish a new paradigm in sub-nanoscale battery electrodes. View authentic American CAS registry metrics."
-        : "탁월한 에너지 전달 보강과 전도 효율을 극대화하여 나노 레벨의 배터리 극판 기술 패러다임을 바꿉니다. 미국 화학회 CAS 고유 등록 정보는 고정 이미지로 정적 제공됩니다.",
+        ? "US CAS registered material for maximum conductivity panels."
+        : "미국 CAS 공식 등재, 전도 극대화 배터리 원천 소재",
       accentColor: "emerald-400",
       bgUrl: "/src/assets/images/sam_material_lab_1781621914194.jpg",
       ctaTextFirst: isEn ? "Submit Proposal" : "기술 정보 제안",
@@ -281,7 +281,7 @@ export const MainHeroSlider: React.FC = () => {
             </AnimatePresence>
           </div>
 
-          {/* Description Block with premium frosted frame */}
+          {/* Description Block with clean, borderless typography */}
           <AnimatePresence mode="wait">
             <motion.p
               key={`desc-${current}`}
@@ -289,37 +289,13 @@ export const MainHeroSlider: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.5, delay: 0.15 }}
-              className="text-xs sm:text-[13px] text-slate-300 font-medium leading-relaxed bg-slate-950/65 backdrop-blur-md p-4 rounded-xl border border-white/10 shadow-xl"
+              className="text-xs sm:text-[13px] text-slate-200 font-medium leading-relaxed max-w-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] [text-shadow:_0_1px_3px_rgba(0,0,0,0.9)] pl-1 pb-1"
             >
               {activeSlide.description}
             </motion.p>
           </AnimatePresence>
 
-          {/* Active Slide Call-To-Action buttons */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`cta-${current}`}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.5, delay: 0.22 }}
-              className="flex flex-wrap items-center gap-3 pt-1"
-            >
-              <a
-                href={activeSlide.ctaLinkFirst}
-                className="px-5 py-2.5 text-[11px] font-extrabold tracking-tight uppercase rounded-lg text-slate-950 bg-white hover:bg-slate-100 items-center inline-flex gap-1.5 shadow-md transition-all duration-300 cursor-pointer hover:scale-105 active:scale-95 whitespace-nowrap"
-              >
-                <span>{activeSlide.ctaTextFirst}</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </a>
-              <a
-                href={activeSlide.ctaLinkSecond}
-                className="px-5 py-2.5 text-[11px] font-bold tracking-tight text-slate-300 hover:text-white bg-slate-900/80 border border-white/10 hover:border-white/25 hover:bg-slate-800 rounded-lg transition-all duration-300 cursor-pointer whitespace-nowrap"
-              >
-                {activeSlide.ctaTextSecond}
-              </a>
-            </motion.div>
-          </AnimatePresence>
+
 
         </div>
       </div>
