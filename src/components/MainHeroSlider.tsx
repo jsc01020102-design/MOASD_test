@@ -3,6 +3,13 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, Play, Pause, ArrowLeft, ArrowRight, Cpu, Award, Compass } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
+// Premium and high-speed Unsplash CDN image assets for perfect live site deployment
+const supercapacitorFactory = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1600&q=80"; // High-tech electronics and supercapacitor line
+const evAssemblyLine = "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=1600&q=80"; // Eco-smart mobility assembly floor
+const generatorAssemblyLine = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1600&q=80"; // Generator & ESS industrial automated line
+const samMaterialLab = "https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&w=1600&q=80"; // Chemistry precision nano material laboratory
+
+
 interface SlideItem {
   id: number;
   badge: string;
@@ -40,7 +47,7 @@ export const MainHeroSlider: React.FC = () => {
         ? "Next-gen grid-tied charging and semi-permanent storage."
         : "태양광·풍력 연계 고속 충전 및 반영구 축전 셀 솔루션",
       accentColor: "cyan-400",
-      bgUrl: "/src/assets/images/supercapacitor_factory_1781621879548.jpg",
+      bgUrl: supercapacitorFactory,
       ctaTextFirst: isEn ? "Solution Specs" : "솔루션 세부스펙",
       ctaLinkFirst: "#services-section",
       ctaTextSecond: isEn ? "Simulate Grid Match" : "모의 에너지 진단",
@@ -57,7 +64,7 @@ export const MainHeroSlider: React.FC = () => {
         ? "Eco-mobility integrated with ultra-density power cells."
         : "고용량 셀 유닛 탑재로 효율을 극대화한 친환경 모빌리티",
       accentColor: "purple-500",
-      bgUrl: "/src/assets/images/ev_assembly_line_1781621897327.jpg",
+      bgUrl: evAssemblyLine,
       ctaTextFirst: isEn ? "Live Factory Line" : "공장 생산라인 현황",
       ctaLinkFirst: "#simulator-section",
       ctaTextSecond: isEn ? "Partner References" : "협력기업 정보",
@@ -74,7 +81,7 @@ export const MainHeroSlider: React.FC = () => {
         ? "Automated production for flagship hybrid generators system."
         : "두현인프라텍의 핵심 기술을 집약한 친환경 발전 양산설비",
       accentColor: "amber-500",
-      bgUrl: "/src/assets/images/generator_assembly_line_1781624380514.jpg",
+      bgUrl: generatorAssemblyLine,
       ctaTextFirst: isEn ? "View HGE3D00 Specs" : "HGE3D00 사양 보기",
       ctaLinkFirst: "#services-section",
       ctaTextSecond: isEn ? "Simulate Power Output" : "실시간 발전량 시뮬레이션",
@@ -91,7 +98,7 @@ export const MainHeroSlider: React.FC = () => {
         ? "US CAS registered material for maximum conductivity panels."
         : "미국 CAS 공식 등재, 전도 극대화 배터리 원천 소재",
       accentColor: "emerald-400",
-      bgUrl: "/src/assets/images/sam_material_lab_1781621914194.jpg",
+      bgUrl: samMaterialLab,
       ctaTextFirst: isEn ? "Submit Proposal" : "기술 정보 제안",
       ctaLinkFirst: "#proposal-section",
       ctaTextSecond: isEn ? "Key Solutions" : "에너지 솔루션",

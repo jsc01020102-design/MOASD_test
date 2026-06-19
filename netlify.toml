@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Handle clean client-side routing and prevent 404 page loads on refreshing sub-paths
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
