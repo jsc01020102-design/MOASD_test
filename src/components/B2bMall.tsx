@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+
+// Import original high-resolution local image files
+import prodGeneratorImg from '../assets/images/hge3d00_generator_1781622900745.jpg';
+import prodCapacitorImg from '../assets/images/supercapacitor_factory_1781621879548.jpg';
+import prodBinderImg from '../assets/images/sam_material_lab_1781624876856.jpg';
+import prodEvImg from '../assets/images/ev_moto_assembly_1781624859000.jpg';
 import { 
   ShoppingBag, 
   ShoppingCart, 
@@ -71,7 +77,7 @@ export const PRODUCTS: Product[] = [
     specEn: ['AC Output: 220V/380V Multi-Phase', 'Warranty: 15-Year Life Cycle', 'Cycle Count: 35,000 Full Cycles'],
     availabilityKo: '본사 승인 즉시 출하 가능',
     availabilityEn: 'Immediate Dispatch Upon Approval',
-    imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80'
+    imageUrl: prodGeneratorImg
   },
   {
     id: 'prod-2',
@@ -88,7 +94,7 @@ export const PRODUCTS: Product[] = [
     specEn: ['Surge Latency: < 0.02s Clamping', 'Line Frequency: 50Hz/60Hz Sync', 'Chassis: 19-inch Subrack Mount'],
     availabilityKo: '소량 수주 후 주문 제작 (약 2주)',
     availabilityEn: 'Custom Built Order (approx. 2 weeks)',
-    imageUrl: 'https://images.unsplash.com/photo-1517055729445-fa7d27394b48?auto=format&fit=crop&w=800&q=80'
+    imageUrl: prodCapacitorImg
   },
   {
     id: 'prod-3',
@@ -105,7 +111,7 @@ export const PRODUCTS: Product[] = [
     specEn: ['Registry: US CAS Officially Logged', 'Chemistry: Bipolar Carbon Complex', 'Viscosity: Optimized for sheet slurry'],
     availabilityKo: '항공 밀폐 특수 용역 직송',
     availabilityEn: 'Special pressurized airtight freight',
-    imageUrl: 'https://images.unsplash.com/photo-1607619056574-7b8f30413b46?auto=format&fit=crop&w=800&q=80'
+    imageUrl: prodBinderImg
   },
   {
     id: 'prod-4',
@@ -122,7 +128,7 @@ export const PRODUCTS: Product[] = [
     specEn: ['Rated Voltage: 48V/72V Auto Module', 'Starting Torque: Peak 115 Nm', 'Assembly: Smart bolted alloy monocoque'],
     availabilityKo: '본사 조립 완료 수량 기준 즉시 발송',
     availabilityEn: 'Dispatches directly from ready stock',
-    imageUrl: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=800&q=80'
+    imageUrl: prodEvImg
   }
 ];
 

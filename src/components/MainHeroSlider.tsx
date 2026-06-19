@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, Play, Pause, ArrowLeft, ArrowRight, Cpu, Award, Compass } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-// Premium and high-speed Unsplash CDN image assets for perfect live site deployment
-const supercapacitorFactory = "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1600&q=80"; // High-tech electronics and supercapacitor line
-const evAssemblyLine = "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=1600&q=80"; // Eco-smart mobility assembly floor
-const generatorAssemblyLine = "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1600&q=80"; // Generator & ESS industrial automated line
-const samMaterialLab = "https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&w=1600&q=80"; // Chemistry precision nano material laboratory
+// Import original high-resolution local image files
+import supercapacitorFactory from '../assets/images/supercapacitor_factory_1781621879548.jpg';
+import evAssemblyLine from '../assets/images/ev_assembly_line_1781621897327.jpg';
+import generatorAssemblyLine from '../assets/images/generator_assembly_line_1781624380514.jpg';
+import samMaterialLab from '../assets/images/sam_material_lab_1781624876856.jpg';
 
 
 interface SlideItem {

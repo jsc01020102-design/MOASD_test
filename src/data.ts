@@ -1,6 +1,5 @@
 import { Service, Strength, CaseStudy } from './types';
-// Premium and high-speed Unsplash CDN image for HGE3D00 Hybrid Generator and ESS unit
-const hge3d00Generator = "https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?auto=format&fit=crop&w=1600&q=80"; // Advanced industrial control panel & cellular generator device
+import hge3d00Generator from './assets/images/hge3d00_generator_1781622900745.jpg';
 
 
 export const MOASD_SERVICES: Service[] = [
