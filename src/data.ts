@@ -160,31 +160,31 @@ export const MOASD_SERVICES: Service[] = [
   },
   {
     id: 'hybrid-generator',
-    title: 'HGE3D00 하이브리드 발전기 / ESS',
-    titleEn: 'HGE3D00 Hybrid Generator / ESS',
-    subtitle: '미국 CAS 등재 SAM 신소재 함침 무방전 하이브리드 소형 원천 발전 모듈',
-    subtitleEn: 'Discharge-Free Tactical Portable Power Unit',
-    description: '(주)두현인프라텍의 주력 상장 모델 HGE3D00은 하이브리드 커패시터 기술과 SAM 극판 흡착 공법이 집약된 차세대 모바일 하이브리드 발전·ESS 유닛입니다. 외부 가혹 기온 조건 및 전압 급락에도 안정적인 고전압 전력 인출 및 초고속 완전 충전을 보장합니다.',
-    descriptionEn: 'Doohyun Infratech\'s signature HGE3D00 unit integrates hybrid supercapacitor cells and American CAS-registered SAM coating to guarantee immediate electrical outlet extraction and ultra-rapid full charging across any challenging climate.',
+    title: 'HGE3D00 하이브리드 발전기 / ESS (무충전 자가발전기)',
+    titleEn: 'HGE3D00 Hybrid Generator / ESS (Chargeless Self-Generator)',
+    subtitle: '무충전 자가발전기 ESS장치 순환시스템 및 원천 발전 모듈',
+    subtitleEn: 'Chargeless Self-Generator ESS Device Closed-Loop Circulation System',
+    description: '(주)두현인프라텍의 자존심 HGE3D00은 배터리 생산 시 최초 적치된 전력량을 기반으로 20,000회 이상 무방전 충·방전 리사이클 원리를 적용 가동합니다. 별도의 수전 충전 없이 최장 10년 이상 전기를 자가 재생하는 혁신적인 환류 루프(1kW ESS → 3배 증폭 3kW → 부하 2kW 소비 & 리커버리 1kW 복구 환류)를 유지합니다.',
+    descriptionEn: 'Integrating Doohyun Infratech\'s signature HGE3D00 with an innovative closed-loop recycling principle, achieving over 20,000 charge-discharge cycles. Generates premium electricity for over 10+ years without any external charge feeds using a precision loop (1kW ESS Storage → 3x Amplifier 3kW → 2kW load consumption & 1kW recovery return).',
     benefits: [
-      '일반 리튬 인산철 대용량 팩 대비 약 5배 이상의 고속 에너지 전하 충전 수용',
-      '충돌 및 외부 관통 충격에도 기체 발화나 열폭주가 전혀 없는 궁극의 안전성',
-      '원터치 캐링 탑 핸들 및 이동 바퀴 하우징 설계로 필드 기동 실용성 극대화'
+      '무방전 자가 피드백: 10년 이상 별도 충전이 불필요한 궁극의 자원에너지 순환율',
+      'X3배 출력 증폭: ESS 1kW 소스를 3배 압축 유전 유도하여 최종 3kW 정격 전송 확보',
+      '전력 분할 기작: 사용 2kW(EV 전기차 충전 및 빌딩 인출) + 회수 1kW의 완벽 분할 환류'
     ],
     benefitsEn: [
-      'Accepts safe current feeding up to 5x faster than typical LFP grid packs',
-      'Absolute security with zero ignition, blast, or thermal runaway',
-      'Telescopic carry handle and industrial wheeled case for swift deployment'
+      'Discharge-Free Self-Feedback: Ultra-long 10+ year lifespan requiring zero external grid recharges',
+      '3x Power Amplification: Converts a stable 1kW source to 3kW load capacities via series resonant circuits',
+      'Intelligent Flow Splitting: Safely delivers 2kW to local consumers while reclaiming 1kW for generator support'
     ],
     features: [
-      '두현인프라텍(DOOHYUN INFRA TECH) 전면 시그니처 엠블럼 레이저 가공 보디',
-      '멀티 AC 단자 전력 소켓 및 다채널 지능형 컨트롤 인버터 탑재',
-      '영하 30도 혹한기 및 영상 60도 고온 가동 조건에도 균일 효율 계조 수렴'
+      '20,000회 이상 충·방전 리사이클 가동을 원천 보장하는 순환 오퍼레이팅 기획',
+      '물리적 충격이나 관통 전위 급락 시에도 불꽃 발화나 열폭주가 전혀 없는 안전성',
+      '영하 30도 혹한기 및 영상 60도 극한 고온 가동에서도 100% 자가발전 루프 유지'
     ],
     featuresEn: [
-      'Signature DOOHYUN INFRA TECH aluminum housing with laser-etched branding',
-      'Multi-port dynamic AC outlets paired with integrated smart inverter',
-      'Maintains consistent performance ratings between -30°C and +60°C'
+      'Engineered cycle profile supporting 20,000+ seamless recycling runs without degradation',
+      'Absolute physical stability with zero potential spark emissions or battery thermal runways',
+      'Operates seamlessly with steady output rates in environments from -30°C to +60°C'
     ],
     iconName: 'BatteryCharging',
     impactScore: 97,

@@ -45,7 +45,8 @@ import {
   ShieldCheck,
   HelpCircle,
   FileText,
-  Check
+  Check,
+  ArrowLeft
 } from 'lucide-react';
 
 export const CompanyLogoIcon = ({ className = "w-9 h-9" }: { className?: string }) => (
@@ -93,7 +94,7 @@ export const CompanyLogoIcon = ({ className = "w-9 h-9" }: { className?: string 
 
 export default function App() {
   const { language, setLanguage, t } = useLanguage();
-  const [currentTab, setCurrentTab] = useState<'home' | 'b2bmall' | 'admin'>('home');
+  const [currentTab, setCurrentTab] = useState<'home' | 'about' | 'solutions' | 'partners' | 'b2bmall' | 'admin'>('home');
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('moasd_b2b_products');
     return saved ? JSON.parse(saved) : PRODUCTS;
@@ -145,7 +146,9 @@ export default function App() {
     const updatedLogs = [newSms, ...existingLogs];
     localStorage.setItem('moasd_simulated_sms_logs', JSON.stringify(updatedLogs));
   };
-  const [activeTabCase, setActiveTabCase] = useState<string>('case-1');
+  const [activeTabCase, setActiveTabCase] = useState<string | null>(null);
+  const [activeSolutionIdx, setActiveSolutionIdx] = useState<number>(5);
+  const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [scrolled, setScrolled] = useState<boolean>(false);
   const [isCasVideoOpen, setIsCasVideoOpen] = useState<boolean>(false);
@@ -197,6 +200,12 @@ export default function App() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (activeSolutionIdx !== 4) {
+      setActiveSubTab(null);
+    }
+  }, [activeSolutionIdx]);
 
   const handleSignUpSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -564,6 +573,45 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const navigateToAbout = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    setCurrentTab('about');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateToSolutions = (index?: number, tab?: string, e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    setCurrentTab('solutions');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (index !== undefined) {
+      setActiveSolutionIdx(index);
+    }
+    if (tab !== undefined) {
+      setActiveSubTab(tab);
+    } else {
+      setActiveSubTab(null);
+    }
+    if (index !== undefined || tab !== undefined) {
+      setTimeout(() => {
+        if (index !== undefined) {
+          window.dispatchEvent(new CustomEvent('moasd-change-carousel-idx', { detail: { index } }));
+        }
+        if (tab !== undefined) {
+          window.dispatchEvent(new CustomEvent('moasd-change-sol-tab', { detail: { tab } }));
+        }
+      }, 100);
+    }
+  };
+
+  const navigateToPartners = (caseId?: string, e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    setCurrentTab('partners');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (caseId) {
+      setActiveTabCase(caseId);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-200 overflow-x-hidden">
       
@@ -605,9 +653,9 @@ export default function App() {
           {/* Desktop Nav Items */}
           <nav className="hidden lg:flex items-center gap-7 text-sm">
             <a 
-              href="#strengths-section" 
-              onClick={(e) => navigateToSection('strengths-section', e)}
-              className="text-slate-300 hover:text-cyan-400 font-medium transition-colors"
+              href="#about" 
+              onClick={(e) => navigateToAbout(e)}
+              className={`font-semibold transition-colors ${currentTab === 'about' ? 'text-cyan-400 border-b-2 border-cyan-400 pb-0.5 animate-pulse' : 'text-slate-300 hover:text-cyan-400 font-medium'}`}
             >
               {t('nav.about', 'About Us', '회사소개')}
             </a>
@@ -622,8 +670,11 @@ export default function App() {
               }}
             >
               <button 
-                className="flex items-center gap-1 text-slate-300 hover:text-cyan-400 font-medium transition-colors focus:outline-none cursor-pointer border-0 bg-transparent"
-                onClick={(e) => navigateToSection('services-section', e)}
+                className={`flex items-center gap-1 font-semibold transition-colors focus:outline-none cursor-pointer border-0 bg-transparent ${currentTab === 'solutions' ? 'text-cyan-400 border-b-2 border-cyan-400 pb-0.5' : 'text-slate-300 hover:text-cyan-400 font-medium'}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setSolutionsDropdownOpen(!solutionsDropdownOpen);
+                }}
               >
                 {t('nav.solutions', 'Solutions', '솔루션')}
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${solutionsDropdownOpen ? 'rotate-180 text-cyan-400' : ''}`} />
@@ -640,13 +691,8 @@ export default function App() {
                   >
                     <div className="flex flex-col gap-1 relative">
                       <button
-                        onClick={() => {
-                          setCurrentTab('home');
-                          setTimeout(() => {
-                            window.dispatchEvent(new CustomEvent('moasd-change-carousel-idx', { detail: { index: 5 } }));
-                            const el = document.getElementById('services-section');
-                            if (el) el.scrollIntoView({ behavior: 'smooth' });
-                          }, 100);
+                        onClick={(e) => {
+                          navigateToSolutions(5, undefined, e);
                           setSolutionsDropdownOpen(false);
                         }}
                         className="flex items-center gap-2.5 px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
@@ -656,13 +702,8 @@ export default function App() {
                       </button>
 
                       <button
-                        onClick={() => {
-                          setCurrentTab('home');
-                          setTimeout(() => {
-                            window.dispatchEvent(new CustomEvent('moasd-change-carousel-idx', { detail: { index: 0 } }));
-                            const el = document.getElementById('services-section');
-                            if (el) el.scrollIntoView({ behavior: 'smooth' });
-                          }, 100);
+                        onClick={(e) => {
+                          navigateToSolutions(0, undefined, e);
                           setSolutionsDropdownOpen(false);
                         }}
                         className="flex items-center gap-2.5 px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
@@ -678,13 +719,8 @@ export default function App() {
                         onMouseLeave={() => setSamSubmenuOpen(false)}
                       >
                         <button
-                          onClick={() => {
-                            setCurrentTab('home');
-                            setTimeout(() => {
-                              window.dispatchEvent(new CustomEvent('moasd-change-carousel-idx', { detail: { index: 4 } }));
-                              const el = document.getElementById('services-section');
-                              if (el) el.scrollIntoView({ behavior: 'smooth' });
-                            }, 100);
+                          onClick={(e) => {
+                            navigateToSolutions(4, undefined, e);
                             setSolutionsDropdownOpen(false);
                           }}
                           className="flex items-center justify-between px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
@@ -709,12 +745,7 @@ export default function App() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setCurrentTab('home');
-                                    setTimeout(() => {
-                                      window.dispatchEvent(new CustomEvent('moasd-change-sol-tab', { detail: { tab: 'sam-p' } }));
-                                      const el = document.getElementById('services-section');
-                                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                    }, 100);
+                                    navigateToSolutions(4, 'sam-p', e);
                                     setSolutionsDropdownOpen(false);
                                     setSamSubmenuOpen(false);
                                   }}
@@ -727,12 +758,7 @@ export default function App() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setCurrentTab('home');
-                                    setTimeout(() => {
-                                      window.dispatchEvent(new CustomEvent('moasd-change-sol-tab', { detail: { tab: 'ecotube' } }));
-                                      const el = document.getElementById('services-section');
-                                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                    }, 100);
+                                    navigateToSolutions(4, 'ecotube', e);
                                     setSolutionsDropdownOpen(false);
                                     setSamSubmenuOpen(false);
                                   }}
@@ -745,12 +771,7 @@ export default function App() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setCurrentTab('home');
-                                    setTimeout(() => {
-                                      window.dispatchEvent(new CustomEvent('moasd-change-sol-tab', { detail: { tab: 'terramuvics' } }));
-                                      const el = document.getElementById('services-section');
-                                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                    }, 100);
+                                    navigateToSolutions(4, 'terramuvics', e);
                                     setSolutionsDropdownOpen(false);
                                     setSamSubmenuOpen(false);
                                   }}
@@ -763,12 +784,7 @@ export default function App() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setCurrentTab('home');
-                                    setTimeout(() => {
-                                      window.dispatchEvent(new CustomEvent('moasd-change-sol-tab', { detail: { tab: 'heat-coating' } }));
-                                      const el = document.getElementById('services-section');
-                                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                    }, 100);
+                                    navigateToSolutions(4, 'heat-coating', e);
                                     setSolutionsDropdownOpen(false);
                                     setSamSubmenuOpen(false);
                                   }}
@@ -784,13 +800,8 @@ export default function App() {
                       </div>
 
                       <button
-                        onClick={() => {
-                          setCurrentTab('home');
-                          setTimeout(() => {
-                            window.dispatchEvent(new CustomEvent('moasd-change-carousel-idx', { detail: { index: 3 } }));
-                            const el = document.getElementById('services-section');
-                            if (el) el.scrollIntoView({ behavior: 'smooth' });
-                          }, 100);
+                        onClick={(e) => {
+                          navigateToSolutions(3, undefined, e);
                           setSolutionsDropdownOpen(false);
                         }}
                         className="flex items-center gap-2.5 px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
@@ -800,13 +811,8 @@ export default function App() {
                       </button>
 
                       <button
-                        onClick={() => {
-                          setCurrentTab('home');
-                          setTimeout(() => {
-                            window.dispatchEvent(new CustomEvent('moasd-change-carousel-idx', { detail: { index: 2 } }));
-                            const el = document.getElementById('services-section');
-                            if (el) el.scrollIntoView({ behavior: 'smooth' });
-                          }, 100);
+                        onClick={(e) => {
+                          navigateToSolutions(2, undefined, e);
                           setSolutionsDropdownOpen(false);
                         }}
                         className="flex items-center gap-2.5 px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
@@ -816,13 +822,8 @@ export default function App() {
                       </button>
 
                       <button
-                        onClick={() => {
-                          setCurrentTab('home');
-                          setTimeout(() => {
-                            window.dispatchEvent(new CustomEvent('moasd-change-carousel-idx', { detail: { index: 1 } }));
-                            const el = document.getElementById('services-section');
-                            if (el) el.scrollIntoView({ behavior: 'smooth' });
-                          }, 100);
+                        onClick={(e) => {
+                          navigateToSolutions(1, undefined, e);
                           setSolutionsDropdownOpen(false);
                         }}
                         className="flex items-center gap-2.5 px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
@@ -837,9 +838,9 @@ export default function App() {
             </div>
 
             <a 
-              href="#cases-section" 
-              onClick={(e) => navigateToSection('cases-section', e)}
-              className="text-slate-300 hover:text-cyan-400 font-medium transition-colors"
+              href="#partners" 
+              onClick={(e) => navigateToPartners(undefined, e)}
+              className={`font-semibold transition-colors ${currentTab === 'partners' ? 'text-cyan-400 border-b-2 border-cyan-400 pb-0.5 animate-pulse' : 'text-slate-300 hover:text-cyan-400'}`}
             >
               {t('nav.partners', 'Partners', '협력기업')}
             </a>
@@ -995,12 +996,12 @@ export default function App() {
             >
               <div className="px-6 py-6 flex flex-col gap-4 text-sm font-medium">
                 <a 
-                  href="#strengths-section" 
+                  href="#about" 
                   onClick={(e) => {
                     setMobileMenuOpen(false);
-                    navigateToSection('strengths-section', e);
+                    navigateToAbout(e);
                   }}
-                  className="py-2 text-slate-300 hover:text-cyan-400 block border-b border-white/5"
+                  className={`py-2 block border-b border-white/5 whitespace-nowrap ${currentTab === 'about' ? 'text-cyan-400 font-bold' : 'text-slate-300 hover:text-cyan-400'}`}
                 >
                   {t('nav.about', 'About Us', '회사소개')}
                 </a>
@@ -1010,7 +1011,7 @@ export default function App() {
                     onClick={() => setMobileSolutionsOpen(!mobileSolutionsOpen)}
                     className="w-full py-2 text-slate-300 hover:text-cyan-400 font-medium flex items-center justify-between text-left focus:outline-none cursor-pointer bg-transparent border-0"
                   >
-                    <span>{t('nav.solutions', 'Solutions', '솔루션')}</span>
+                    <span className={currentTab === 'solutions' ? 'text-cyan-400 font-bold' : ''}>{t('nav.solutions', 'Solutions', '솔루션')}</span>
                     <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${mobileSolutionsOpen ? 'rotate-180 text-cyan-400' : ''}`} />
                   </button>
                   
@@ -1026,12 +1027,7 @@ export default function App() {
                         {/* 발전기 */}
                         <button
                           onClick={() => {
-                            setCurrentTab('home');
-                            setTimeout(() => {
-                              window.dispatchEvent(new CustomEvent('moasd-change-carousel-idx', { detail: { index: 5 } }));
-                              const el = document.getElementById('services-section');
-                              if (el) el.scrollIntoView({ behavior: 'smooth' });
-                            }, 100);
+                            navigateToSolutions(5);
                             setMobileMenuOpen(false);
                           }}
                           className="text-left text-xs font-bold text-slate-400 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-2 bg-transparent border-0"
@@ -1043,12 +1039,7 @@ export default function App() {
                         {/* ESS */}
                         <button
                           onClick={() => {
-                            setCurrentTab('home');
-                            setTimeout(() => {
-                              window.dispatchEvent(new CustomEvent('moasd-change-carousel-idx', { detail: { index: 0 } }));
-                              const el = document.getElementById('services-section');
-                              if (el) el.scrollIntoView({ behavior: 'smooth' });
-                            }, 100);
+                            navigateToSolutions(0);
                             setMobileMenuOpen(false);
                           }}
                           className="text-left text-xs font-bold text-slate-400 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-2 bg-transparent border-0"
@@ -1081,12 +1072,7 @@ export default function App() {
                               >
                                 <button
                                   onClick={() => {
-                                    setCurrentTab('home');
-                                    setTimeout(() => {
-                                      window.dispatchEvent(new CustomEvent('moasd-change-sol-tab', { detail: { tab: 'sam-p' } }));
-                                      const el = document.getElementById('services-section');
-                                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                    }, 100);
+                                    navigateToSolutions(4, 'sam-p');
                                     setMobileMenuOpen(false);
                                   }}
                                   className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
@@ -1096,12 +1082,7 @@ export default function App() {
                                 </button>
                                 <button
                                   onClick={() => {
-                                    setCurrentTab('home');
-                                    setTimeout(() => {
-                                      window.dispatchEvent(new CustomEvent('moasd-change-sol-tab', { detail: { tab: 'ecotube' } }));
-                                      const el = document.getElementById('services-section');
-                                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                    }, 100);
+                                    navigateToSolutions(4, 'ecotube');
                                     setMobileMenuOpen(false);
                                   }}
                                   className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
@@ -1111,12 +1092,7 @@ export default function App() {
                                 </button>
                                 <button
                                   onClick={() => {
-                                    setCurrentTab('home');
-                                    setTimeout(() => {
-                                      window.dispatchEvent(new CustomEvent('moasd-change-sol-tab', { detail: { tab: 'terramuvics' } }));
-                                      const el = document.getElementById('services-section');
-                                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                    }, 100);
+                                    navigateToSolutions(4, 'terramuvics');
                                     setMobileMenuOpen(false);
                                   }}
                                   className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
@@ -1126,12 +1102,7 @@ export default function App() {
                                 </button>
                                 <button
                                   onClick={() => {
-                                    setCurrentTab('home');
-                                    setTimeout(() => {
-                                      window.dispatchEvent(new CustomEvent('moasd-change-sol-tab', { detail: { tab: 'heat-coating' } }));
-                                      const el = document.getElementById('services-section');
-                                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                    }, 100);
+                                    navigateToSolutions(4, 'heat-coating');
                                     setMobileMenuOpen(false);
                                   }}
                                   className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
@@ -1147,12 +1118,7 @@ export default function App() {
                         {/* 오토바이 */}
                         <button
                           onClick={() => {
-                            setCurrentTab('home');
-                            setTimeout(() => {
-                              window.dispatchEvent(new CustomEvent('moasd-change-carousel-idx', { detail: { index: 3 } }));
-                              const el = document.getElementById('services-section');
-                              if (el) el.scrollIntoView({ behavior: 'smooth' });
-                            }, 100);
+                            navigateToSolutions(3);
                             setMobileMenuOpen(false);
                           }}
                           className="text-left text-xs font-bold text-slate-400 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-2 bg-transparent border-0"
@@ -1164,12 +1130,7 @@ export default function App() {
                         {/* 자전거 */}
                         <button
                           onClick={() => {
-                            setCurrentTab('home');
-                            setTimeout(() => {
-                              window.dispatchEvent(new CustomEvent('moasd-change-carousel-idx', { detail: { index: 2 } }));
-                              const el = document.getElementById('services-section');
-                              if (el) el.scrollIntoView({ behavior: 'smooth' });
-                            }, 100);
+                            navigateToSolutions(2);
                             setMobileMenuOpen(false);
                           }}
                           className="text-left text-xs font-bold text-slate-400 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-2 bg-transparent border-0"
@@ -1181,12 +1142,7 @@ export default function App() {
                         {/* 태양열 */}
                         <button
                           onClick={() => {
-                            setCurrentTab('home');
-                            setTimeout(() => {
-                              window.dispatchEvent(new CustomEvent('moasd-change-carousel-idx', { detail: { index: 1 } }));
-                              const el = document.getElementById('services-section');
-                              if (el) el.scrollIntoView({ behavior: 'smooth' });
-                            }, 100);
+                            navigateToSolutions(1);
                             setMobileMenuOpen(false);
                           }}
                           className="text-left text-xs font-bold text-slate-400 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-2 bg-transparent border-0"
@@ -1199,12 +1155,12 @@ export default function App() {
                   </AnimatePresence>
                 </div>
                 <a 
-                  href="#cases-section" 
+                  href="#partners" 
                   onClick={(e) => {
                     setMobileMenuOpen(false);
-                    navigateToSection('cases-section', e);
+                    navigateToPartners(undefined, e);
                   }}
-                  className="py-2 text-slate-300 hover:text-cyan-400 block border-b border-white/5"
+                  className={`py-2 block border-b border-white/5 ${currentTab === 'partners' ? 'text-cyan-400 font-bold' : 'text-slate-300 hover:text-cyan-400'}`}
                 >
                   {t('nav.partners', 'Partners', '협력기업')}
                 </a>
@@ -1259,300 +1215,10 @@ export default function App() {
           {/* 2. Panoramic Enterprise Hero Screen Slider (KEPCO style) */}
           <MainHeroSlider />
 
-      {/* 3. Company Introduction Section (Bento Grid of 3D Glassmorphic Cards) */}
-      <section id="strengths-section" className="py-24 max-w-7xl mx-auto px-6 relative">
-        <div className="text-center mb-16 space-y-3">
-          <div className="inline-flex items-center gap-1 text-xs text-cyan-400 font-mono font-bold tracking-widest uppercase bg-cyan-950/40 border border-cyan-400/20 px-3 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /> COMPANY GENERAL OVERVIEW
-          </div>
-          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight animate-fade-in">
-            {t('about.title', 'About MOASD', '회사소개')}
-          </h2>
-          <p className="text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
-            {t(
-              'about.desc',
-              'MOASD Co., Ltd. integrates peerless US CAS-registered SAM new material intellectual properties, high-density hybrid supercapacitor fab lines, and eco-friendly electric mobility manufacturing infrastructures to demonstrate tomorrow\'s green energy patterns today.',
-              '(주)MOASD는 독보적인 미국 CAS 등재 SAM 신소재 지적재산권과 하이브리드 슈퍼커패시터 최고 팹 라인, 그리고 친환경 전기 모빌리티 제조 인프라를 통합하여 내일의 녹색 에너지를 오늘 실증 선포합니다.'
-            )}
-          </p>
-        </div>
-
-        {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-          {MOASD_STRENGTHS.map((strength) => {
-            // Pick a matching icon for the strength
-            const getIcon = (id: string) => {
-              if (id === 'cas-auth') return <Sparkles className="w-6 h-6 text-emerald-400" />;
-              if (id === 'supercapacitor-tech') return <Cpu className="w-6 h-6 text-cyan-400" />;
-              if (id === 'eco-ev-mass') return <Layers className="w-6 h-6 text-purple-400" />;
-              return <Compass className="w-6 h-6 text-indigo-400" />;
-            };
-
-            const getAccentColor = (id: string) => {
-              if (id === 'cas-auth') return 'emerald-500/10';
-              if (id === 'supercapacitor-tech') return 'cyan-500/10';
-              if (id === 'eco-ev-mass') return 'purple-500/10';
-              return 'indigo-500/10';
-            };
-
-            return (
-              <ThreeDCard 
-                key={strength.id}
-                maxRotation={10}
-                scaleOnHover={1.03}
-                glowColor={getAccentColor(strength.id)}
-                className={`h-full relative overflow-hidden group/card ${strength.id === 'cas-auth' ? 'border-emerald-500/20 hover:border-emerald-400/40' : ''}`}
-                onClick={() => {
-                  if (strength.id === 'cas-auth') {
-                    setIsCasVideoOpen(true);
-                  }
-                }}
-              >
-                <div className="flex flex-col h-full justify-between">
-                  <div className="space-y-4">
-                    {/* Icon + Badge */}
-                    <div className="flex items-center justify-between">
-                      <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-white/5 shadow-inner">
-                        {getIcon(strength.id)}
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        {strength.id === 'cas-auth' && (
-                          <span className="flex items-center gap-1 text-[9px] font-mono font-bold uppercase py-1 px-2.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-450/25 shadow-sm animate-pulse select-none">
-                            <Play className="w-2.5 h-2.5 fill-current" /> Play Video
-                          </span>
-                        )}
-                        <span className="text-[10px] font-mono font-extrabold tracking-widest text-cyan-400 bg-slate-900 px-3 py-1.5 rounded-full border border-white/5">
-                          {strength.badge}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Content text */}
-                    <div className="space-y-2">
-                      <h3 className="text-lg font-bold text-white tracking-tight">
-                        {language === 'en' && strength.titleEn ? strength.titleEn : strength.title}
-                      </h3>
-                      <p className="text-xs leading-relaxed text-slate-400">
-                        {language === 'en' && strength.descriptionEn ? strength.descriptionEn : strength.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Visual Grid Marker bottom right of each strength */}
-                  <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-500">
-                    {strength.id === 'cas-auth' ? (
-                      <span className="text-emerald-400 font-bold flex items-center gap-1.5 transition-colors">
-                        <Play className="w-3.5 h-3.5 fill-current" /> {language === 'en' ? 'WATCH INTRODUCTION VIDEO' : '미국 CAS 소개 영상 재생'}
-                      </span>
-                    ) : (
-                      <span>MOASD FOCUS CRITERIA</span>
-                    )}
-                    <ArrowUpRight className={`w-4 h-4 transition-transform ${strength.id === 'cas-auth' ? 'text-emerald-400 group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5' : 'text-slate-600'}`} />
-                  </div>
-                </div>
-              </ThreeDCard>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 4. Representative Services Slider Panel (3D Carousel) */}
-      <section id="services-section" className="py-24 bg-gradient-to-b from-transparent via-slate-950/40 to-transparent relative">
-        <div className="text-center mb-10 space-y-3">
-          <div className="inline-flex items-center gap-1 text-xs text-cyan-400 font-mono font-bold tracking-widest uppercase bg-cyan-950/40 border border-cyan-400/20 px-3 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /> KEY SYSTEM SOLUTIONS
-          </div>
-          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
-            {t('solutions.title', 'Our Solutions', '솔루션')}
-          </h2>
-          <p className="text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
-            {t(
-              'solutions.desc',
-              'Explore our 5 core technology and industrial portfolios, including renewable grids, hybrid supercapacitor cells, e-mobility packages, US CAS-registered SAM materials, and discharge-free HGE3D00 generators.',
-              '신재생에너지 스마트 그리드와 하이브리드 슈퍼커패시터 셀, 전기 모빌리티 구동체, 미국 CAS 공인 SAM 신소재의 유기적 공급 등 5가지 핵심 비즈니스 포트폴리오를 탐색해 보십시오.'
-            )}
-          </p>
-        </div>
-
-        {/* 3D Sliding Stage component */}
-        <ThreeDCarousel />
-
-        {/* SAM Specialist Solutions: Metal & Concrete Polishing sub-section */}
-        <SamPolishingSolutions />
-      </section>
-
       {/* 5. Business Domain & Interactive Production Line Tour (사업영역) */}
       <section id="simulator-section" className="py-24 max-w-7xl mx-auto px-6 relative space-y-12">
         <Factory3DWalkthrough />
         <ConsultingSimulator />
-      </section>
-
-      {/* 6. Success Client Case Studies (Translucent Glassmorphism Tab selection & Custom CSS chart statistics) */}
-      <section id="cases-section" className="py-24 max-w-7xl mx-auto px-6 relative">
-        {/* Section Header */}
-        <div className="text-center mb-16 space-y-3">
-          <div className="inline-flex items-center gap-1 text-xs text-cyan-400 font-mono font-bold tracking-widest uppercase bg-cyan-950/40 border border-cyan-400/20 px-3 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /> CLIENT LOG REFS
-          </div>
-          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
-            {t('partners.title', 'Partner Collaborations', '협력기업')}
-          </h2>
-          <p className="text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
-            {t(
-              'partners.desc',
-              'This is the verified record of real-time power metrics, stabilization factors, and operational cost savings achieved when these leading enterprises integrated MOASD solutions.',
-              '주요 기업들이 (주)MOASD의 정합 수렴 프로세스를 도입한 결과 축적된 실제 파워매트릭스 성능 향상 기록서입니다.'
-            )}
-          </p>
-        </div>
-
-        {/* Glass Tabs selections */}
-        <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 mb-10">
-          {MOASD_CASES.map((caseRef) => {
-            const tabName = language === 'en' && caseRef.clientEn 
-              ? caseRef.clientEn.replace('Co., Ltd.', '').trim() 
-              : caseRef.client.split(' ')[0];
-            return (
-              <button
-                key={caseRef.id}
-                onClick={() => setActiveTabCase(caseRef.id)}
-                id={`case-tab-${caseRef.id}`}
-                className={`px-5 py-3 rounded-xl text-xs font-bold tracking-tight border transition-all duration-300 flex items-center gap-2 cursor-pointer ${
-                  activeTabCase === caseRef.id
-                    ? 'bg-cyan-400 text-slate-950 border-cyan-400 shadow-lg shadow-cyan-400/10 scale-105'
-                    : 'bg-slate-900/60 text-slate-300 border-white/5 hover:border-white/15'
-                }`}
-              >
-                <Building2 className="w-4 h-4" />
-                <span>{tabName}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Selected Case Study detailed board */}
-        <AnimatePresence mode="wait">
-          {MOASD_CASES.filter(c => c.id === activeTabCase).map((activeStudy) => (
-            <motion.div
-              key={activeStudy.id}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.3 }}
-              className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch border border-white/5 bg-slate-900/15 backdrop-blur-xl p-6 md:p-10 rounded-3xl"
-            >
-              {/* Context Summary left (7 cols) */}
-              <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
-                <div className="space-y-5">
-                  <div className="flex flex-wrap items-center gap-2.5 text-xs text-cyan-400 font-mono">
-                    <span className="font-bold uppercase tracking-wider bg-slate-900 border border-white/5 px-3 py-1.5 rounded-md">
-                      {language === 'en' && activeStudy.industryEn ? activeStudy.industryEn : activeStudy.industry}
-                    </span>
-                    <span>• Verified Success Reference</span>
-                  </div>
-
-                  <h3 className="text-2xl font-extrabold text-white tracking-tight leading-tight">
-                    {language === 'en' && activeStudy.clientEn ? activeStudy.clientEn : activeStudy.client}
-                  </h3>
-
-                  <div className="space-y-4">
-                    {/* Issue Box (Red left line) */}
-                    <div className="pl-4 border-l-2 border-red-500/50 space-y-1">
-                      <span className="text-[10px] font-mono text-slate-500 font-bold tracking-wider">
-                        {language === 'en' ? 'INITIALLY IDENTIFIED FRICTION' : '기존 핵심 해결 장벽'}
-                      </span>
-                      <p className="text-xs text-slate-300 leading-relaxed font-medium">
-                        {language === 'en' && activeStudy.challengeEn ? activeStudy.challengeEn : activeStudy.challenge}
-                      </p>
-                    </div>
-
-                    {/* Solution Applied Box (Cyan left line) */}
-                    <div className="pl-4 border-l-2 border-cyan-400/50 space-y-1">
-                      <span className="text-[10px] font-mono text-cyan-400/80 font-bold tracking-wider">
-                        {language === 'en' ? 'MOASD APPLIED MEDICINE' : 'MOASD 적용 핵심 솔루션'}
-                      </span>
-                      <p className="text-xs text-cyan-300 leading-relaxed font-medium">
-                        {language === 'en' && activeStudy.solutionEn ? activeStudy.solutionEn : activeStudy.solution}
-                      </p>
-                    </div>
-
-                    {/* Result Summary Box (Green left line) */}
-                    <div className="pl-4 border-l-2 border-emerald-500/50 space-y-1">
-                      <span className="text-[10px] font-mono text-emerald-400 font-bold tracking-wider">
-                        {language === 'en' ? 'RESULT & IMPACT GAINED' : '실증 개선 성과 수치'}
-                      </span>
-                      <p className="text-xs text-emerald-300 font-semibold leading-relaxed">
-                        {language === 'en' && activeStudy.resultEn ? activeStudy.resultEn : activeStudy.result}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-6 border-t border-white/5 text-[11px] text-slate-500 font-mono">
-                  {t(
-                    'cases.disclaimer',
-                    '※ This information consists of actual operating logs adjusted under our standard information safety protocols.',
-                    '※ 해당 정보는 정보 관리 협약 하에 가공 수치 조정 처리된 실증 오퍼레이팅 기록서입니다.'
-                  )}
-                </div>
-              </div>
-
-              {/* Statistics Chart & KPI Displays Right (5 cols) */}
-              <div className="lg:col-span-5 flex flex-col justify-center gap-5 p-6 rounded-2xl bg-slate-900/60 border border-white/5">
-                <h4 className="text-xs font-mono font-bold tracking-wider text-slate-400 uppercase mb-2">
-                  {language === 'en' ? 'Key Optimization Metrics Active' : '핵심 연계 최적화 지표'}
-                </h4>
-
-                {activeStudy.metrics.map((metric, mIdx) => {
-                  const label = language === 'en' && metric.labelEn ? metric.labelEn : metric.label;
-                  let valueStr = metric.value;
-                  if (language === 'en') {
-                    valueStr = valueStr
-                      .replace('초', 's')
-                      .replace('연장', ' Ext')
-                      .replace('격감', ' Cut')
-                      .replace('절감', ' Saved');
-                  }
-
-                  return (
-                    <div key={mIdx} className="space-y-2 p-3.5 rounded-xl bg-slate-950/80 border border-white/5 flex flex-col">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-semibold text-slate-300">{label}</span>
-                        <div className="flex items-center gap-1.5">
-                          <span className={`text-base font-extrabold font-mono tracking-tight ${
-                            metric.trend === 'up' ? 'text-emerald-400' : 'text-cyan-400'
-                          }`}>
-                            {valueStr}
-                          </span>
-                          <div className={`w-1.5 h-1.5 rounded-full ${
-                            metric.trend === 'up' ? 'bg-emerald-400 animate-pulse' : 'bg-cyan-400'
-                          }`} />
-                        </div>
-                      </div>
-
-                      {/* Visual Bar chart utilizing HTML divs */}
-                      <div className="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden">
-                        <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: metric.trend === 'up' ? '88%' : '20%' }}
-                          transition={{ duration: 0.8, delay: mIdx * 0.15 }}
-                          className={`h-full rounded-full ${
-                            metric.trend === 'up' ? 'bg-gradient-to-r from-emerald-500/40 to-emerald-400' : 'bg-gradient-to-r from-cyan-500/40 to-cyan-400'
-                          }`}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* Simulated Growth Trend Arrow */}
-                <div className="mt-2 text-center text-[10px] font-mono text-slate-500 uppercase flex items-center justify-center gap-1 flex-row">
-                  <ThumbsUp className="w-3.5 h-3.5 text-cyan-400" /> SYSTEM LEVEL: ACCELERATED SUCCESS
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
       </section>
 
       {/* 7. Strategic Consultation Estimate & Proposal Build Engine */}
@@ -2022,6 +1688,397 @@ export default function App() {
         </div>
       </section>
     </>
+  ) : currentTab === 'about' ? (
+    <div className="pt-24 min-h-[85vh] bg-slate-950">
+      {/* 3. Company Introduction Section (Bento Grid of 3D Glassmorphic Cards) */}
+      <section id="strengths-section" className="py-12 max-w-7xl mx-auto px-6 relative">
+        <div className="text-center mb-16 space-y-3">
+          <div className="inline-flex items-center gap-1 text-xs text-cyan-400 font-mono font-bold tracking-widest uppercase bg-cyan-950/40 border border-cyan-400/20 px-3 py-1 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /> COMPANY GENERAL OVERVIEW
+          </div>
+          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight animate-fade-in">
+            {t('about.title', 'About MOASD', '회사소개')}
+          </h2>
+          <p className="text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
+            {t(
+              'about.desc',
+              'MOASD Co., Ltd. integrates peerless US CAS-registered SAM new material intellectual properties, high-density hybrid supercapacitor fab lines, and eco-friendly electric mobility manufacturing infrastructures to demonstrate tomorrow\'s green energy patterns today.',
+              '(주)MOASD는 독보적인 미국 CAS 등재 SAM 신소재 지적재산권과 하이브리드 슈퍼커패시터 최고 팹 라인, 그리고 친환경 전기 모빌리티 제조 인프라를 통합하여 내일의 녹색 에너지를 오늘 실증 선포합니다.'
+            )}
+          </p>
+        </div>
+
+        {/* Bento Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          {MOASD_STRENGTHS.map((strength) => {
+            // Pick a matching icon for the strength
+            const getIcon = (id: string) => {
+              if (id === 'cas-auth') return <Sparkles className="w-6 h-6 text-emerald-400" />;
+              if (id === 'supercapacitor-tech') return <Cpu className="w-6 h-6 text-cyan-400" />;
+              if (id === 'eco-ev-mass') return <Layers className="w-6 h-6 text-purple-400" />;
+              return <Compass className="w-6 h-6 text-indigo-400" />;
+            };
+
+            const getAccentColor = (id: string) => {
+              if (id === 'cas-auth') return 'emerald-500/10';
+              if (id === 'supercapacitor-tech') return 'cyan-500/10';
+              if (id === 'eco-ev-mass') return 'purple-500/10';
+              return 'indigo-500/10';
+            };
+
+            return (
+              <ThreeDCard 
+                key={strength.id}
+                maxRotation={10}
+                scaleOnHover={1.03}
+                glowColor={getAccentColor(strength.id)}
+                className={`h-full relative overflow-hidden group/card ${strength.id === 'cas-auth' ? 'border-emerald-500/20 hover:border-emerald-400/40' : ''}`}
+                onClick={() => {
+                  if (strength.id === 'cas-auth') {
+                    setIsCasVideoOpen(true);
+                  }
+                }}
+              >
+                <div className="flex flex-col h-full justify-between">
+                  <div className="space-y-4">
+                    {/* Icon + Badge */}
+                    <div className="flex items-center justify-between">
+                      <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-white/5 shadow-inner">
+                        {getIcon(strength.id)}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {strength.id === 'cas-auth' && (
+                          <span className="flex items-center gap-1 text-[9px] font-mono font-bold uppercase py-1 px-2.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-450/25 shadow-sm animate-pulse select-none">
+                            <Play className="w-2.5 h-2.5 fill-current" /> Play Video
+                          </span>
+                        )}
+                        <span className="text-[10px] font-mono font-extrabold tracking-widest text-cyan-400 bg-slate-900 px-3 py-1.5 rounded-full border border-white/5">
+                          {strength.badge}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Content text */}
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-bold text-white tracking-tight">
+                        {language === 'en' && strength.titleEn ? strength.titleEn : strength.title}
+                      </h3>
+                      <p className="text-xs leading-relaxed text-slate-400">
+                        {language === 'en' && strength.descriptionEn ? strength.descriptionEn : strength.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Visual Grid Marker bottom right of each strength */}
+                  <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-500">
+                    {strength.id === 'cas-auth' ? (
+                      <span className="text-emerald-400 font-bold flex items-center gap-1.5 transition-colors">
+                        <Play className="w-3.5 h-3.5 fill-current" /> {language === 'en' ? 'WATCH INTRODUCTION VIDEO' : '미국 CAS 소개 영상 재생'}
+                      </span>
+                    ) : (
+                      <span>MOASD FOCUS CRITERIA</span>
+                    )}
+                    <ArrowUpRight className={`w-4 h-4 transition-transform ${strength.id === 'cas-auth' ? 'text-emerald-400 group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5' : 'text-slate-600'}`} />
+                  </div>
+                </div>
+              </ThreeDCard>
+            );
+          })}
+        </div>
+      </section>
+    </div>
+  ) : currentTab === 'solutions' ? (
+    <div className="pt-24 min-h-[85vh] bg-slate-950">
+      {/* 4. Representative Services Slider Panel (3D Carousel) */}
+      <section id="services-section" className="py-12 bg-gradient-to-b from-transparent via-slate-950/40 to-transparent relative">
+        <div className="text-center mb-10 space-y-3">
+          <div className="inline-flex items-center gap-1 text-xs text-cyan-400 font-mono font-bold tracking-widest uppercase bg-cyan-950/40 border border-cyan-400/20 px-3 py-1 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /> KEY SYSTEM SOLUTIONS
+          </div>
+          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight animate-fade-in">
+            {t('solutions.title', 'Our Solutions', '솔루션')}
+          </h2>
+          <p className="text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
+            {t(
+              'solutions.desc',
+              'Explore our 5 core technology and industrial portfolios, including renewable grids, hybrid supercapacitor cells, e-mobility packages, US CAS-registered SAM materials, and discharge-free HGE3D00 generators.',
+              '신재생에너지 스마트 그리드와 하이브리드 슈퍼커패시터 셀, 전기 모빌리티 구동체, 미국 CAS 공인 SAM 신소재의 유기적 공급 등 5가지 핵심 비즈니스 포트폴리오를 탐색해 보십시오.'
+            )}
+          </p>
+        </div>
+
+        {/* Tabbed Solutions detailed content rendering */}
+        {activeSolutionIdx === 4 && activeSubTab ? (
+          <SamPolishingSolutions activeTab={activeSubTab} setActiveTab={setActiveSubTab} />
+        ) : (
+          <ThreeDCarousel activeIndex={activeSolutionIdx} setActiveIndex={setActiveSolutionIdx} />
+        )}
+      </section>
+    </div>
+  ) : currentTab === 'partners' ? (
+    <div className="pt-24 min-h-[85vh] bg-slate-950">
+      <section className="py-12 max-w-7xl mx-auto px-6 relative space-y-12">
+        {/* Header */}
+        <div className="text-center mb-12 space-y-3">
+          <div className="inline-flex items-center gap-1 text-xs text-cyan-400 font-mono font-bold tracking-widest uppercase bg-cyan-950/40 border border-cyan-400/20 px-3 py-1 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /> PARTNER RECORDS
+          </div>
+          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight animate-fade-in">
+            {t('partners.title', 'Partner Collaborations', '협력기업')}
+          </h2>
+          <p className="text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
+            {t(
+              'partners.desc',
+              'Explore the details of real-time power metrics, stabilization factors, and operational cost savings achieved by our partners.',
+              '주요 협력기업들이 (주)MOASD와 연계하여 축적해 온 실증 오퍼레이팅 성과 및 전력 혁신 지표 기록서입니다.'
+            )}
+          </p>
+        </div>
+
+        {/* Cooperating Enterprises Interactive Section Block */}
+        <div id="partners-section-root" className="w-full transition-all">
+          {activeTabCase === null ? (
+            /* 3 Grid Multi-Enterprise selector cards (Initially shown, extremely highly-polished UI) */
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {MOASD_CASES.map((caseRef, index) => {
+                const isCase1 = caseRef.id === 'case-1';
+                const isCase2 = caseRef.id === 'case-2';
+                
+                const cardBorder = isCase1 
+                  ? 'border-blue-500/25 hover:border-blue-400/50' 
+                  : isCase2 
+                    ? 'border-emerald-500/25 hover:border-emerald-400/50' 
+                    : 'border-cyan-500/25 hover:border-cyan-400/50';
+
+                const accentText = isCase1 
+                  ? 'text-blue-400' 
+                  : isCase2 
+                    ? 'text-emerald-400' 
+                    : 'text-cyan-400';
+
+                const bgGradient = isCase1 
+                  ? 'from-blue-950/20 via-slate-900/40 to-slate-950/90 hover:from-blue-950/30' 
+                  : isCase2 
+                    ? 'from-emerald-950/20 via-slate-900/40 to-slate-950/90 hover:from-emerald-950/30' 
+                    : 'from-cyan-950/20 via-slate-900/40 to-slate-950/90 hover:from-cyan-950/30';
+
+                return (
+                  <button
+                    key={caseRef.id}
+                    onClick={() => {
+                      setActiveTabCase(caseRef.id);
+                      const rootEl = document.getElementById('partners-section-root');
+                      if (rootEl) {
+                        rootEl.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    className={`group relative p-6 md:p-8 rounded-3xl border ${cardBorder} bg-gradient-to-b ${bgGradient} transition-all duration-300 shadow-xl backdrop-blur-md flex flex-col justify-between text-left h-full min-h-[290px] hover:-translate-y-1 cursor-pointer`}
+                  >
+                    <div className="space-y-4 w-full">
+                      <div className="flex justify-between items-start">
+                        <div className={`p-3 rounded-2xl bg-white/5 border border-white/5 ${accentText}`}>
+                          <Building2 className="w-5 h-5" />
+                        </div>
+                        <span className="text-[10px] font-mono font-bold text-slate-500">0{index + 1}</span>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <span className={`text-[9px] font-mono font-extrabold tracking-widest uppercase block ${accentText}`}>
+                          {language === 'en' && caseRef.industryEn ? caseRef.industryEn : caseRef.industry}
+                        </span>
+                        <h4 className="text-lg md:text-xl font-black text-white tracking-tight leading-snug group-hover:text-cyan-300 transition-colors">
+                          {language === 'en' && caseRef.clientEn ? caseRef.clientEn : caseRef.client}
+                        </h4>
+                        <p className="text-xs text-slate-400 leading-relaxed font-normal line-clamp-2 pt-1">
+                          {language === 'en' && caseRef.challengeEn ? caseRef.challengeEn : caseRef.challenge}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="pt-5 border-t border-white/5 mt-6 flex items-center justify-between w-full">
+                      <span className="text-[11px] font-bold text-slate-400 group-hover:text-white transition-colors">
+                        {language === 'en' ? 'Open Enterprise Log →' : '실증 기록서 열람 →'}
+                      </span>
+                      <div className={`p-1.5 rounded-lg bg-white/5 border border-white/5 group-hover:bg-cyan-400 group-hover:text-slate-950 transition-all ${accentText}`}>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            /* Active Selected Enterprise Mode: Renders top task bar + chosen enterprise details */
+            <div className="space-y-5 animate-fade-in">
+              
+              {/* Top Navigation Bar: Back to List + Segmented Switcher (Zero Scroll layout) */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3.5 rounded-2xl bg-slate-950/60 border border-white/10 backdrop-blur-md">
+                <button
+                  onClick={() => setActiveTabCase(null)}
+                  className="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl cursor-pointer transition-all self-start"
+                >
+                  <ArrowLeft className="w-4 h-4 text-cyan-400" />
+                  {language === 'en' ? 'Back to Enterprise List' : '← 협력기업 목록으로 돌아가기'}
+                </button>
+
+                {/* Switch easily on the fly */}
+                <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-900/80 border border-white/5 rounded-xl">
+                  {MOASD_CASES.map((caseRef) => {
+                    const isCurActive = caseRef.id === activeTabCase;
+                    return (
+                      <button
+                        key={caseRef.id}
+                        onClick={() => setActiveTabCase(caseRef.id)}
+                        className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                          isCurActive
+                            ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/15'
+                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        {language === 'en' && caseRef.clientEn ? caseRef.clientEn : caseRef.client}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Seamless, High-End Details board */}
+              <AnimatePresence mode="wait">
+                {MOASD_CASES.filter(c => c.id === activeTabCase).map((activeStudy) => (
+                  <motion.div
+                    key={activeStudy.id}
+                    initial={{ opacity: 0, scale: 0.99, y: 8 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.99, y: -8 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-6"
+                  >
+                    {/* The main details panel */}
+                    <div className="border border-white/5 bg-slate-900/15 backdrop-blur-xl p-6 md:p-8 rounded-3xl space-y-6">
+                      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-5">
+                        <div className="space-y-1.5 text-left">
+                          <div className="flex flex-wrap items-center gap-2.5 text-xs text-cyan-400 font-mono">
+                            <span className="font-bold uppercase tracking-wider bg-slate-900 border border-white/5 px-2.5 py-1 rounded-md">
+                              {language === 'en' && activeStudy.industryEn ? activeStudy.industryEn : activeStudy.industry}
+                            </span>
+                            <span>• {language === 'en' ? 'Verified Success Reference' : '정합 수렴 검증 완료'}</span>
+                          </div>
+                          <h3 className="text-2xl font-black text-white tracking-tight leading-tight">
+                            {language === 'en' && activeStudy.clientEn ? activeStudy.clientEn : activeStudy.client}
+                          </h3>
+                        </div>
+                        
+                        <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-xs text-emerald-400 font-bold font-mono">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          ACTIVE REPORT
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                        {/* Left: Challenge and Solution and Result info boxes */}
+                        <div className="space-y-5 text-left">
+                          {/* Issue Box (Red left line) */}
+                          <div className="pl-4 border-l-2 border-red-500/50 space-y-1">
+                            <span className="text-[10px] font-mono text-slate-500 font-bold tracking-wider block uppercase">
+                              {language === 'en' ? 'INITIALLY IDENTIFIED FRICTION' : '기존 핵심 해결 장벽'}
+                            </span>
+                            <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                              {language === 'en' && activeStudy.challengeEn ? activeStudy.challengeEn : activeStudy.challenge}
+                            </p>
+                          </div>
+
+                          {/* Solution Applied Box (Cyan left line) */}
+                          <div className="pl-4 border-l-2 border-cyan-400/50 space-y-1">
+                            <span className="text-[10px] font-mono text-cyan-400/80 font-bold tracking-wider block uppercase">
+                              {language === 'en' ? 'MOASD APPLIED MEDICINE' : 'MOASD 적용 핵심 솔루션'}
+                            </span>
+                            <p className="text-xs text-cyan-300 leading-relaxed font-medium">
+                              {language === 'en' && activeStudy.solutionEn ? activeStudy.solutionEn : activeStudy.solution}
+                            </p>
+                          </div>
+
+                          {/* Result Summary Box (Green left line) */}
+                          <div className="pl-4 border-l-2 border-emerald-500/50 space-y-1">
+                            <span className="text-[10px] font-mono text-emerald-400 font-bold tracking-wider block uppercase">
+                              {language === 'en' ? 'RESULT & IMPACT GAINED' : '실증 개선 성과 수치'}
+                            </span>
+                            <p className="text-xs text-emerald-300 font-semibold leading-relaxed">
+                              {language === 'en' && activeStudy.resultEn ? activeStudy.resultEn : activeStudy.result}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Right: Metrics graphics */}
+                        <div className="space-y-4 p-5 rounded-2xl bg-slate-900/60 border border-white/5 text-left">
+                          <h4 className="text-xs font-mono font-bold tracking-wider text-slate-400 uppercase mb-3">
+                            {language === 'en' ? 'Key Optimization Metrics Active' : '핵심 연계 최적화 지표'}
+                          </h4>
+
+                          {activeStudy.metrics.map((metric, mIdx) => {
+                            const label = language === 'en' && metric.labelEn ? metric.labelEn : metric.label;
+                            let valueStr = metric.value;
+                            if (language === 'en') {
+                              valueStr = valueStr
+                                .replace('초', 's')
+                                .replace('연장', ' Ext')
+                                .replace('격감', ' Cut')
+                                .replace('절감', ' Saved');
+                            }
+
+                            return (
+                              <div key={mIdx} className="space-y-2 p-3 rounded-lg bg-slate-950/80 border border-white/5 flex flex-col">
+                                <div className="flex justify-between items-center text-xs">
+                                  <span className="font-semibold text-slate-300">{label}</span>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className={`font-extrabold font-mono tracking-tight text-right ${
+                                      metric.trend === 'up' ? 'text-emerald-400' : 'text-cyan-400'
+                                    }`}>
+                                      {valueStr}
+                                    </span>
+                                    <div className={`w-1.5 h-1.5 rounded-full ${
+                                      metric.trend === 'up' ? 'bg-emerald-400 animate-pulse' : 'bg-cyan-400'
+                                    }`} />
+                                  </div>
+                                </div>
+
+                                {/* Visual Bar chart utilizing HTML divs */}
+                                <div className="w-full h-1 bg-slate-900 rounded-full overflow-hidden">
+                                  <motion.div 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: metric.trend === 'up' ? '88%' : '20%' }}
+                                    transition={{ duration: 0.8, delay: mIdx * 0.15 }}
+                                    className={`h-full rounded-full ${
+                                      metric.trend === 'up' ? 'bg-gradient-to-r from-emerald-500/40 to-emerald-400' : 'bg-gradient-to-r from-cyan-500/40 to-cyan-400'
+                                    }`}
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })}
+
+                          {/* Simulated Growth Trend Arrow */}
+                          <div className="mt-2 text-center text-[10px] font-mono text-slate-500 uppercase flex items-center justify-center gap-1 flex-row">
+                            <ThumbsUp className="w-3.5 h-3.5 text-cyan-400" /> SYSTEM LEVEL: ACCELERATED SUCCESS
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-5 border-t border-white/5 text-[10px] text-slate-500 font-mono text-left">
+                        {t(
+                          'cases.disclaimer',
+                          '※ This information consists of actual operating logs adjusted under our standard information safety protocols.',
+                          '※ 해당 정보는 정보 관리 협약 하에 가공 수치 조정 처리된 실증 오퍼레이팅 기록서입니다.'
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
   ) : currentTab === 'b2bmall' ? (
     <div className="pt-16 min-h-[85vh] bg-slate-950">
       <B2bMall 

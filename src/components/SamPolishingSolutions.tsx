@@ -21,9 +21,30 @@ import {
 
 export type SolutionTab = 'sam-p' | 'ecotube' | 'terramuvics' | 'heat-coating';
 
-export const SamPolishingSolutions: React.FC = () => {
+export interface SamPolishingSolutionsProps {
+  activeTab?: string | null;
+  setActiveTab?: (tab: SolutionTab) => void;
+}
+
+export const SamPolishingSolutions: React.FC<SamPolishingSolutionsProps> = ({
+  activeTab: controlledActiveTab,
+  setActiveTab: setControlledActiveTab
+}) => {
   const { language, t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<SolutionTab>('sam-p');
+  const [internalActiveTab, setInternalActiveTab] = useState<SolutionTab>('sam-p');
+  
+  const currentTabRaw = controlledActiveTab || internalActiveTab;
+  const activeTab: SolutionTab = (currentTabRaw === 'sam-p' || currentTabRaw === 'ecotube' || currentTabRaw === 'terramuvics' || currentTabRaw === 'heat-coating')
+    ? (currentTabRaw as SolutionTab)
+    : 'sam-p';
+
+  const setActiveTab = (tab: SolutionTab) => {
+    if (setControlledActiveTab) {
+      setControlledActiveTab(tab);
+    } else {
+      setInternalActiveTab(tab);
+    }
+  };
   
   const isEn = language === 'en';
 
@@ -44,7 +65,7 @@ export const SamPolishingSolutions: React.FC = () => {
     return () => {
       window.removeEventListener('moasd-change-sol-tab', handleTabChange);
     };
-  }, []);
+  }, [setControlledActiveTab]);
 
   // Compute stats and content based on dynamic tab selection
   const getSolutionData = (tab: SolutionTab) => {
@@ -218,80 +239,124 @@ export const SamPolishingSolutions: React.FC = () => {
   const data = getSolutionData(activeTab);
 
   return (
-    <div id="sam-solutions-showcase" className="w-full max-w-7xl mx-auto px-6 mt-16 space-y-10 scroll-mt-24">
-      {/* Sub-section Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 pb-6 border-b border-white/5">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-1.5 text-xs text-cyan-400 font-mono font-bold tracking-wider uppercase bg-cyan-950/40 border border-cyan-400/20 px-3 py-1 rounded-full">
-            <span className="flex h-1.5 w-1.5 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-400"></span>
-            </span>
-            MOASD APPLIED SPECIALIST SOLUTIONS
+    <div id="sam-solutions-showcase" className="w-full max-w-7xl mx-auto px-6 mt-12 space-y-8 scroll-mt-24">
+      {/* 🌟 Unified Sub-section Header & CAS Certification Matric Card (Single Page Perfect Align) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch pb-6 border-b border-white/10">
+        
+        {/* Left Side: Title, Subtitle & Fast Tab Switcher (Span 8) */}
+        <div className="lg:col-span-8 flex flex-col justify-between space-y-5">
+          <div className="space-y-3.5">
+            <div className="inline-flex items-center gap-1.5 text-xs text-cyan-400 font-mono font-bold tracking-wider uppercase bg-cyan-950/45 border border-cyan-400/25 px-3 py-1 rounded-full">
+              <span className="flex h-1.5 w-1.5 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-400"></span>
+              </span>
+              USA CAS PATENT REGISTERED IP
+            </div>
+            
+            <h3 className="text-3xl md:text-4xl xl:text-5xl font-black tracking-tight leading-tight bg-gradient-to-r from-white via-cyan-100 to-cyan-400 bg-clip-text text-transparent">
+              {t(
+                'sam.polishing.title',
+                'US CAS-Registered SAM Material & Engineered Solutions',
+                '미국 CAS 공식 등재 SAM 신물질 및 핵심 특화 솔루션'
+              )}
+            </h3>
+            
+            <p className="text-xs md:text-sm text-slate-300 max-w-3xl leading-relaxed font-normal">
+              {t(
+                'sam.polishing.subtitle',
+                'Explore our 4 key applied technology portfolios leveraging exclusive US CAS-registered SAM materials and advanced engineering constructs.',
+                '미국 화학회 CAS 에 독점 공인 등재된 SAM 원천 신소재 결사 공법과 차세대 고분자 기질 및 배료 설계를 이식한 MOASD의 4대 핵심 특화 포트폴리오를 점검하십시오.'
+              )}
+            </p>
           </div>
-          <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-            {t(
-              'sam.polishing.title',
-              'MOASD Engineered Solutions',
-              'MOASD 핵심 특화 솔루션'
-            )}
-          </h3>
-          <p className="text-sm text-slate-400 max-w-2xl leading-relaxed">
-            {t(
-              'sam.polishing.subtitle',
-              'Explore our 4 key applied technology portfolios leveraging exclusive US CAS-registered SAM materials and advanced engineering constructs.',
-              '미국 화학회 CAS 에 등재된 SAM 독점 원천 신소재 결사 모델과 차세대 고분자 기질 및 배료 설계를 이식한 MOASD의 4대 핵심 솔루션을 확인하십시오.'
-            )}
-          </p>
+
+          {/* Tab Switcher buttons - Flowing nicely below description */}
+          <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-950/80 border border-white/10 rounded-xl xl:max-w-max">
+            <button
+              onClick={() => setActiveTab('sam-p')}
+              className={`flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'sam-p'
+                  ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/15'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Gem className="w-3.5 h-3.5" />
+              {t('sam.nav.p', 'SAM Metal & Concrete Polishing', 'SAM 메탈 및 콘크리트 폴리싱')}
+            </button>
+            <button
+              onClick={() => setActiveTab('ecotube')}
+              className={`flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'ecotube'
+                  ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/15'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Boxes className="w-3.5 h-3.5" />
+              {t('sam.nav.e', 'ECOTUBE (에코튜브)', 'ECOTUBE (에코튜브)')}
+            </button>
+            <button
+              onClick={() => setActiveTab('terramuvics')}
+              className={`flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'terramuvics'
+                  ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/15'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              {t('sam.nav.t', 'Terramuvics (테라뮤빅스)', 'Terramuvics (테라뮤빅스)')}
+            </button>
+            <button
+              onClick={() => setActiveTab('heat-coating')}
+              className={`flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'heat-coating'
+                  ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/15'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Flame className="w-3.5 h-3.5" />
+              {t('sam.nav.h', 'Conductive Heating Coating', '발열 코팅')}
+            </button>
+          </div>
         </div>
 
-        {/* Tab Switcher buttons - Dynamic grid representation */}
-        <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-950/60 border border-white/5 rounded-xl max-w-full">
-          <button
-            onClick={() => setActiveTab('sam-p')}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'sam-p'
-                ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/10'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Gem className="w-3.5 h-3.5" />
-            {t('sam.nav.p', 'SAM Metal & Concrete Polishing', 'SAM 메탈 및 콘크리트 폴리싱')}
-          </button>
-          <button
-            onClick={() => setActiveTab('ecotube')}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'ecotube'
-                ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/10'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Boxes className="w-3.5 h-3.5" />
-            {t('sam.nav.e', 'ECOTUBE (에코튜브)', 'ECOTUBE (에코튜브)')}
-          </button>
-          <button
-            onClick={() => setActiveTab('terramuvics')}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'terramuvics'
-                ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/10'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            {t('sam.nav.t', 'Terramuvics (테라뮤빅스)', 'Terramuvics (테라뮤빅스)')}
-          </button>
-          <button
-            onClick={() => setActiveTab('heat-coating')}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'heat-coating'
-                ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/10'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Flame className="w-3.5 h-3.5" />
-            {t('sam.nav.h', 'Conductive Heating Coating', '발열 코팅')}
-          </button>
+        {/* Right Side: Sleek High-End American CAS Authentication Stamp Card (Span 4) */}
+        <div className="lg:col-span-4 flex items-stretch">
+          <div className="w-full relative overflow-hidden rounded-2xl border border-cyan-400/30 bg-gradient-to-br from-slate-950 via-cyan-950/20 to-slate-900/95 p-5 shadow-xl shadow-cyan-400/5 flex flex-col justify-between">
+            <div className="absolute top-0 right-0 -translate-y-6 translate-x-6 w-32 h-32 bg-cyan-400/5 rounded-full blur-2xl pointer-events-none" />
+            
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-mono font-bold tracking-widest text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded">
+                  US PATENTED
+                </span>
+                <span className="text-[9px] font-mono font-bold tracking-widest text-cyan-300 bg-cyan-950/60 border border-cyan-400/30 px-2.5 py-0.5 rounded">
+                  CAS REGISTERED
+                </span>
+              </div>
+              
+              <h4 className="text-sm font-black text-white tracking-tight flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
+                {isEn ? "US CAS Original Certification" : "미국 화학회 CAS 정식 등재 검증"}
+              </h4>
+              
+              <p className="text-[11px] text-slate-300 leading-relaxed font-normal">
+                {isEn
+                  ? "Self-Assembled Monolayer (SAM) is officially logged in the CAS registry database, under the American Chemical Society, ensuring peerless interfacial electron transport & micro-stabilization."
+                  : "글로벌 권위 최고인 미국 화학회 고유 데이터베이스(CAS)에 정식 등재된 SAM 원천 전집전 배합 기술입니다. 다이아몬드 지포트 마모 및 극판 탈락을 분자 단에서 안전 제어합니다."
+                }
+              </p>
+            </div>
+            
+            <div className="h-[1px] w-full bg-white/5 my-2.5" />
+            
+            <div className="flex items-center justify-between text-[10px] font-mono">
+              <span className="font-extrabold text-cyan-400">AMER. CHEM. SOC.</span>
+              <span className="text-slate-400 font-bold">CLASS-A UNIQUE IP</span>
+            </div>
+          </div>
         </div>
+
       </div>
 
       {/* Main Interactive Showcase Grid */}
