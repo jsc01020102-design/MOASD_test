@@ -631,7 +631,7 @@ export const Admin: React.FC<AdminProps> = ({
                     <p className="text-[10px] text-slate-400 leading-normal">
                       {language === 'en' 
                         ? 'For strict internal privacy and security compliance, the Master Admin personal details are fully masked. Please enter the authorized Master passkey below to gain system-wide bypass rights.' 
-                        : '외부 비지니스 파트너망 환경에서의 기밀 및 개인정보 노출 방지를 위해 마스터 관리자의 상세 인적 식별 사항은 완벽히 차단 보호되고 있습니다. 인가받으신 0815)*!% 마스터 번호를 투입해 주십시오.'}
+                        : '외부 비지니스 파트너망 환경에서의 기밀 및 개인정보 노출 방지를 위해 마스터 관리자의 상세 인적 식별 사항은 완벽히 차단 보호되고 있습니다. 인가받으신 마스터 번호를 투입해 주십시오.'}
                     </p>
                   </div>
 
