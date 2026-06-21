@@ -1,0 +1,251 @@
+<svg width="1200" height="380" viewBox="0 0 1200 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background studio light gradient -->
+    <radialGradient id="studio-bg" cx="50%" cy="40%" r="60%" fx="50%" fy="30%">
+      <stop offset="0%" stop-color="#f8fafc" />
+      <stop offset="60%" stop-color="#f1f5f9" />
+      <stop offset="100%" stop-color="#cbd5e1" />
+    </radialGradient>
+    
+    <!-- Sophisticated metallic steel gradients -->
+    <linearGradient id="polished-steel" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="15%" stop-color="#cbd5e1" />
+      <stop offset="45%" stop-color="#94a3b8" />
+      <stop offset="50%" stop-color="#64748b" />
+      <stop offset="55%" stop-color="#475569" />
+      <stop offset="85%" stop-color="#94a3b8" />
+      <stop offset="100%" stop-color="#cbd5e1" />
+    </linearGradient>
+
+    <linearGradient id="machinery-gray" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#94a3b8" />
+      <stop offset="50%" stop-color="#475569" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+
+    <linearGradient id="panel-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="50%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+
+    <linearGradient id="horizontal-metal" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#cbd5e1" />
+      <stop offset="25%" stop-color="#f8fafc" />
+      <stop offset="50%" stop-color="#cbd5e1" />
+      <stop offset="75%" stop-color="#64748b" />
+      <stop offset="100%" stop-color="#475569" />
+    </linearGradient>
+
+    <!-- Glass gloss highlight -->
+    <linearGradient id="gloss" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4" />
+      <stop offset="30%" stop-color="#ffffff" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+    
+    <!-- Floor shadows -->
+    <radialGradient id="shadow-radial" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- 1. Background Canvas -->
+  <rect width="1200" height="380" rx="16" fill="url(#studio-bg)" />
+  
+  <!-- Subtle floor line/horizon -->
+  <line x1="20" y1="305" x2="1180" y2="305" stroke="#94a3b8" stroke-width="1.5" />
+  
+  <!-- 2. Ambient Floor Shadows directly under the main modules -->
+  <!-- Truck shadow -->
+  <ellipse cx="140" cy="306" rx="120" ry="8" fill="url(#shadow-radial)" />
+  <!-- Main cylinder deck shadow -->
+  <ellipse cx="370" cy="306" rx="190" ry="10" fill="url(#shadow-radial)" />
+  <!-- Center tower shadow -->
+  <ellipse cx="610" cy="306" rx="80" ry="8" fill="url(#shadow-radial)" />
+  <!-- Dryer shadow -->
+  <ellipse cx="780" cy="306" rx="90" ry="8" fill="url(#shadow-radial)" />
+  <!-- Product Silo shadow -->
+  <ellipse cx="945" cy="306" rx="70" ry="8" fill="url(#shadow-radial)" />
+  <!-- Generator shadow -->
+  <ellipse cx="1090" cy="306" rx="60" ry="8" fill="url(#shadow-radial)" />
+
+  <!-- 3. DETAILED PIPELINE NETWORK (Placed behind units) -->
+  <g id="plumbing-background" stroke="#64748b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Boiler main loop to reactor -->
+    <path d="M 645 130 L 645 70 L 320 70 L 320 150" fill="none" />
+    <!-- Dryer intake pipe from cyclone -->
+    <path d="M 520 150 L 520 100 L 730 100 L 730 150" fill="none" />
+    <!-- Dryer exhaust line over the top -->
+    <path d="M 830 150 L 830 80 L 920 80 L 920 150" fill="none" />
+    <!-- Central overhead high-pressure steam arch -->
+    <path d="M 570 120 L 570 50 L 870 50 L 870 150" fill="none" stroke="#475569" stroke-width="5" />
+    <!-- Generator utility conduits to drying engine -->
+    <path d="M 1060 220 L 830 220" fill="none" stroke="#cbd5e1" stroke-width="3" />
+  </g>
+
+  <!-- 4. TRUCK CABIN & BED (Leftmost - Matte Charcoal Gray) -->
+  <g id="delivery-truck">
+    <!-- Cabin Base -->
+    <path d="M 40 286 L 40 240 Q 40 215 65 210 L 95 210 Q 115 210 125 225 L 140 250 L 140 286 Z" fill="#334155" />
+    <!-- Windshield -->
+    <path d="M 98 215 L 118 215 L 132 245 L 112 245 Z" fill="#94a3b8" opacity="0.8" />
+    <!-- Side windows -->
+    <path d="M 65 215 L 94 215 L 94 245 L 60 245 Q 60 230 65 215 Z" fill="#1e293b" />
+    <!-- Front bumper -->
+    <rect x="30" y="275" width="22" height="11" rx="4" fill="#0f172a" />
+    <!-- Headlight -->
+    <polygon points="35,260 45,260 42,268 35,268" fill="#fde047" />
+    <!-- Truck Wheels -->
+    <circle cx="70" cy="286" r="16" fill="#1e293b" stroke="#64748b" stroke-width="3" />
+    <circle cx="70" cy="286" r="6" fill="#cbd5e1" />
+    <circle cx="120" cy="286" r="16" fill="#1e293b" stroke="#64748b" stroke-width="3" />
+    <circle cx="120" cy="286" r="6" fill="#cbd5e1" />
+  </g>
+
+  <!-- 5. MAIN REACTOR TRAILER BED & CYLINDRICAL VESSEL (Model 01) -->
+  <g id="main-reactor">
+    <!-- Trailer Connection Frame -->
+    <rect x="140" y="268" width="240" height="8" fill="#475569" />
+    <line x1="360" y1="276" x2="360" y2="295" stroke="#475569" stroke-width="6" />
+    
+    <!-- Triple Double Axle Rear Trailer Wheels -->
+    <circle cx="310" cy="286" r="16" fill="#1e293b" stroke="#64748b" stroke-width="3" />
+    <circle cx="310" cy="286" r="6" fill="#cbd5e1" />
+    <circle cx="342" cy="286" r="16" fill="#1e293b" stroke="#64748b" stroke-width="3" />
+    <circle cx="342" cy="286" r="6" fill="#cbd5e1" />
+
+    <!-- Reactor Bed Columns -->
+    <rect x="175" y="220" width="12" height="48" fill="url(#machinery-gray)" />
+    <rect x="250" y="220" width="12" height="48" fill="url(#machinery-gray)" />
+    <rect x="325" y="220" width="12" height="48" fill="url(#machinery-gray)" />
+
+    <!-- Massive Horizontal Reactor Cylinder -->
+    <rect x="150" y="130" width="225" height="100" rx="50" fill="url(#polished-steel)" stroke="#475569" stroke-width="2" />
+    <!-- Spec plate directly on the cylinder -->
+    <rect x="230" y="165" width="45" height="15" fill="#f59e0b" rx="2" />
+    <rect x="234" y="171" width="37" height="3" fill="#1e293b" />
+    <!-- Structural hoops around cylinder -->
+    <rect x="195" y="128" width="6" height="104" fill="#475569" opacity="0.6" />
+    <rect x="290" y="128" width="6" height="104" fill="#475569" opacity="0.6" />
+    
+    <!-- Top dome vent -->
+    <path d="M 230 130 C 230 115, 260 115, 260 130 Z" fill="url(#polished-steel)" stroke="#475569" stroke-width="1.5" />
+    <line x1="245" y1="115" x2="245" y2="100" stroke="#64748b" stroke-width="3" />
+  </g>
+
+  <!-- 6. HIGH CONICAL SILO SEPARATOR (With Blue Seal Decal) -->
+  <g id="cyclone-separator">
+    <!-- Supporting high portal legs -->
+    <line x1="420" y1="210" x2="420" y2="300" stroke="#334155" stroke-width="3" />
+    <line x1="470" y1="210" x2="470" y2="300" stroke="#334155" stroke-width="3" />
+    <line x1="445" y1="230" x2="445" y2="300" stroke="#475569" stroke-width="2" />
+
+    <!-- Conical Bottom -->
+    <polygon points="410,190 480,190 445,248" fill="url(#polished-steel)" stroke="#475569" stroke-width="1.5" />
+    <!-- Silo Upper Cylinder -->
+    <rect x="410" y="105" width="70" height="85" fill="url(#polished-steel)" stroke="#475569" stroke-width="2" />
+    <!-- Conical cap & inlet -->
+    <polygon points="405,105 485,105 445,85" fill="url(#polished-steel)" stroke="#475569" stroke-width="1.5" />
+    <!-- Top cyclonic valve -->
+    <rect x="435" y="72" width="20" height="13" rx="2" fill="url(#machinery-gray)" />
+
+    <!-- Prominent Blue Circular Emblem (Official Seal Ring from Photo) -->
+    <circle cx="445" cy="140" r="14" fill="#1e40af" stroke="#ffffff" stroke-width="1.5" />
+    <circle cx="445" cy="140" r="10" fill="none" stroke="#60a5fa" stroke-width="1" stroke-dasharray="2 1" />
+    <path d="M 440 140 L 450 140" stroke="#ffffff" stroke-width="2" />
+    <path d="M 445 135 L 445 145" stroke="#ffffff" stroke-width="2" />
+  </g>
+
+  <!-- 7. INDUSTRIAL CLOSED HEATER & STEAM BOILER TOWER -->
+  <g id="steam-boiler">
+    <!-- Foundation Bed Block -->
+    <rect x="520" y="270" width="105" height="34" fill="url(#panel-dark)" rx="3" />
+    <!-- Boiler main furnace tower body -->
+    <rect x="525" y="110" width="95" height="160" rx="6" fill="url(#panel-dark)" stroke="#475569" stroke-width="2" />
+    
+    <!-- Intricate control interface details, gauges, dials -->
+    <rect x="540" y="130" width="65" height="40" rx="4" fill="#020617" stroke="#334155" stroke-width="1.5" />
+    <circle cx="555" cy="150" r="8" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5" />
+    <line x1="555" y1="150" x2="560" y2="145" stroke="#f59e0b" stroke-width="2" /> <!-- Gauge pointer -->
+    <rect x="575" y="140" width="20" height="8" fill="#22c55e" rx="1" />
+    <rect x="575" y="152" width="20" height="8" fill="#ef4444" rx="1" />
+
+    <!-- Maintenance crawl doors -->
+    <rect x="540" y="190" width="30" height="55" rx="3" fill="#1e293b" stroke="#475569" />
+    <rect x="580" y="190" width="30" height="55" rx="3" fill="#1e293b" stroke="#475569" />
+    <circle cx="562" cy="218" r="2.5" fill="#94a3b8" />
+    <circle cx="588" cy="218" r="2.5" fill="#94a3b8" />
+
+    <!-- Tall Exhaust Stack Chimney with Red Warning Cap -->
+    <rect x="555" y="40" width="16" height="70" fill="url(#machinery-gray)" />
+    <rect x="551" y="40" width="24" height="8" fill="#dc2626" />
+  </g>
+
+  <!-- 8. ROTARY DRUM DRYER SYSTEM (Continuous Kiln) -->
+  <g id="rotary-dryer">
+    <!-- Left & Right Concrete/Steel support pillars with roller guides -->
+    <rect x="675" y="230" width="16" height="70" fill="url(#machinery-gray)" rx="2" />
+    <rect x="795" y="230" width="16" height="70" fill="url(#machinery-gray)" rx="2" />
+    
+    <!-- Small guide rollers -->
+    <circle cx="683" cy="230" r="6" fill="#1e293b" stroke="#cbd5e1" stroke-width="1" />
+    <circle cx="803" cy="230" r="6" fill="#1e293b" stroke="#cbd5e1" stroke-width="1" />
+    
+    <!-- Horizontal Rotary Drying Cylinder -->
+    <rect x="655" y="135" width="175" height="95" rx="12" fill="url(#polished-steel)" stroke="#475569" stroke-width="2" />
+    
+    <!-- Gear rings wrapping the cylinder -->
+    <rect x="690" y="131" width="12" height="103" rx="2" fill="url(#horizontal-metal)" stroke="#475569" stroke-width="1" />
+    <rect x="782" y="131" width="12" height="103" rx="2" fill="url(#horizontal-metal)" stroke="#475569" stroke-width="1" />
+
+    <!-- Rotary central axle axis cap -->
+    <circle cx="742" cy="182" r="10" fill="url(#machinery-gray)" stroke="#475569" />
+    <circle cx="742" cy="182" r="4" fill="#cbd5e1" />
+  </g>
+
+  <!-- 9. LARGE FINAL PRODUCT STORAGE SILO -->
+  <g id="product-silo">
+    <!-- Elevated column layout -->
+    <line x1="885" y1="210" x2="885" y2="300" stroke="#334155" stroke-width="3" />
+    <line x1="945" y1="210" x2="945" y2="300" stroke="#334155" stroke-width="3" />
+    
+    <!-- Conical discharge chute -->
+    <polygon points="873,195 957,195 915,255" fill="url(#polished-steel)" stroke="#475569" stroke-width="1.5" />
+    <!-- Silo main tank -->
+    <rect x="873" y="100" width="84" height="95" fill="url(#polished-steel)" stroke="#475569" stroke-width="2" />
+    <!-- Domed top cover -->
+    <path d="M 873 100 C 873 75, 957 75, 957 100 Z" fill="url(#polished-steel)" stroke="#475569" stroke-width="1.5" />
+  </g>
+
+  <!-- 10. HYBRID OFFLINE GENERATOR & CONTROL ENCLOSURE (Model HGE3D00 - Far Right) -->
+  <g id="generator-cabinet">
+    <!-- Main thick block enclosure representing the exact shape in user's image -->
+    <rect x="1010" y="155" width="140" height="142" rx="6" fill="url(#panel-dark)" stroke="#1e293b" stroke-width="2.5" />
+    
+    <!-- Industrial Ventilation Grilles -->
+    <rect x="1025" y="175" width="55" height="10" rx="1" fill="#020617" />
+    <rect x="1025" y="193" width="55" height="10" rx="1" fill="#020617" />
+    <rect x="1025" y="211" width="55" height="10" rx="1" fill="#020617" />
+    <rect x="1025" y="229" width="55" height="10" rx="1" fill="#020617" />
+    <rect x="1025" y="247" width="55" height="10" rx="1" fill="#020617" />
+
+    <!-- Diagonal warning stripes on side panel matching photo exactly -->
+    <g id="warning-stripes" opacity="0.95">
+      <rect x="1095" y="175" width="40" height="42" fill="#1e293b" stroke="#334155" stroke-width="1" />
+      <path d="M1095,185 L1105,175 M1095,195 L1115,175 M1095,205 L1125,175 M1095,215 L1135,175 M1105,215 L1135,185 M1115,215 L1135,195 M1125,215 L1135,205" stroke="#fbbf24" stroke-width="3" />
+    </g>
+
+    <!-- Glowing green active operation LED panel -->
+    <circle cx="1115" cy="245" r="5" fill="#22c55e" />
+    <circle cx="1115" cy="245" r="8" fill="none" stroke="#22c55e" stroke-width="1" stroke-opacity="0.5" />
+    
+    <!-- Distinct red emergency stop push-button -->
+    <circle cx="1115" cy="265" r="4" fill="#ef4444" stroke="#ffffff" stroke-width="1" />
+    
+    <!-- Base mounting brackets -->
+    <rect x="1005" y="297" width="150" height="5" fill="#020617" />
+  </g>
+</svg>
