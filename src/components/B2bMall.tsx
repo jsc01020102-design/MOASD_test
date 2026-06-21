@@ -602,7 +602,7 @@ export const B2bMall: React.FC<B2bMallProps> = ({
                   </p>
 
                   <div className="p-3 bg-slate-950 rounded-xl max-w-sm mx-auto border border-white/5 text-[11px] text-slate-450 leading-relaxed space-y-1 text-left">
-                    <p className="font-bold text-slate-300">✓ 발주 사양 요약:</p>
+                    <p className="font-bold text-slate-300">✓ {t('Order Specification Summary:', '발주 사양 요약:')}</p>
                     <p>• {t('Item:', '발주 품목:')} {t(selectedProduct.nameEn, selectedProduct.nameKo)}</p>
                     <p>• {t('Qty & Total:', '수량 및 대가:')} {purchaseQuantity}{t(' units / Total ', '개 / 총 합계 ')} <span className="text-cyan-400 font-bold">{formatCurrency(Math.round(getProductPrice(selectedProduct) * purchaseQuantity * 1.1))}</span></p>
                     <p>• {t('Account Logged:', '기안 담당사:')} {registeredUser?.company} ({registeredUser?.name})</p>

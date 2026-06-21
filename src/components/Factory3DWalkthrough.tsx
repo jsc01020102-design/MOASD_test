@@ -534,7 +534,7 @@ export const Factory3DWalkthrough: React.FC = () => {
           <button
             onClick={() => setIsPlaying(!isPlaying)}
             className="p-2.5 rounded-lg bg-white text-slate-950 hover:bg-slate-100 transition-colors cursor-pointer shadow-md"
-            title={isPlaying ? "일시정지" : "촬영 시작"}
+            title={isPlaying ? (isEn ? "Pause" : "일시정지") : (isEn ? "Start Camera" : "촬영 시작")}
           >
             {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
           </button>

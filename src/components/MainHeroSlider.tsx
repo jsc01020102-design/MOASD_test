@@ -318,7 +318,7 @@ export const MainHeroSlider: React.FC = () => {
             <span className="text-slate-500">0{total}</span>
             <span className="text-slate-400 uppercase tracking-widest pl-4 hidden sm:inline-block border-l border-white/10 font-sans flex items-center gap-2">
               <Compass className="w-3.5 h-3.5 text-cyan-400 animate-spin-slow" />
-              <span>(주)MOASD INTELLIGENT FACTORY SWEEP</span>
+              <span>{isEn ? "MOASD Co., Ltd. INTELLIGENT FACTORY SWEEP" : "(주)MOASD INTELLIGENT FACTORY SWEEP"}</span>
             </span>
           </div>
 
@@ -355,7 +355,7 @@ export const MainHeroSlider: React.FC = () => {
               id="slider-btn-prev"
               onClick={prevSlide}
               className="p-2.5 rounded-lg border border-white/10 text-slate-400 hover:text-white hover:border-white/20 hover:bg-slate-900 transition-colors cursor-pointer"
-              aria-label="이전 세션"
+              aria-label={isEn ? "Previous Slide" : "이전 세션"}
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
@@ -365,7 +365,7 @@ export const MainHeroSlider: React.FC = () => {
               id="slider-btn-play-pause"
               onClick={togglePlay}
               className="p-2.5 rounded-lg border border-white/10 text-slate-400 hover:text-white hover:border-white/20 hover:bg-slate-900 transition-colors flex items-center justify-center cursor-pointer"
-              aria-label={isPlaying ? "일시정지" : "시작"}
+              aria-label={isPlaying ? (isEn ? "Pause" : "일시정지") : (isEn ? "Play" : "시작")}
             >
               {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
             </button>
@@ -375,7 +375,7 @@ export const MainHeroSlider: React.FC = () => {
               id="slider-btn-next"
               onClick={nextSlide}
               className="p-2.5 rounded-lg border border-white/10 text-slate-400 hover:text-white hover:border-white/20 hover:bg-slate-900 transition-colors cursor-pointer"
-              aria-label="다음 세션"
+              aria-label={isEn ? "Next Slide" : "다음 세션"}
             >
               <ArrowRight className="w-4 h-4" />
             </button>

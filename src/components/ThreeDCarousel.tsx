@@ -1700,7 +1700,9 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                           {hoveredEquip === 'trailer' && (
                             <>
                               <div className="flex items-center justify-between">
-                                <span className="text-[11px] font-black font-sans text-yellow-405">01 / 가압 이송 실린더 탱크</span>
+                                <span className="text-[11px] font-black font-sans text-yellow-405">
+                                  {isEn ? "01 / Pressurized Transport Cylinder Tank" : "01 / 가압 이송 실린더 탱크"}
+                                </span>
                                 <span className="bg-slate-900 px-1.5 py-0.5 rounded text-[8px] font-mono text-cyan-400">STATUS: INJECTING</span>
                               </div>
                               <p className="text-[10px] text-slate-300 font-sans leading-relaxed mt-1.5">
@@ -1719,7 +1721,9 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                           {hoveredEquip === 'cyclone1' && (
                             <>
                               <div className="flex items-center justify-between">
-                                <span className="text-[11px] font-black font-sans text-yellow-405">02 / 제1 가온 싸이클론 분리기</span>
+                                <span className="text-[11px] font-black font-sans text-yellow-405">
+                                  {isEn ? "02 / Primary Centrifugal Cyclone Separator" : "02 / 제1 가온 싸이클론 분리기"}
+                                </span>
                                 <span className="bg-slate-900 px-1.5 py-0.5 rounded text-[8px] font-mono text-emerald-400">STABILITY: 100%</span>
                               </div>
                               <p className="text-[10px] text-slate-300 font-sans leading-relaxed mt-1.5">
@@ -1738,7 +1742,9 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                           {hoveredEquip === 'boiler' && (
                             <>
                               <div className="flex items-center justify-between">
-                                <span className="text-[11px] font-black font-sans text-yellow-405">03 / 가수분해 상시 스팀 보일러</span>
+                                <span className="text-[11px] font-black font-sans text-yellow-405">
+                                  {isEn ? "03 / Hydrolysis Continuous Steam Boiler" : "03 / 가수분해 상시 스팀 보일러"}
+                                </span>
                                 <span className="bg-slate-900 px-1.5 py-0.5 rounded text-[8px] font-mono text-amber-400">THERMAL: 185°C</span>
                               </div>
                               <p className="text-[10px] text-slate-300 font-sans leading-relaxed mt-1.5">
@@ -1757,7 +1763,9 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                           {hoveredEquip === 'rotary_dryer' && (
                             <>
                               <div className="flex items-center justify-between">
-                                <span className="text-[11px] font-black font-sans text-yellow-405">04 / 회전 원통 연속식 간접 건조 가마</span>
+                                <span className="text-[11px] font-black font-sans text-yellow-405">
+                                  {isEn ? "04 / Rotary Cylindrical Indirect Drying Kiln" : "04 / 회전 원통 연속식 간접 건조 가마"}
+                                </span>
                                 <span className="bg-slate-900 px-1.5 py-0.5 rounded text-[8px] font-mono text-cyan-400">DRYING: MOISTURE &lt; 10%</span>
                               </div>
                               <p className="text-[10px] text-slate-300 font-sans leading-relaxed mt-1.5">
@@ -1776,7 +1784,9 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                           {hoveredEquip === 'cyclone2' && (
                             <>
                               <div className="flex items-center justify-between">
-                                <span className="text-[11px] font-black font-sans text-yellow-405">05 / 완제품 수집 저장 사일로 호퍼</span>
+                                <span className="text-[11px] font-black font-sans text-yellow-405">
+                                  {isEn ? "05 / Product Collection & Storage Silo Hopper" : "05 / 완제품 수집 저장 사일로 호퍼"}
+                                </span>
                                 <span className="bg-slate-900 px-1.5 py-0.5 rounded text-[8px] font-mono text-cyan-400">CAPACITY: FULL-AUTOMATIC</span>
                               </div>
                               <p className="text-[10px] text-slate-300 font-sans leading-relaxed mt-1.5">
@@ -1795,7 +1805,9 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                           {hoveredEquip === 'generator' && (
                             <>
                               <div className="flex items-center justify-between">
-                                <span className="text-[11px] font-black font-sans text-emerald-400">06 / HGE3D00 무충전 자가발전기</span>
+                                <span className="text-[11px] font-black font-sans text-emerald-400">
+                                  {isEn ? "06 / HGE3D00 Off-Grid Self-Powered Generator" : "06 / HGE3D00 무충전 자가발전기"}
+                                </span>
                                 <span className="bg-emerald-950/80 px-1.5 py-0.5 rounded text-[8px] font-mono text-emerald-300 border border-emerald-500/20 animate-pulse">SELF-POWERED</span>
                               </div>
                               <p className="text-[10px] text-slate-300 font-sans leading-relaxed mt-1.5">

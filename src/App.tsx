@@ -1681,7 +1681,7 @@ export default function App() {
 
             {/* Simulated Watermark */}
             <div className="pt-8 text-center text-[10px] font-mono text-slate-600 block leading-tight">
-              (주)MOASD B2B PARTNER SPECIFICATION DIRECTIVE PORTAL
+              {language === 'en' ? "MOASD" : "(주)MOASD"} B2B PARTNER SPECIFICATION DIRECTIVE PORTAL
               <br /> All download assets are cryptographically tagged with registered partner information.
             </div>
           </div>
@@ -2112,14 +2112,17 @@ export default function App() {
             <div className="flex items-center justify-center md:justify-start gap-2.5">
               <CompanyLogoIcon className="w-8 h-8" />
               <span className="text-base font-extrabold text-white font-sans tracking-tight">
-                (주)MOASD
+                {language === 'en' ? "MOASD Co., Ltd." : "(주)MOASD"}
               </span>
             </div>
             <p className="text-xs text-slate-500 leading-relaxed max-w-sm">
-              우리는 복잡한 비즈니스 파이프라인의 핵심 실측 구조를 진단하고 수작업을 배제한 완벽한 자동 보고 체계와 실전형 컨설팅 솔루션을 제공합니다.
+              {language === 'en' 
+                ? "We diagnose the core measurement structures of complex business pipelines, providing fully automated reporting systems and practical consulting solutions with zero manual intervention."
+                : "우리는 복잡한 비즈니스 파이프라인의 핵심 실측 구조를 진단하고 수작업을 배제한 완벽한 자동 보고 체계와 실전형 컨설팅 솔루션을 제공합니다."
+              }
             </p>
             <div className="text-xs text-slate-600 font-mono">
-              Copyright © 2026 (주)MOASD. All Rights Reserved.
+              Copyright © 2026 {language === 'en' ? "MOASD Co., Ltd." : "(주)MOASD"}. All Rights Reserved.
             </div>
           </div>
 
@@ -2127,30 +2130,46 @@ export default function App() {
           <div className="md:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-8 text-xs text-slate-400 text-center sm:text-left">
             {/* Services navigation links */}
             <div className="space-y-3">
-              <h4 className="font-bold text-slate-300 tracking-wider">포커스 서비스 파이프라인</h4>
+              <h4 className="font-bold text-slate-300 tracking-wider">
+                {language === 'en' ? "Focus Service Pipelines" : "포커스 서비스 파이프라인"}
+              </h4>
               <ul className="space-y-2 text-slate-500 leading-relaxed font-sans">
-                <li>• 맞춤 아키텍처 솔루션 제공 및 매치업</li>
-                <li>• 전략 수립 및 영업 프로세스 무결화</li>
-                <li>• 전사 협업 라인업 플랫폼 이식</li>
-                <li>• 지표 중심 OKR 실적 관리 대치판 설치</li>
-                <li>• 보고서 자동화 및 BI 데이터 다이렉트화</li>
+                {language === 'en' ? (
+                  <>
+                    <li>• Custom architecture solution matchmaking</li>
+                    <li>• Strategic planning & sales process alignment</li>
+                    <li>• Multi-team collaboration design</li>
+                    <li>• Metric-centric OKR and KPI command setups</li>
+                    <li>• Automated report dispatch & BI integration</li>
+                  </>
+                ) : (
+                  <>
+                    <li>• 맞춤 아키텍처 솔루션 제공 및 매치업</li>
+                    <li>• 전략 수립 및 영업 프로세스 무결화</li>
+                    <li>• 전사 협업 라인업 플랫폼 이식</li>
+                    <li>• 지표 중심 OKR 실적 관리 대치판 설치</li>
+                    <li>• 보고서 자동화 및 BI 데이터 다이렉트화</li>
+                  </>
+                )}
               </ul>
             </div>
 
             {/* Corporate Address & Registry codes */}
             <div className="space-y-3 text-slate-500 leading-normal">
-              <h4 className="font-bold text-slate-300 tracking-wider">사업자몰 정보</h4>
+              <h4 className="font-bold text-slate-300 tracking-wider">
+                {language === 'en' ? "B2B Business Information" : "사업자몰 정보"}
+              </h4>
               <p>
-                <strong>상호명:</strong> (주)MOASD (주식회사 모아에스디)
+                <strong>{language === 'en' ? "Company Name:" : "상호명:"}</strong> {language === 'en' ? "MOASD Co., Ltd." : "(주)MOASD (주식회사 모아에스디)"}
               </p>
               <p>
-                <strong>설립역할:</strong> 기업 핵심 솔루션 제공 및 실무 코칭 컨설팅
+                <strong>{language === 'en' ? "Primary Mission:" : "설립역할:"}</strong> {language === 'en' ? "Core enterprise solutions & coaching consultation" : "기업 핵심 솔루션 제공 및 실무 코칭 컨설팅"}
               </p>
               <p>
-                <strong>사업내역:</strong> 비즈니스 프로세스 개선 컨설팅 및 SI 솔루션 연동
+                <strong>{language === 'en' ? "Services:" : "사업내역:"}</strong> {language === 'en' ? "Business process scaling & SI systems integration" : "비즈니스 프로세스 개선 컨설팅 및 SI 솔루션 연동"}
               </p>
               <p>
-                <strong>수신 연락처:</strong> jsc01020102@gmail.com
+                <strong>{language === 'en' ? "Contact Sales:" : "수신 연락처:"}</strong> jsc01020102@gmail.com
               </p>
             </div>
           </div>

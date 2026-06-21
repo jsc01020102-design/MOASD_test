@@ -1462,21 +1462,29 @@ const EcotubeAdvancedShowcase: React.FC<EcotubeAdvancedShowcaseProps> = ({ langu
                     <circle cx="377" cy="105" r="3.5" fill="#b45309" />
                   </g>
 
-                  {/* Connecting Label Texts in Korean */}
-                  <text x="145" y="153" fill="#e2e8f0" fontSize="9" textAnchor="middle" fontWeight="bold">운전조작반</text>
-                  <text x="230" y="170" fill="#e2e8f0" fontSize="9" textAnchor="middle" fontWeight="bold">열원발생기 [내장]</text>
-                  <text x="312" y="170" fill="#e2e8f0" fontSize="9" textAnchor="middle" fontWeight="bold">송풍기 [내장]</text>
-                  <text x="395" y="65" fill="#e2e8f0" fontSize="9" textAnchor="middle" fontWeight="bold">공기배출기</text>
+                  {/* Connecting Label Texts in Korean/English */}
+                  <text x="145" y="153" fill="#e2e8f0" fontSize="9" textAnchor="middle" fontWeight="bold">
+                    {isEn ? "Control Panel" : "운전조작반"}
+                  </text>
+                  <text x="230" y="170" fill="#e2e8f0" fontSize="9" textAnchor="middle" fontWeight="bold">
+                    {isEn ? "Heat Gen [Built-in]" : "열원발생기 [내장]"}
+                  </text>
+                  <text x="312" y="170" fill="#e2e8f0" fontSize="9" textAnchor="middle" fontWeight="bold">
+                    {isEn ? "Blower [Built-in]" : "송풍기 [내장]"}
+                  </text>
+                  <text x="395" y="65" fill="#e2e8f0" fontSize="9" textAnchor="middle" fontWeight="bold">
+                    {isEn ? "Air Exhaust" : "공기배출기"}
+                  </text>
                 </svg>
 
                 {/* Hotspot details panel */}
                 <div className="w-full bg-slate-950/80 p-3 rounded-lg border border-white/10 mt-3 text-xs space-y-1">
                   <div className="flex justify-between font-bold">
                     <span className="text-white">
-                      {activeBlowerPart === 'exhaust' && "공기배출기 [ Air Exhaust System ]"}
-                      {activeBlowerPart === 'generator' && "열원발생기 [ Ecotube Heat Module Core ]"}
-                      {activeBlowerPart === 'fan' && "송풍기 [ High-Flow Impeller Blower ]"}
-                      {activeBlowerPart === 'panel' && "운전조작반 [ Surge-Safe Control Terminal ]"}
+                      {activeBlowerPart === 'exhaust' && (isEn ? "Air Exhaust System" : "공기배출기 [ Air Exhaust System ]")}
+                      {activeBlowerPart === 'generator' && (isEn ? "Ecotube Heat Module Core" : "열원발생기 [ Ecotube Heat Module Core ]")}
+                      {activeBlowerPart === 'fan' && (isEn ? "High-Flow Impeller Blower" : "송풍기 [ High-Flow Impeller Blower ]")}
+                      {activeBlowerPart === 'panel' && (isEn ? "Surge-Safe Control Terminal" : "운전조작반 [ Surge-Safe Control Terminal ]")}
                     </span>
                     <span className="text-emerald-400 font-mono text-[10px]">ACTIVE COMPONENT</span>
                   </div>
