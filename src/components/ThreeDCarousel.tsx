@@ -115,7 +115,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
   const serviceDesc = isEn && service.descriptionEn ? service.descriptionEn : service.description;
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto px-6 select-none flex flex-col items-center">
+    <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 select-none flex flex-col items-center">
       
       {/* Chapter Segmented Navigation Pill List for Easy Chapter Navigation */}
       <div className="w-full flex justify-center mb-10 flex-wrap gap-2.5">
@@ -166,7 +166,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
             className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch"
           >
             {/* LEFT AREA: Spotlight specifications and product visualization */}
-            <div className="lg:col-span-7 flex flex-col justify-between border border-white/5 bg-slate-900/15 backdrop-blur-xl p-6 md:p-10 rounded-3xl space-y-6 text-left">
+            <div className="lg:col-span-7 flex flex-col justify-between border border-white/5 bg-slate-900/15 backdrop-blur-xl p-4 sm:p-6 md:p-10 rounded-3xl space-y-6 text-left">
               <div className="space-y-4">
                 <div className="flex flex-wrap items-center gap-2.5 text-xs text-cyan-400 font-mono">
                   <span className="font-bold uppercase tracking-wider bg-slate-900 border border-white/5 px-3 py-1.5 rounded-md">
@@ -178,15 +178,15 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                   </div>
                 </div>
 
-                <h3 className="text-2xl md:text-3.5xl font-black text-white tracking-tight leading-tight">
+                <h3 className="text-xl sm:text-2xl md:text-3.5xl font-black text-white tracking-tight leading-tight">
                   {serviceTitle}
                 </h3>
 
-                <p className="text-sm md:text-[15px] font-bold text-cyan-400 leading-relaxed max-w-2xl">
+                <p className="text-xs sm:text-sm md:text-[15px] font-bold text-cyan-400 leading-relaxed max-w-2xl">
                   {serviceSubtitle}
                 </p>
 
-                <p className="text-xs md:text-sm text-slate-300 leading-relaxed font-sans max-w-3xl pt-1">
+                <p className="text-[11px] sm:text-xs md:text-sm text-slate-300 leading-relaxed font-sans max-w-3xl pt-1">
                   {serviceDesc}
                 </p>
               </div>
@@ -276,13 +276,13 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                     </div>
 
                     {/* Central Schematic Flow Map */}
-                    <div className="grid grid-cols-12 gap-3 md:gap-4 items-stretch relative">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-stretch relative">
                       
                       {/* Vertical line indicator left (represents Chargerates in image) */}
-                      <div className="col-span-3 flex flex-col items-center justify-between p-2 rounded-xl bg-slate-950/60 border border-white/5 space-y-2">
+                      <div className="col-span-full md:col-span-3 flex flex-row md:flex-col items-center justify-between p-3 md:p-2 rounded-xl bg-slate-950/60 border border-white/5 gap-3 md:space-y-2">
                         <span className="text-[8px] font-mono font-bold text-slate-500 block leading-none">Chargerate</span>
                         
-                        <div className="flex flex-col gap-1 w-full items-center justify-center">
+                        <div className="flex flex-row md:flex-col gap-1 w-full md:w-auto items-center justify-center flex-wrap">
                           {[100, 80, 60, 40, 20].map((rate) => {
                             const isCurrentRate = (rate === 100 && activeStep === 0) || 
                                                  (rate === 80 && activeStep === 3) ||
@@ -298,7 +298,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                             return (
                               <div 
                                 key={rate} 
-                                className={`text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border transition-all duration-300 flex items-center gap-1 w-full justify-center ${
+                                className={`text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border transition-all duration-300 flex items-center gap-1 w-auto md:w-full justify-center ${
                                   isCurrentRate ? `${col} scale-105 shadow-md` : 'text-slate-600 bg-transparent border-transparent'
                                 }`}
                               >
@@ -313,7 +313,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                       </div>
 
                       {/* Main Node Diagram Block */}
-                      <div className="col-span-9 grid grid-cols-2 gap-3 relative">
+                      <div className="col-span-full md:col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-3 relative">
                         {/* Live active flowchart connections SVGs underlaid */}
                         <div className="absolute inset-0 pointer-events-none z-0">
                           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -469,7 +469,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                   </div>
                 ) : activeIndex === 6 ? (
                   /* Gorgeous mini eco blueprint specifically for Biochar System */
-                  <div className="relative w-full p-6 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/25 to-slate-950/60 overflow-hidden flex flex-col justify-center min-h-[170px] shadow-lg shadow-amber-950/30">
+                  <div className="relative w-full p-4 sm:p-6 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/25 to-slate-950/60 overflow-hidden flex flex-col justify-center min-h-[170px] shadow-lg shadow-amber-950/30">
                     <div className="absolute -right-16 -bottom-16 w-48 h-48 bg-amber-400/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
                     <div className="flex items-center gap-3.5 mb-2.5">
                       <div className="p-2.5 rounded-xl bg-amber-500/25 border border-amber-400/30 text-amber-300">
@@ -493,7 +493,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                   </div>
                 ) : (
                   // Elegant scientific tech blueprint decoration for non-image services
-                  <div className="relative w-full p-6 rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/25 to-slate-950/60 overflow-hidden flex flex-col justify-center min-h-[140px] shadow-lg shadow-cyan-950/30">
+                  <div className="relative w-full p-4 sm:p-6 rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/25 to-slate-950/60 overflow-hidden flex flex-col justify-center min-h-[140px] shadow-lg shadow-cyan-950/30">
                     <div className="absolute -right-16 -bottom-16 w-48 h-48 bg-cyan-400/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
                     <div className="flex items-center gap-3.5 mb-2.5">
                       <div className="p-2.5 rounded-xl bg-cyan-500/25 border border-cyan-400/30 text-cyan-300">
@@ -596,7 +596,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
 
             {/* 🌟 PREMIUM APPLICATION COVER POSTER SHOWCASE: "아담韓" ADAMHAN */}
             {activeIndex === 5 && (
-              <div className="col-span-12 mt-12 md:mt-18 pt-10 md:pt-16 border-t border-white/10 select-text">
+              <div className="col-span-full mt-12 md:mt-18 pt-10 md:pt-16 border-t border-white/10 select-text">
                 
                 {/* Showcase Header */}
                 <div className="text-left mb-8 space-y-2">
@@ -616,7 +616,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                 </div>
 
                 {/* Cover/Poster Layout Grid */}
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 rounded-3xl border border-white/5 bg-slate-950 p-6 md:p-12 relative overflow-hidden shadow-2xl">
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-10 rounded-3xl border border-white/5 bg-slate-950 p-4 sm:p-6 md:p-12 relative overflow-hidden shadow-2xl">
                   {/* Glowing neon aura backgrounds */}
                   <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
                   <div className="absolute right-10 bottom-10 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
@@ -881,7 +881,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                     </div>
 
                     {/* BOTTOM RIGHT: High-Art Editorial Explanatory Block */}
-                    <div className="lg:col-span-5 p-6 md:p-8 rounded-3xl border border-cyan-500/20 bg-slate-950 flex flex-col justify-between text-left relative overflow-hidden shadow-xl">
+                    <div className="lg:col-span-5 p-4 sm:p-6 md:p-8 rounded-3xl border border-cyan-500/20 bg-slate-950 flex flex-col justify-between text-left relative overflow-hidden shadow-xl">
                       {/* elegant ocean decor glow blur */}
                       <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
                       
@@ -1018,7 +1018,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                     </div>
 
                     {/* BOTTOM RIGHT: Explanatory Block inspired by "이전 concept:" design style */}
-                    <div className="lg:col-span-5 p-6 md:p-8 rounded-3xl border border-yellow-500/20 bg-slate-950 flex flex-col justify-between text-left relative overflow-hidden shadow-xl">
+                    <div className="lg:col-span-5 p-4 sm:p-6 md:p-8 rounded-3xl border border-yellow-500/20 bg-slate-950 flex flex-col justify-between text-left relative overflow-hidden shadow-xl">
                       {/* elegant yellow glow blur */}
                       <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none" />
                       
@@ -1288,7 +1288,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                     </div>
 
                     {/* BOTTOM RIGHT: Explanatory Block mimicking the exact requested yellow banner styling */}
-                    <div className="lg:col-span-5 p-6 md:p-8 rounded-3xl border border-emerald-500/20 bg-slate-950 flex flex-col justify-between text-left relative overflow-hidden shadow-xl">
+                    <div className="lg:col-span-5 p-4 sm:p-6 md:p-8 rounded-3xl border border-emerald-500/20 bg-slate-950 flex flex-col justify-between text-left relative overflow-hidden shadow-xl">
                       {/* elegant emerald glow blur */}
                       <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
                       
@@ -1341,7 +1341,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
 
             {/* 🚜 CONCEPT SHOWCASE 3: "축분+과실박 바이오차 비료 시스템" (Organic Waste-to-Biochar System) */}
             {false && (
-              <div className="col-span-12 mt-12 md:mt-18 pt-10 md:pt-16 border-t border-white/10 select-text">
+              <div className="col-span-full mt-12 md:mt-18 pt-10 md:pt-16 border-t border-white/10 select-text">
                 <div className="relative">
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-[1px] bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_12px_rgba(245,158,11,0.5)] animate-pulse" />
                   
@@ -1940,7 +1940,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                           >
                             <span className="text-[8px] font-mono font-bold text-slate-500 block mb-1">STAGE 05</span>
                             <span className="text-xs font-black block">{isEn ? "Sludge Dewatering" : "분말슬러지 탈수탱크"}</span>
-                            <span className="text-[9px] text-slate-405 block mt-1 line-clamp-1">{isEn ? "Solid cake separation" : "슬러지 수분 저감 및 압출"}</span>
+                            <span className="text-[9px] text-slate-400 block mt-1 line-clamp-1">{isEn ? "Solid cake separation" : "슬러지 수분 저감 및 압출"}</span>
                           </button>
 
                           {/* Flow Step 6 */}
@@ -1954,7 +1954,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                           >
                             <span className="text-[8px] font-mono font-bold text-slate-500 block mb-1">STAGE 06</span>
                             <span className="text-xs font-black block">{isEn ? "Dryer" : "건조기"}</span>
-                            <span className="text-[9px] text-slate-405 block mt-1 line-clamp-1">{isEn ? "Moisture Reduction" : "회전형 대풍량 오프건조"}</span>
+                            <span className="text-[9px] text-slate-400 block mt-1 line-clamp-1">{isEn ? "Moisture Reduction" : "회전형 대풍량 오프건조"}</span>
                           </button>
 
                           {/* Flow Step 7 */}
@@ -1968,7 +1968,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                           >
                             <span className="text-[8px] font-mono font-bold text-slate-500 block mb-1">STAGE 07</span>
                             <span className="text-xs font-black block">{isEn ? "Auto-Packager" : "자동포장기"}</span>
-                            <span className="text-[9px] text-slate-405 block mt-1 line-clamp-1">{isEn ? "Measuring & Bagging" : "정밀 기계식 주머니 밀봉 포장"}</span>
+                            <span className="text-[9px] text-slate-400 block mt-1 line-clamp-1">{isEn ? "Measuring & Bagging" : "정밀 기계식 주머니 밀봉 포장"}</span>
                           </button>
 
                           {/* Flow Step 8 */}
@@ -1982,7 +1982,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                           >
                             <span className="text-[8px] font-mono font-bold text-slate-500 block mb-1">STAGE 08</span>
                             <span className="text-xs font-black block">{isEn ? "Storage & Pick-Up" : "저장 및 배송"}</span>
-                            <span className="text-[9px] text-slate-405 block mt-1 line-clamp-1">{isEn ? "Truck Outbound load" : "고영양 바이오차 비료 출하"}</span>
+                            <span className="text-[9px] text-slate-400 block mt-1 line-clamp-1">{isEn ? "Truck Outbound load" : "고영양 바이오차 비료 출하"}</span>
                           </button>
 
                         </div>

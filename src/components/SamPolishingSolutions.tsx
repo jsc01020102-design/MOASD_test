@@ -424,7 +424,7 @@ export const SamPolishingSolutions: React.FC<SamPolishingSolutionsProps> = ({
             </AnimatePresence>
 
             {/* Quick Metrics Cards - Large numbers */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-white/5">
               {data.stats.map((stat, sIdx) => {
                 const IconComp = stat.icon;
                 return (
@@ -766,42 +766,42 @@ const EcotubeAdvancedShowcase: React.FC<EcotubeAdvancedShowcaseProps> = ({ langu
               </h5>
               
               {/* Core interactive molecular representation */}
-              <div className="h-44 bg-slate-900/40 rounded-xl border border-white/5 flex items-center justify-center p-4 relative overflow-hidden">
+              <div className="h-44 bg-slate-900/40 rounded-xl border border-white/5 flex items-center justify-center p-3 sm:p-4 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-950/20 via-transparent to-rose-950/20 pointer-events-none" />
-                <div className="flex items-center gap-4 relative z-10">
-                  <div className="text-center space-y-1">
-                    <div className="w-12 h-12 rounded-full border border-cyan-400 bg-cyan-950/80 flex items-center justify-center font-mono text-[10px] font-black text-cyan-400 animate-pulse">
+                <div className="flex items-center gap-1.5 sm:gap-4 relative z-10 w-full justify-center max-w-full">
+                  <div className="text-center space-y-1 flex-shrink-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-cyan-400 bg-cyan-950/80 flex items-center justify-center font-mono text-[9px] sm:text-[10px] font-black text-cyan-400 animate-pulse">
                       H2O
                     </div>
-                    <span className="text-[9px] text-slate-400 font-bold block">{isEn ? "Fluid Flow" : "유체 흐름"}</span>
+                    <span className="text-[8px] sm:text-[9px] text-slate-400 font-bold block whitespace-nowrap">{isEn ? "Fluid Flow" : "유체 흐름"}</span>
                   </div>
 
-                  <div className="h-[2px] w-12 bg-gradient-to-r from-cyan-400 to-emerald-400 relative">
-                    <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                  <div className="h-[2px] w-6 sm:w-12 bg-gradient-to-r from-cyan-400 to-emerald-400 relative flex-shrink-0">
+                    <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-400 animate-ping" />
                   </div>
 
-                  <div className="text-center space-y-1">
-                    <div className="w-16 h-16 rounded-full border border-emerald-400 bg-emerald-950/80 flex flex-col items-center justify-center font-mono leading-none">
-                      <span className="text-[9px] text-emerald-400 font-black">ECO</span>
-                      <span className="text-[11px] text-white font-black">98.8%</span>
+                  <div className="text-center space-y-1 flex-shrink-0">
+                    <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-full border border-emerald-400 bg-emerald-950/80 flex flex-col items-center justify-center font-mono leading-none">
+                      <span className="text-[8px] sm:text-[9px] text-emerald-400 font-black">ECO</span>
+                      <span className="text-[10px] sm:text-[11px] text-white font-black">98.8%</span>
                     </div>
-                    <span className="text-[9px] text-slate-400 font-bold block">{isEn ? "Direct Contact" : "직접 접사"}</span>
+                    <span className="text-[8px] sm:text-[9px] text-slate-400 font-bold block whitespace-nowrap">{isEn ? "Direct Contact" : "직접 접사"}</span>
                   </div>
 
-                  <div className="h-[2px] w-12 bg-gradient-to-r from-emerald-400 to-rose-400 relative" />
+                  <div className="h-[2px] w-6 sm:w-12 bg-gradient-to-r from-emerald-400 to-rose-400 relative flex-shrink-0" />
 
-                  <div className="text-center space-y-1">
-                    <div className="w-12 h-12 rounded-full border border-rose-400 bg-rose-950/80 flex items-center justify-center font-mono text-[10px] font-black text-rose-400">
+                  <div className="text-center space-y-1 flex-shrink-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-rose-400 bg-rose-950/80 flex items-center justify-center font-mono text-[9px] sm:text-[10px] font-black text-rose-400">
                       500℃
                     </div>
-                    <span className="text-[9px] text-slate-400 font-bold block">{isEn ? "Heat Peak" : "초고온 방열"}</span>
+                    <span className="text-[8px] sm:text-[9px] text-slate-400 font-bold block whitespace-nowrap">{isEn ? "Heat Peak" : "초고온 방열"}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-3.5 pt-4 border-t border-white/5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-4 border-t border-white/5">
               {slides[0].stats.map((stat, stIdx) => (
                 <div key={stIdx} className="p-2.5 bg-slate-950/40 border border-white/5 rounded-xl text-center font-sans">
                   <span className="text-[10px] text-slate-500 block font-bold truncate uppercase tracking-widest">
@@ -1025,7 +1025,7 @@ const EcotubeAdvancedShowcase: React.FC<EcotubeAdvancedShowcaseProps> = ({ langu
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-3.5 pt-4 border-t border-white/5 font-sans">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-4 border-t border-white/5 font-sans">
               {slides[1].stats.map((stat, stIdx) => (
                 <div key={stIdx} className="p-2 bg-slate-950/40 border border-white/5 rounded-xl text-center">
                   <span className="text-[9px] text-slate-500 block font-bold truncate uppercase tracking-widest">
@@ -1246,36 +1246,37 @@ const EcotubeAdvancedShowcase: React.FC<EcotubeAdvancedShowcaseProps> = ({ langu
             </div>
 
             {/* Structured Table matching first image */}
-            <div className="bg-slate-900/60 rounded-xl overflow-hidden border border-white/5 font-sans text-xs">
-              
-              <div className="grid grid-cols-10 bg-slate-950/80 p-2.5 font-bold text-slate-300 border-b border-white/5 text-center">
-                <div className="col-span-2 text-left">{isEn ? "Heater Type" : "가동시간"}</div>
-                {timeSteps.map(t => (
-                  <div key={t} className="col-span-1 font-mono text-[10px] text-cyan-400">{t}초</div>
-                ))}
+            <div className="bg-slate-900/60 rounded-xl overflow-hidden border border-white/5 font-sans text-xs w-full overflow-x-auto select-text">
+              <div className="min-w-[500px] md:min-w-0">
+                <div className="grid grid-cols-10 bg-slate-950/80 p-2.5 font-bold text-slate-300 border-b border-white/5 text-center">
+                  <div className="col-span-2 text-left">{isEn ? "Heater Type" : "가동시간"}</div>
+                  {timeSteps.map(t => (
+                    <div key={t} className="col-span-1 font-mono text-[10px] text-cyan-400">{t}초</div>
+                  ))}
+                </div>
+
+                {/* Eco Row */}
+                <div className="grid grid-cols-10 p-2.5 bg-slate-900/40 border-b border-white/5 text-center items-center">
+                  <div className="col-span-2 text-left font-black text-rose-400 text-[11px] truncate">에코튜브 히터</div>
+                  {timeSteps.map(t => (
+                    <div key={t} className={`col-span-1 font-mono text-[11px] ${selectedChartTime === t ? "text-rose-400 font-extrabold text-xs" : "text-slate-300"}`}>
+                      {ecoCurve[t]}℃
+                    </div>
+                  ))}
+                </div>
+
+                {/* Traditional Row */}
+                <div className="grid grid-cols-10 p-2.5 bg-slate-950/10 text-center items-center text-slate-400">
+                  <div className="col-span-2 text-left text-blue-400 font-black text-[11px] truncate">히트파이프 온풍</div>
+                  {timeSteps.map(t => (
+                    <div key={t} className={`col-span-1 font-mono text-[11px] ${selectedChartTime === t ? "text-blue-400 font-extrabold text-xs" : "text-slate-400"}`}>
+                      {tradCurve[t] === 0 ? "—" : `${tradCurve[t]}℃`}
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* Eco Row */}
-              <div className="grid grid-cols-10 p-2.5 bg-slate-900/40 border-b border-white/5 text-center items-center">
-                <div className="col-span-2 text-left font-black text-rose-400 text-[11px] truncate">에코튜브 히터</div>
-                {timeSteps.map(t => (
-                  <div key={t} className={`col-span-1 font-mono text-[11px] ${selectedChartTime === t ? "text-rose-400 font-extrabold text-xs" : "text-slate-300"}`}>
-                    {ecoCurve[t]}℃
-                  </div>
-                ))}
-              </div>
-
-              {/* Traditional Row */}
-              <div className="grid grid-cols-10 p-2.5 bg-slate-950/10 text-center items-center text-slate-400">
-                <div className="col-span-2 text-left text-blue-400 font-black text-[11px] truncate">히트파이프 온풍</div>
-                {timeSteps.map(t => (
-                  <div key={t} className={`col-span-1 font-mono text-[11px] ${selectedChartTime === t ? "text-blue-400 font-extrabold text-xs" : "text-slate-400"}`}>
-                    {tradCurve[t] === 0 ? "—" : `${tradCurve[t]}℃`}
-                  </div>
-                ))}
-              </div>
-
-              <div className="p-3 bg-slate-950/30 text-[10.5px] text-slate-500 leading-relaxed leading-sans">
+              <div className="p-3 bg-slate-950/30 text-[10.5px] text-slate-500 leading-relaxed leading-sans border-t border-white/5">
                 {isEn 
                   ? "※ Test Summary: Ecotube displays instant thermal excitation compared to physical heat-pipe delay. It provides safe high-mass air warming from the first seconds." 
                   : "※ 당사 자체 정밀 실험 결과: 히트파이프형 온풍기는 내부 전도 한계로 초반 80초간 무발온으로 비산 에너지를 낭비하는 반면, 에코튜브 히터는 가동 즉시 45도 온풍을 방사하여 낭비 전력을 원천 제어합니다."
@@ -1284,7 +1285,7 @@ const EcotubeAdvancedShowcase: React.FC<EcotubeAdvancedShowcaseProps> = ({ langu
             </div>
 
             {/* Quick Summary Grid */}
-            <div className="grid grid-cols-3 gap-3.5 pt-4 border-t border-white/5 font-sans">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-4 border-t border-white/5 font-sans">
               {slides[2].stats.map((stat, stIdx) => (
                 <div key={stIdx} className="p-2.5 bg-slate-950/40 border border-white/5 rounded-xl text-center">
                   <span className="text-[9px] text-slate-500 block font-bold truncate uppercase tracking-widest">
@@ -1587,7 +1588,7 @@ const EcotubeAdvancedShowcase: React.FC<EcotubeAdvancedShowcaseProps> = ({ langu
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-3.5 pt-4 border-t border-white/5 font-sans">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-4 border-t border-white/5 font-sans">
               {slides[3].stats.map((stat, stIdx) => (
                 <div key={stIdx} className="p-2.5 bg-slate-950/40 border border-white/5 rounded-xl text-center">
                   <span className="text-[9px] text-slate-500 block font-bold truncate uppercase tracking-widest">
@@ -1625,7 +1626,8 @@ const EcotubeAdvancedShowcase: React.FC<EcotubeAdvancedShowcaseProps> = ({ langu
               </div>
 
               {/* Main Specification comparison board */}
-              <div className="space-y-3 font-sans text-xs">
+              <div className="w-full overflow-x-auto select-text pb-2">
+                <div className="space-y-3 font-sans text-xs min-w-[500px] md:min-w-0">
                 
                 {/* Spec Heading */}
                 <div className="grid grid-cols-12 gap-2 bg-slate-950/80 p-2.5 rounded-lg border border-white/5 font-black text-[11px] text-center">
@@ -1695,6 +1697,7 @@ const EcotubeAdvancedShowcase: React.FC<EcotubeAdvancedShowcaseProps> = ({ langu
                   <div className="col-span-4 text-left text-slate-300 font-black text-[11px]">시간당 총소비전력</div>
                   <div className="col-span-4 text-slate-400 font-mono font-black">72.1 kW/h</div>
                   <div className="col-span-4 text-rose-400 font-mono font-black text-xs">58.8 kW/h [절감]</div>
+                </div>
                 </div>
 
               </div>
@@ -1807,7 +1810,7 @@ const EcotubeAdvancedShowcase: React.FC<EcotubeAdvancedShowcaseProps> = ({ langu
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-3.5 pt-4 border-t border-white/5 font-sans">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-4 border-t border-white/5 font-sans">
               {slides[4].stats.map((stat, stIdx) => (
                 <div key={stIdx} className="p-2.5 bg-slate-950/40 border border-white/5 rounded-xl text-center">
                   <span className="text-[9px] text-slate-500 block font-bold truncate uppercase tracking-widest">
