@@ -22,6 +22,15 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
+// Import image assets for path resolution in build bundles
+import adamhanCabinHouse from '../assets/images/adamhan_cabin_house_1781935827590.jpg';
+import marineFloatingResort from '../assets/images/marine_floating_resort_1781936311828.jpg';
+import floatingGlassCabin from '../assets/images/floating_glass_cabin_1781936324938.jpg';
+import floatingVillasRow from '../assets/images/floating_villas_row_1781937076057.jpg';
+import farmCabinInterior from '../assets/images/farm_cabin_interior_1781936557154.jpg';
+import luxuryCaravanCamper from '../assets/images/luxury_caravan_camper_1781936581515.jpg';
+import biocharSystemLine from '../assets/images/biochar_system_line.svg';
+
 const renderServiceIcon = (name: string, className: string) => {
   switch (name) {
     case 'Cpu': return <Cpu className={className} />;
@@ -754,7 +763,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                   {/* RIGHT COLUMN: Full Premium Real-Life Image Rendering */}
                   <div className="xl:col-span-6 flex flex-col relative rounded-2xl border border-white/10 overflow-hidden shadow-2xl h-[520px] xl:h-auto min-h-[460px]">
                     <img 
-                      src="/src/assets/images/adamhan_cabin_house_1781935827590.jpg" 
+                      src={adamhanCabinHouse} 
                       alt="“아담韓” ADAMHAN Korean Second House" 
                       className="w-full h-full object-cover object-center filter brightness-105 contrast-105 hover:scale-102 transition-transform duration-500"
                       referrerPolicy="no-referrer"
@@ -817,7 +826,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                         {isEn ? "01 / LAGOON RESORT LAYOUT MODEL" : "01 / 오션풀 격자 단지 계획 모형"}
                       </div>
                       <img 
-                        src="/src/assets/images/marine_floating_resort_1781936311828.jpg" 
+                        src={marineFloatingResort} 
                         alt="Resort Layout Plan" 
                         className="w-full h-full object-cover filter brightness-95 group-hover:scale-103 transition-transform duration-500"
                         referrerPolicy="no-referrer"
@@ -835,7 +844,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                         {isEn ? "02 / WATERFRONT HARBOR ALIGNMENT" : "02 / 플로팅 수상 가옥 벨트 라인업"}
                       </div>
                       <img 
-                        src="/src/assets/images/floating_glass_cabin_1781936324938.jpg" 
+                        src={floatingGlassCabin} 
                         alt="Waterfront alignment" 
                         className="w-full h-full object-cover filter brightness-95 group-hover:scale-103 transition-transform duration-500"
                         referrerPolicy="no-referrer"
@@ -853,7 +862,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                         {isEn ? "03 / PREMIUM FLOATING CABIN DETAIL" : "03 / 연안 정합식 고효율 수중 가옥 전경"}
                       </div>
                       <img 
-                        src="/src/assets/images/floating_villas_row_1781937076057.jpg" 
+                        src={floatingVillasRow} 
                         alt="Advanced Floating Cabin" 
                         className="w-full h-full object-cover filter brightness-105 contrast-105 group-hover:scale-102 transition-transform duration-500"
                         referrerPolicy="no-referrer"
@@ -951,7 +960,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                         {isEn ? "01 / DUPLEX CABIN LOFT DETAIL" : "01 / 스마트 다락형 농막 내부 전경"}
                       </div>
                       <img 
-                        src="/src/assets/images/farm_cabin_interior_1781936557154.jpg" 
+                        src={farmCabinInterior} 
                         alt="Farm Cabin Interior Loft" 
                         className="w-full h-full object-cover filter brightness-95 group-hover:scale-103 transition-transform duration-500"
                         referrerPolicy="no-referrer"
@@ -969,7 +978,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                         {isEn ? "02 / OFF-GRID MOBILE INTEGRATION" : "02 / 충전 없는 프리미엄 카라반 모델"}
                       </div>
                       <img 
-                        src="/src/assets/images/luxury_caravan_camper_1781936581515.jpg" 
+                        src={luxuryCaravanCamper} 
                         alt="Luxury Caravan Camper" 
                         className="w-full h-full object-cover filter brightness-95 group-hover:scale-103 transition-transform duration-500"
                         referrerPolicy="no-referrer"
@@ -1259,7 +1268,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                       </div>
                       <div className="w-full h-48 bg-slate-950/80 mt-12 flex items-center justify-center p-2">
                         <img 
-                          src="/src/assets/images/biochar_system_line.svg" 
+                          src={biocharSystemLine} 
                           alt="Self-Generating Biochar Fertilizer Process Line" 
                           className="max-w-full max-h-full object-contain filter brightness-105 contrast-105 group-hover:scale-102 transition-transform duration-500"
                           referrerPolicy="no-referrer"
