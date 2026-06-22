@@ -59,15 +59,20 @@ const loadVideoFromDB = (): Promise<string | null> => {
   });
 };
 
+import bgSkyscraper from '../assets/images/moasd_skyscraper_hq_bg_1781618333946.jpg';
+import bgGenerator from '../assets/images/hge3d00_generator_1781622900745.jpg';
+import bgEvMoto from '../assets/images/ev_moto_assembly_1781624859000.jpg';
+import bgMaterialLab from '../assets/images/sam_material_lab_1781624876856.jpg';
+
 interface Slide {
   image: string;
 }
 
 const DESIGN_SLIDES: Slide[] = [
-  { image: '/src/assets/images/moasd_skyscraper_hq_bg_1781618333946.jpg' },
-  { image: '/src/assets/images/hge3d00_generator_1781622900745.jpg' },
-  { image: '/src/assets/images/ev_moto_assembly_1781624859000.jpg' },
-  { image: '/src/assets/images/sam_material_lab_1781624876856.jpg' }
+  { image: bgSkyscraper },
+  { image: bgGenerator },
+  { image: bgEvMoto },
+  { image: bgMaterialLab }
 ];
 
 export const MainHeroSlider: React.FC = () => {
@@ -105,6 +110,9 @@ export const MainHeroSlider: React.FC = () => {
           } catch (e) {
             // Ignore
           }
+
+          // No local statically checked-in video: set default high-tech abstract loop
+          setVideoUrl("https://assets.mixkit.co/videos/preview/mixkit-glowing-digital-circuit-board-background-43075-large.mp4");
         };
         checkStaticVideo();
       }

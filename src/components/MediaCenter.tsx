@@ -119,6 +119,9 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
           return;
         }
       } catch (e) {}
+
+      // Set fallback high-tech corporate background loop video
+      setVideoUrl("https://assets.mixkit.co/videos/preview/mixkit-glowing-digital-circuit-board-background-43075-large.mp4");
     };
 
     // Attempt to load background video from indexedDB to allow viewing here too
