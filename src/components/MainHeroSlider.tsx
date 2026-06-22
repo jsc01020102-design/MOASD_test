@@ -79,11 +79,34 @@ export const MainHeroSlider: React.FC = () => {
   
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Load user video from IndexedDB cache on mount
+  // Load user video from IndexedDB cache or static deployment fallback on mount
   useEffect(() => {
     loadVideoFromDB().then((url) => {
       if (url) {
         setVideoUrl(url);
+      } else {
+        // Fallback check for statically deployed video in the public folder (e.g. on Netlify)
+        const checkStaticVideo = async () => {
+          try {
+            const res1 = await fetch('/video.mp4', { method: 'HEAD' });
+            if (res1.ok) {
+              setVideoUrl('/video.mp4');
+              return;
+            }
+          } catch (e) {
+            // Ignore
+          }
+          try {
+            const res2 = await fetch('/hero_video.mp4', { method: 'HEAD' });
+            if (res2.ok) {
+              setVideoUrl('/hero_video.mp4');
+              return;
+            }
+          } catch (e) {
+            // Ignore
+          }
+        };
+        checkStaticVideo();
       }
     });
   }, []);
