@@ -14,6 +14,8 @@ import { MainHeroSlider } from './components/MainHeroSlider';
 import { Factory3DWalkthrough } from './components/Factory3DWalkthrough';
 import { B2bMall, PRODUCTS, Product } from './components/B2bMall';
 import { Admin } from './components/Admin';
+import { MediaCenter } from './components/MediaCenter';
+import { CustomerSupport } from './components/CustomerSupport';
 import { 
   Building2, 
   Sparkles, 
@@ -94,7 +96,7 @@ export const CompanyLogoIcon = ({ className = "w-9 h-9" }: { className?: string 
 
 export default function App() {
   const { language, setLanguage, t } = useLanguage();
-  const [currentTab, setCurrentTab] = useState<'home' | 'about' | 'solutions' | 'partners' | 'b2bmall' | 'admin'>('home');
+  const [currentTab, setCurrentTab] = useState<'home' | 'about' | 'solutions' | 'partners' | 'mediacenter' | 'support' | 'admin'>('home');
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('moasd_b2b_products');
     return saved ? JSON.parse(saved) : PRODUCTS;
@@ -107,10 +109,14 @@ export default function App() {
     buyer: string;
   } | null>(null);
 
-  const handlePurchaseOrder = (product: Product, quantity: number) => {
-    const totalAmount = product.priceKrw * quantity * 1.1; // with VAT 10%
-    const buyerName = registeredUser?.name || '공식 바이어';
-    const companyName = registeredUser?.company || '협력 대리점';
+  const handlePurchaseOrder = (product: Product, quantity: number, buyerInfo?: any) => {
+    const includeVat = buyerInfo?.includeVat !== false;
+    const finalVatMultiplier = includeVat ? 1.1 : 1.0;
+    const totalAmount = buyerInfo?.totalAmount || (product.priceKrw * quantity * finalVatMultiplier);
+    
+    const buyerName = buyerInfo?.buyerName || registeredUser?.name || '공식 바이어';
+    const companyName = buyerInfo?.buyerCompany || registeredUser?.company || '협력 대리점';
+    const buyerPhone = buyerInfo?.buyerPhone || registeredUser?.phone || '010-1234-5678';
     
     // 1. Show the on-screen simulated SMS dispatched Toast
     setPurchaseSmsToast({
@@ -135,10 +141,10 @@ export default function App() {
       toName: language === 'ko' ? '장세창 최고 마스터 관리자' : 'Supreme Master Founder (J***)',
       toPhone: '010-2242-7801',
       fromName: `${companyName} - ${buyerName}`,
-      fromPhone: registeredUser?.phone || '010-1234-5678',
+      fromPhone: buyerPhone,
       text: language === 'ko' 
-        ? `[MOASD ERP 물류 공제계 계통 연동] '${companyName} ${buyerName}'님이 B2B 전력 장비 [${product.nameKo}] ${quantity}대의 정식 발주를 감행하셨습니다. (총액: ${(Math.round(totalAmount)).toLocaleString()}원, 부가세 합산). 즉시 ERP 정합 조정을 개시해 주십시오.`
-        : `[MOASD ERP Secure Bidding] '${companyName} ${buyerName}' ordered ${quantity} units of [${product.nameEn}]. Total contract amount: ${(Math.round(totalAmount)).toLocaleString()} KRW base VAT. Immediate coordination required.`,
+        ? `[MOASD ERP 물류 공제계 계통 연동] '${companyName} ${buyerName}'님이 B2B 전력 장비 [${product.nameKo}] ${quantity}대의 정식 발주를 감행하셨습니다. (총액: ${(Math.round(totalAmount)).toLocaleString()}원, 부가세 ${includeVat ? '포함' : '미포함'}). 즉시 ERP 정합 조정을 개시해 주십시오.`
+        : `[MOASD ERP Secure Bidding] '${companyName} ${buyerName}' ordered ${quantity} units of [${product.nameEn}]. Total contract amount: ${(Math.round(totalAmount)).toLocaleString()} KRW (VAT ${includeVat ? 'Included' : 'Excluded'}). Immediate coordination required.`,
       timestamp: new Date().toLocaleString(),
       type: 'purchase'
     };
@@ -561,9 +567,15 @@ export default function App() {
     }, 120);
   };
 
-  const navigateToB2bMall = (e?: React.MouseEvent) => {
+  const navigateToMediaCenter = (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
-    setCurrentTab('b2bmall');
+    setCurrentTab('mediacenter');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateToSupport = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    setCurrentTab('support');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -852,11 +864,18 @@ export default function App() {
               {t('nav.business', 'Business Domain', '사업영역')}
             </a>
             <a 
-              href="#b2b-mall-section" 
-              onClick={(e) => navigateToB2bMall(e)}
-              className={`font-semibold transition-colors ${currentTab === 'b2bmall' ? 'text-cyan-400 border-b-2 border-cyan-400 pb-0.5 animate-pulse' : 'text-slate-300 hover:text-cyan-400'}`}
+              href="#media-center" 
+              onClick={(e) => navigateToMediaCenter(e)}
+              className={`font-semibold transition-colors ${currentTab === 'mediacenter' ? 'text-cyan-400 border-b-2 border-cyan-400 pb-0.5 animate-pulse' : 'text-slate-300 hover:text-cyan-400 font-medium'}`}
             >
-              {t('nav.b2b', 'B2B Mall', '사업자몰')}
+              {language === 'en' ? 'Media Center' : '미디어센터'}
+            </a>
+            <a 
+              href="#customer-support" 
+              onClick={(e) => navigateToSupport(e)}
+              className={`font-semibold transition-colors ${currentTab === 'support' ? 'text-cyan-400 border-b-2 border-cyan-400 pb-0.5 animate-pulse' : 'text-slate-300 hover:text-cyan-400 font-medium'}`}
+            >
+              {language === 'en' ? 'Support' : '고객지원'}
             </a>
             <a 
               href="#admin-section" 
@@ -1175,14 +1194,24 @@ export default function App() {
                   {t('nav.business', 'Business Domain', '사업영역')}
                 </a>
                 <a 
-                  href="#b2b-mall-section" 
+                  href="#media-center" 
                   onClick={(e) => {
                     setMobileMenuOpen(false);
-                    navigateToB2bMall(e);
+                    navigateToMediaCenter(e);
                   }}
-                  className="py-2 text-slate-300 hover:text-cyan-400 block border-b border-white/5 whitespace-nowrap"
+                  className={`py-2 block border-b border-white/5 whitespace-nowrap ${currentTab === 'mediacenter' ? 'text-cyan-400 font-bold' : 'text-slate-300 hover:text-cyan-400'}`}
                 >
-                  {t('nav.b2b', 'B2B Mall', '사업자몰')}
+                  {language === 'en' ? 'Media Center' : '미디어센터'}
+                </a>
+                <a 
+                  href="#customer-support" 
+                  onClick={(e) => {
+                    setMobileMenuOpen(false);
+                    navigateToSupport(e);
+                  }}
+                  className={`py-2 block border-b border-white/5 whitespace-nowrap ${currentTab === 'support' ? 'text-cyan-400 font-bold' : 'text-slate-300 hover:text-cyan-400'}`}
+                >
+                  {language === 'en' ? 'Support' : '고객지원'}
                 </a>
                 <a 
                   href="#admin-section" 
@@ -2079,15 +2108,20 @@ export default function App() {
         </div>
       </section>
     </div>
-  ) : currentTab === 'b2bmall' ? (
+  ) : currentTab === 'mediacenter' ? (
     <div className="pt-16 min-h-[85vh] bg-slate-950">
-      <B2bMall 
+      <MediaCenter language={language} />
+    </div>
+  ) : currentTab === 'support' ? (
+    <div className="pt-16 min-h-[85vh] bg-slate-950">
+      <CustomerSupport 
         language={language}
         isSignedUp={isSignedUp}
         registeredUser={registeredUser}
-        onUpgradeToPartner={handleUpgradeToPartner}
-        products={products}
-        onPurchaseOrder={handlePurchaseOrder}
+        onOpenLoginModal={() => {
+          setLoginError('');
+          setIsLoginModalOpen(true);
+        }}
       />
     </div>
   ) : (
@@ -2157,7 +2191,7 @@ export default function App() {
             {/* Corporate Address & Registry codes */}
             <div className="space-y-3 text-slate-500 leading-normal">
               <h4 className="font-bold text-slate-300 tracking-wider">
-                {language === 'en' ? "B2B Business Information" : "사업자몰 정보"}
+                {language === 'en' ? "Corporate Information" : "기업 정보"}
               </h4>
               <p>
                 <strong>{language === 'en' ? "Company Name:" : "상호명:"}</strong> {language === 'en' ? "MOASD Co., Ltd." : "(주)MOASD (주식회사 모아에스디)"}
