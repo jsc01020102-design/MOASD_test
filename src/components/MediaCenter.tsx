@@ -104,24 +104,9 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
-    const checkServerVideo = async () => {
-      try {
-        const res1 = await fetch('/video.mp4', { method: 'HEAD' });
-        if (res1.ok) {
-          setVideoUrl('/video.mp4');
-          return;
-        }
-      } catch (e) {}
-      try {
-        const res2 = await fetch('/hero_video.mp4', { method: 'HEAD' });
-        if (res2.ok) {
-          setVideoUrl('/hero_video.mp4');
-          return;
-        }
-      } catch (e) {}
-
-      // Set fallback high-tech corporate background loop video
-      setVideoUrl("https://assets.mixkit.co/videos/preview/mixkit-glowing-digital-circuit-board-background-43075-large.mp4");
+    const checkServerVideo = () => {
+      // Use the statically deployed video in the public folder
+      setVideoUrl('/video.mp4');
     };
 
     // Attempt to load background video from indexedDB to allow viewing here too
