@@ -96,6 +96,12 @@ export const CompanyLogoIcon = ({ className = "w-9 h-9" }: { className?: string 
 
 export default function App() {
   const { language, setLanguage, t } = useLanguage();
+
+  useEffect(() => {
+    // moasddh.com 등으로 접속했을 때 또는 전체 적용을 위해 브라우저 탭 타이틀을 (주)모아에스디로 변경
+    document.title = "(주)모아에스디";
+  }, []);
+
   const [currentTab, setCurrentTab] = useState<'home' | 'about' | 'solutions' | 'partners' | 'mediacenter' | 'support' | 'admin'>('home');
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('moasd_b2b_products');
