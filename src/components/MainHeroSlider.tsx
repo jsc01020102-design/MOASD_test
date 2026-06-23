@@ -103,8 +103,9 @@ export const MainHeroSlider: React.FC = () => {
       if (url) {
         setVideoUrl(url);
       } else {
-        // Use the YouTube video as the primary default video source
-        setVideoUrl('https://youtu.be/yqgMhS6hdcE');
+        // Use a high-quality, high-tech industrial direct MP4 loop as the default background video.
+        // Doing this completely bypasses YouTube embeds and prevents any native play/pause overlay controls on all browsers & mobile devices.
+        setVideoUrl('https://assets.mixkit.co/videos/preview/mixkit-futuristic-factory-robotic-arm-moving-panels-41982-large.mp4');
       }
     });
   }, []);
