@@ -204,14 +204,18 @@ export const MainHeroSlider: React.FC = () => {
               className="absolute inset-0 w-full h-full overflow-hidden"
             >
               {getYoutubeId(videoUrl) ? (
-                <iframe
-                  src={`https://www.youtube.com/embed/${getYoutubeId(videoUrl)}?autoplay=1&mute=1&loop=1&playlist=${getYoutubeId(videoUrl)}&controls=0&showinfo=0&rel=0&enablejsapi=1&iv_load_policy=3&playsinline=1&modestbranding=1`}
-                  title="MOASD Background Video"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  className="absolute top-1/2 left-1/2 w-[177.77777778vh] min-w-full h-[56.25vw] min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none scale-110"
-                />
+                <div className="relative w-full h-full select-none pointer-events-auto">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${getYoutubeId(videoUrl)}?autoplay=1&mute=1&loop=1&playlist=${getYoutubeId(videoUrl)}&controls=0&showinfo=0&rel=0&enablejsapi=1&iv_load_policy=3&playsinline=1&modestbranding=1&fs=0&disablekb=1`}
+                    title="MOASD Background Video"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="absolute top-1/2 left-1/2 w-[177.77777778vh] min-w-full h-[56.25vw] min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none scale-110"
+                  />
+                  {/* Invisible pointer-interceptor shield that blocks touch/tap events from hitting the iframe, preventing YouTube native play-pause overlay */}
+                  <div className="absolute inset-0 bg-transparent z-30 pointer-events-auto select-none" />
+                </div>
               ) : (
                 <video
                   ref={videoRef}
