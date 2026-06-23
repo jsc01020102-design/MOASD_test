@@ -204,12 +204,36 @@ export const MainHeroSlider: React.FC = () => {
               className="absolute inset-0 w-full h-full overflow-hidden"
             >
               {getYoutubeId(videoUrl) ? (
-                <div className="relative w-full h-full select-none pointer-events-none">
-                  {/* Invisible pointer-interceptor shield that blocks touch/tap events from hitting the iframe, preventing YouTube native play-pause overlay */}
-                  {/* We use inline style with background rgba(0,0,0,0.001) because iOS Safari clicks through background: transparent */}
+                <div className="relative w-full h-full select-none">
+                  {/* Invisible pointer-interceptor shield that blocks touch/tap/mouse events from hitting the iframe, preventing YouTube native play-pause overlay inside iOS/Safari */}
+                  {/* We use rgba(0,0,0,0.001) because iOS Safari clicks through background: transparent, and we stop event propagation completely */}
                   <div 
                     className="absolute inset-0 z-40 select-none cursor-default" 
                     style={{ backgroundColor: 'rgba(0, 0, 0, 0.001)', pointerEvents: 'auto' }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onMouseUp={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onTouchStart={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onTouchMove={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
                   />
                   <iframe
                     src={`https://www.youtube.com/embed/${getYoutubeId(videoUrl)}?autoplay=1&mute=1&loop=1&playlist=${getYoutubeId(videoUrl)}&controls=0&showinfo=0&rel=0&enablejsapi=1&iv_load_policy=3&playsinline=1&modestbranding=1&fs=0&disablekb=1`}
@@ -217,7 +241,7 @@ export const MainHeroSlider: React.FC = () => {
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
-                    className="absolute top-1/2 left-1/2 w-[177.77777778vh] min-w-full h-[56.25vw] min-h-full -translate-x-1/2 -translate-y-1/2 scale-110 z-10"
+                    className="absolute top-1/2 left-1/2 w-[177.77777778vh] min-w-full h-[56.25vw] min-h-full -translate-x-1/2 -translate-y-1/2 scale-110 z-10 pointer-events-none"
                     style={{ pointerEvents: 'none' }}
                   />
                 </div>
