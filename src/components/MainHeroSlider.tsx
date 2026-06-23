@@ -59,6 +59,19 @@ const loadVideoFromDB = (): Promise<string | null> => {
   });
 };
 
+const getYoutubeId = (url: string | null): string | null => {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  if (match && match[2].length === 11) {
+    return match[2];
+  }
+  if (url.length === 11 && !url.includes('/') && !url.includes('.')) {
+    return url;
+  }
+  return null;
+};
+
 import bgSkyscraper from '../assets/images/moasd_skyscraper_hq_bg_1781618333946.jpg';
 import bgGenerator from '../assets/images/hge3d00_generator_1781622900745.jpg';
 import bgEvMoto from '../assets/images/ev_moto_assembly_1781624859000.jpg';
@@ -90,8 +103,8 @@ export const MainHeroSlider: React.FC = () => {
       if (url) {
         setVideoUrl(url);
       } else {
-        // Use the statically deployed video in the public folder as the primary video source
-        setVideoUrl('/video.mp4');
+        // Use the YouTube video as the primary default video source
+        setVideoUrl('https://youtu.be/yqgMhS6hdcE');
       }
     });
   }, []);
@@ -181,28 +194,39 @@ export const MainHeroSlider: React.FC = () => {
       <div className="absolute inset-0 z-0 overflow-hidden w-full h-full">
         <AnimatePresence mode="wait">
           {videoUrl ? (
-            // Custom uploaded video background
+            // Custom uploaded video background or YouTube video background
             <motion.div
               key="custom-video"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 1 }}
-              className="absolute inset-0 w-full h-full"
+              className="absolute inset-0 w-full h-full overflow-hidden"
             >
-              <video
-                ref={videoRef}
-                src={videoUrl}
-                autoPlay
-                loop
-                muted
-                playsInline
-                onError={() => {
-                  console.warn("Main visual background video load failed. Falling back to multi-slide image shows.");
-                  setVideoUrl(null);
-                }}
-                className="w-full h-full object-cover"
-              />
+              {getYoutubeId(videoUrl) ? (
+                <iframe
+                  src={`https://www.youtube.com/embed/${getYoutubeId(videoUrl)}?autoplay=1&mute=1&loop=1&playlist=${getYoutubeId(videoUrl)}&controls=0&showinfo=0&rel=0&enablejsapi=1&iv_load_policy=3&playsinline=1&modestbranding=1`}
+                  title="MOASD Background Video"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  className="absolute top-1/2 left-1/2 w-[177.77777778vh] min-w-full h-[56.25vw] min-h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none scale-110"
+                />
+              ) : (
+                <video
+                  ref={videoRef}
+                  src={videoUrl}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  onError={() => {
+                    console.warn("Main visual background video load failed. Falling back to multi-slide image shows.");
+                    setVideoUrl(null);
+                  }}
+                  className="w-full h-full object-cover"
+                />
+              )}
             </motion.div>
           ) : (
             // Smooth Cinematic Multi-slide background (Ken Burns styling)
