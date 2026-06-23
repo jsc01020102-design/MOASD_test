@@ -69,10 +69,10 @@ interface Slide {
 }
 
 const DESIGN_SLIDES: Slide[] = [
+  { image: bgMaterialLab },
   { image: bgSkyscraper },
   { image: bgGenerator },
-  { image: bgEvMoto },
-  { image: bgMaterialLab }
+  { image: bgEvMoto }
 ];
 
 export const MainHeroSlider: React.FC = () => {
@@ -90,8 +90,8 @@ export const MainHeroSlider: React.FC = () => {
       if (url) {
         setVideoUrl(url);
       } else {
-        // Use the premium high-tech glowing digital circuit board background loop as standard corporate visual
-        setVideoUrl('https://assets.mixkit.co/videos/preview/mixkit-glowing-digital-circuit-board-background-43075-large.mp4');
+        // Use the statically deployed video in the public folder as the primary video source
+        setVideoUrl('/video.mp4');
       }
     });
   }, []);

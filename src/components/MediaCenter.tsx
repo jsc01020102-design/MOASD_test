@@ -110,8 +110,8 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
 
   useEffect(() => {
     const checkServerVideo = () => {
-      // Use the premium high-tech glowing digital circuit board background loop as standard corporate visual
-      setVideoUrl('https://assets.mixkit.co/videos/preview/mixkit-glowing-digital-circuit-board-background-43075-large.mp4');
+      // Use the statically deployed video in the public folder as the primary video source
+      setVideoUrl('/video.mp4');
     };
 
     // Attempt to load background video from indexedDB to allow viewing here too
@@ -196,7 +196,7 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
               <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-4">
                 <div className="absolute inset-0 overflow-hidden opacity-30">
                   <img 
-                    src={bgSkyscraper} 
+                    src={bgMaterialLab} 
                     className="w-full h-full object-cover filter blur-sm" 
                     alt="HQ Cover" 
                   />
