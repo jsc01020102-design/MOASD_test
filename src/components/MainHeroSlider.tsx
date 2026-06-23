@@ -86,12 +86,20 @@ export const MainHeroSlider: React.FC = () => {
 
   // Load user video from IndexedDB cache or static deployment fallback on mount
   useEffect(() => {
-    loadVideoFromDB().then((url) => {
+    loadVideoFromDB().then(async (url) => {
       if (url) {
         setVideoUrl(url);
       } else {
-        // Use the statically deployed video in the public folder
-        setVideoUrl('/video.mp4');
+        try {
+          const res = await fetch('/video.mp4', { method: 'HEAD' });
+          if (res.ok) {
+            setVideoUrl('/video.mp4');
+          } else {
+            setVideoUrl('https://vjs.zencdn.net/v/oceans.mp4');
+          }
+        } catch (e) {
+          setVideoUrl('https://vjs.zencdn.net/v/oceans.mp4');
+        }
       }
     });
   }, []);
@@ -197,6 +205,10 @@ export const MainHeroSlider: React.FC = () => {
                 loop
                 muted
                 playsInline
+                onError={() => {
+                  console.warn("Main visual background video load failed. Falling back to multi-slide image shows.");
+                  setVideoUrl(null);
+                }}
                 className="w-full h-full object-cover"
               />
             </motion.div>

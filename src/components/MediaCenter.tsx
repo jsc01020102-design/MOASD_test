@@ -4,6 +4,11 @@ import {
   Video, FileText, Newspaper, Calendar, ArrowRight, Play, ExternalLink, Award, Search, Sparkles, Image as ImageIcon
 } from 'lucide-react';
 
+import bgSkyscraper from '../assets/images/moasd_skyscraper_hq_bg_1781618333946.jpg';
+import bgGenerator from '../assets/images/hge3d00_generator_1781622900745.jpg';
+import bgEvMoto from '../assets/images/ev_moto_assembly_1781624859000.jpg';
+import bgMaterialLab from '../assets/images/sam_material_lab_1781624876856.jpg';
+
 interface PressRelease {
   id: string;
   tag: string;
@@ -70,25 +75,25 @@ const PRESS_RELEASES: PressRelease[] = [
 
 const GALLERY_IMAGES = [
   {
-    src: '/src/assets/images/moasd_skyscraper_hq_bg_1781618333946.jpg',
+    src: bgSkyscraper,
     title: 'MOASD 친환경 스마트 타워 본사',
     titleEn: 'MOASD Headquarters Smart Tower',
     desc: '제로 시티 복합 그리드를 지휘하는 통합 정보 관제탑'
   },
   {
-    src: '/src/assets/images/hge3d00_generator_1781622900745.jpg',
+    src: bgGenerator,
     title: 'HGE3D00 스마트 동력 발전 자동 공정',
     titleEn: 'HGE3D00 Generator Robot Assembly Line',
     desc: '차세대 인공지능 로봇 암 초정밀 배선 처리 공정'
   },
   {
-    src: '/src/assets/images/ev_moto_assembly_1781624859000.jpg',
+    src: bgEvMoto,
     title: '스마트 대용량 EV 모빌리티 제작실',
     titleEn: 'Zero-Carbon EV Assembly Workspace',
     desc: '이륜 구동 수송 장치 초소형 조립 및 모듈 통합 섀시 정합'
   },
   {
-    src: '/src/assets/images/sam_material_lab_1781624876856.jpg',
+    src: bgMaterialLab,
     title: 'SAM 신소재 입자 결정 분석실',
     titleEn: 'SAM Laboratory (Super Activity Material)',
     desc: '분자 구조 레이아웃 시뮬레이션 및 초고성능 슈퍼커패시터 개발'
@@ -104,9 +109,17 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
-    const checkServerVideo = () => {
-      // Use the statically deployed video in the public folder
-      setVideoUrl('/video.mp4');
+    const checkServerVideo = async () => {
+      try {
+        const res = await fetch('/video.mp4', { method: 'HEAD' });
+        if (res.ok) {
+          setVideoUrl('/video.mp4');
+        } else {
+          setVideoUrl('https://vjs.zencdn.net/v/oceans.mp4');
+        }
+      } catch (e) {
+        setVideoUrl('https://vjs.zencdn.net/v/oceans.mp4');
+      }
     };
 
     // Attempt to load background video from indexedDB to allow viewing here too
@@ -181,13 +194,17 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
                 controls
                 autoPlay
                 muted
+                onError={() => {
+                  console.warn("MediaCenter video load failed. Falling back to guide view.");
+                  setVideoUrl(null);
+                }}
                 className="w-full h-full object-cover"
               />
             ) : (
               <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-4">
                 <div className="absolute inset-0 overflow-hidden opacity-30">
                   <img 
-                    src="/src/assets/images/moasd_skyscraper_hq_bg_1781618333946.jpg" 
+                    src={bgSkyscraper} 
                     className="w-full h-full object-cover filter blur-sm" 
                     alt="HQ Cover" 
                   />
