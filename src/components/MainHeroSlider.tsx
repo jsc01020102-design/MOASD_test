@@ -86,20 +86,12 @@ export const MainHeroSlider: React.FC = () => {
 
   // Load user video from IndexedDB cache or static deployment fallback on mount
   useEffect(() => {
-    loadVideoFromDB().then(async (url) => {
+    loadVideoFromDB().then((url) => {
       if (url) {
         setVideoUrl(url);
       } else {
-        try {
-          const res = await fetch('/video.mp4', { method: 'HEAD' });
-          if (res.ok) {
-            setVideoUrl('/video.mp4');
-          } else {
-            setVideoUrl('https://vjs.zencdn.net/v/oceans.mp4');
-          }
-        } catch (e) {
-          setVideoUrl('https://vjs.zencdn.net/v/oceans.mp4');
-        }
+        // Use the premium high-tech glowing digital circuit board background loop as standard corporate visual
+        setVideoUrl('https://assets.mixkit.co/videos/preview/mixkit-glowing-digital-circuit-board-background-43075-large.mp4');
       }
     });
   }, []);
