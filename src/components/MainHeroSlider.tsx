@@ -90,7 +90,7 @@ const DESIGN_SLIDES: Slide[] = [
 
 export const MainHeroSlider: React.FC = () => {
   const { language, t } = useLanguage();
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>('https://youtu.be/yqgMhS6hdcE');
   const [activeSlide, setActiveSlide] = useState<number>(0);
   const [dragActive, setDragActive] = useState<boolean>(false);
   const [notification, setNotification] = useState<string | null>(null);
@@ -102,10 +102,6 @@ export const MainHeroSlider: React.FC = () => {
     loadVideoFromDB().then((url) => {
       if (url) {
         setVideoUrl(url);
-      } else {
-        // Use a high-quality, high-tech industrial direct MP4 loop as the default background video.
-        // Doing this completely bypasses YouTube embeds and prevents any native play/pause overlay controls on all browsers & mobile devices.
-        setVideoUrl('https://assets.mixkit.co/videos/preview/mixkit-futuristic-factory-robotic-arm-moving-panels-41982-large.mp4');
       }
     });
   }, []);
@@ -205,12 +201,22 @@ export const MainHeroSlider: React.FC = () => {
               className="absolute inset-0 w-full h-full overflow-hidden"
             >
               {getYoutubeId(videoUrl) ? (
-                <div className="relative w-full h-full select-none">
-                  {/* Invisible pointer-interceptor shield that blocks touch/tap/mouse events from hitting the iframe, preventing YouTube native play-pause overlay inside iOS/Safari */}
-                  {/* We use rgba(0,0,0,0.001) because iOS Safari clicks through background: transparent, and we stop event propagation completely */}
+                <div className="relative w-full h-full select-none pointer-events-none">
+                  {/* Invisible solid/hardware-accelerated pointer-interceptor shield that blocks touch, tap, swipe, and mouse events from touching the iframe cross-process layer */}
+                  {/* We use subtle rgba(15, 23, 42, 0.005) because iOS Safari completely clicking-through background: transparent, and backface-visibility hardware rendering isolation enforces solid stacking bounds */}
                   <div 
-                    className="absolute inset-0 z-40 select-none cursor-default" 
-                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.001)', pointerEvents: 'auto' }}
+                    className="absolute inset-0 z-40 select-none cursor-default touch-none" 
+                    style={{ 
+                      backgroundColor: 'rgba(15, 23, 42, 0.005)', 
+                      pointerEvents: 'auto',
+                      touchAction: 'none',
+                      userSelect: 'none',
+                      WebkitUserSelect: 'none',
+                      WebkitTouchCallout: 'none',
+                      transform: 'translate3d(0, 0, 0)',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden'
+                    }}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -235,6 +241,10 @@ export const MainHeroSlider: React.FC = () => {
                       e.preventDefault();
                       e.stopPropagation();
                     }}
+                    onTouchCancel={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
                   />
                   <iframe
                     src={`https://www.youtube.com/embed/${getYoutubeId(videoUrl)}?autoplay=1&mute=1&loop=1&playlist=${getYoutubeId(videoUrl)}&controls=0&showinfo=0&rel=0&enablejsapi=1&iv_load_policy=3&playsinline=1&modestbranding=1&fs=0&disablekb=1`}
@@ -255,7 +265,7 @@ export const MainHeroSlider: React.FC = () => {
                   muted
                   playsInline
                   onError={() => {
-                    console.warn("Main visual background video load failed. Falling back to multi-slide image shows.");
+                    console.warn("Main visual background video load failed.");
                     setVideoUrl(null);
                   }}
                   className="w-full h-full object-cover"
@@ -263,28 +273,8 @@ export const MainHeroSlider: React.FC = () => {
               )}
             </motion.div>
           ) : (
-            // Smooth Cinematic Multi-slide background (Ken Burns styling)
-            <div className="absolute inset-0 w-full h-full">
-              {DESIGN_SLIDES.map((slide, index) => (
-                index === activeSlide && (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 1.05 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: 1.8, ease: "easeOut" }}
-                    className="absolute inset-0 w-full h-full"
-                  >
-                    <img
-                      src={slide.image}
-                      alt="MOASD Scene"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-slate-950/20" />
-                  </motion.div>
-                )
-              ))}
-            </div>
+            // Pure pitch dark premium background (fallback image rotation removed per client guidelines)
+            <div className="absolute inset-0 w-full h-full bg-slate-950" />
           )}
         </AnimatePresence>
 
