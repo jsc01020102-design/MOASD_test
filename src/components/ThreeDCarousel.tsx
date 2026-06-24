@@ -21,6 +21,7 @@ import {
   Trees
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { HybridMotorcycleAdvancedShowcase } from './HybridMotorcycleAdvancedShowcase';
 
 // Import image assets for path resolution in build bundles
 import adamhanCabinHouse from '../assets/images/adamhan_cabin_house_1781935827590.jpg';
@@ -489,6 +490,30 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                     <div className="mt-2 text-[9px] font-mono text-amber-400 font-bold flex items-center gap-2">
                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                        {isEn ? "SCROLL DOWN FOR INTERACTIVE 8-STAGE WORKFLOW" : "아래로 스크롤하여 8단계 상호작용 흐름도를 체험하세요"}
+                    </div>
+                  </div>
+                ) : activeIndex === 3 ? (
+                  /* Custom blueprint with scroll hint for E-Motorcycle */
+                  <div className="relative w-full p-4 sm:p-6 rounded-2xl border border-cyan-500/35 bg-gradient-to-r from-cyan-950/25 to-slate-950/60 overflow-hidden flex flex-col justify-center min-h-[140px] shadow-lg shadow-cyan-950/30">
+                    <div className="absolute -right-16 -bottom-16 w-48 h-48 bg-cyan-400/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+                    <div className="flex items-center gap-3.5 mb-2.5">
+                      <div className="p-2.5 rounded-xl bg-cyan-500/25 border border-cyan-400/30 text-cyan-300">
+                        <Activity className="w-5 h-5 animate-pulse" />
+                      </div>
+                      <div className="text-left">
+                        <span className="text-[10px] font-mono text-cyan-400 font-extrabold uppercase tracking-widest block">HYBRID MOTO TECHNICAL BRIEFING</span>
+                        <span className="text-xs font-bold text-slate-200">{isEn ? 'Hybrid Motorcycle Advanced Showcase Ready' : '하이브리드 이륜차 정밀 구동 분석자료 탑재'}</span>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-cyan-200/90 font-sans leading-relaxed text-left font-medium mb-3">
+                      {isEn 
+                        ? '※ Includes driving simulation, cost savings calculator, technical spec comparisons, and the development timeline.' 
+                        : '※ 주행 연비 시뮬레이션, 유류비/전기요금 절감 계산기, 동급 가솔린/전기 대비 특성 비교표 및 연도별 개발 일정표가 완벽 구비되어 있습니다.'
+                      }
+                    </p>
+                    <div className="text-[9px] font-mono text-cyan-400 font-bold flex items-center gap-2">
+                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                       {isEn ? "SCROLL DOWN TO VIEW THE DETAILED SCROLLABLE REPORT" : "아래로 스크롤하여 상세 스크롤 보고서 및 시뮬레이션을 확인하세요"}
                     </div>
                   </div>
                 ) : (
@@ -2132,6 +2157,12 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                   </div>
                 </div>
 
+              </div>
+            )}
+
+            {activeIndex === 3 && (
+              <div className="col-span-full mt-12 md:mt-18 pt-10 md:pt-16 border-t border-white/10 select-text w-full">
+                <HybridMotorcycleAdvancedShowcase language={language} isEn={isEn} />
               </div>
             )}
           </motion.div>

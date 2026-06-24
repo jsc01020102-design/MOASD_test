@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from '../context/LanguageContext';
+import { TerramuvicsAdvancedShowcase } from './TerramuvicsAdvancedShowcase';
+import { SamPolishingAdvancedShowcase } from './SamPolishingAdvancedShowcase';
+import { HeatCoatingAdvancedShowcase } from './HeatCoatingAdvancedShowcase';
+import { PolarisAdvancedShowcase } from './PolarisAdvancedShowcase';
+import { HybridMotorcycleAdvancedShowcase } from './HybridMotorcycleAdvancedShowcase';
 import { 
   Sparkles, 
   Layers, 
@@ -28,7 +33,7 @@ import {
   Info
 } from 'lucide-react';
 
-export type SolutionTab = 'sam-p' | 'ecotube' | 'terramuvics' | 'heat-coating';
+export type SolutionTab = 'sam-p' | 'ecotube' | 'terramuvics' | 'heat-coating' | 'polaris' | 'hybrid-moto';
 
 export interface SamPolishingSolutionsProps {
   activeTab?: string | null;
@@ -43,7 +48,7 @@ export const SamPolishingSolutions: React.FC<SamPolishingSolutionsProps> = ({
   const [internalActiveTab, setInternalActiveTab] = useState<SolutionTab>('sam-p');
   
   const currentTabRaw = controlledActiveTab || internalActiveTab;
-  const activeTab: SolutionTab = (currentTabRaw === 'sam-p' || currentTabRaw === 'ecotube' || currentTabRaw === 'terramuvics' || currentTabRaw === 'heat-coating')
+  const activeTab: SolutionTab = (currentTabRaw === 'sam-p' || currentTabRaw === 'ecotube' || currentTabRaw === 'terramuvics' || currentTabRaw === 'heat-coating' || currentTabRaw === 'polaris' || currentTabRaw === 'hybrid-moto')
     ? (currentTabRaw as SolutionTab)
     : 'sam-p';
 
@@ -60,9 +65,12 @@ export const SamPolishingSolutions: React.FC<SamPolishingSolutionsProps> = ({
   // Listen to outer menu navigation selection changes
   useEffect(() => {
     const handleTabChange = (e: Event) => {
-      const customEvent = e as CustomEvent<{ tab: SolutionTab }>;
+      const customEvent = e as CustomEvent<{ tab: string }>;
       if (customEvent.detail && customEvent.detail.tab) {
-        setActiveTab(customEvent.detail.tab);
+        const targetTab = customEvent.detail.tab;
+        if (targetTab === 'sam-p' || targetTab === 'ecotube' || targetTab === 'terramuvics' || targetTab === 'heat-coating' || targetTab === 'polaris' || targetTab === 'hybrid-moto') {
+          setActiveTab(targetTab as SolutionTab);
+        }
         const section = document.getElementById('sam-solutions-showcase');
         if (section) {
           section.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -242,6 +250,27 @@ export const SamPolishingSolutions: React.FC<SamPolishingSolutionsProps> = ({
             note: t('sam.sol.h.no', 'Optimal coating solution for electric vehicles, solar power panel defrosting, military cold-weather tents, and specialized HVAC installations.', '풍력 회전 날개 표면 제빙 결빙 방지, 대형 전기 주행차 배터리 패드 보온층 및 배관 동파 가열에 강력 장착.')
           }
         };
+
+      case 'polaris':
+      case 'hybrid-moto':
+        return {
+          title: '',
+          subtitle: '',
+          tagline: '',
+          description: '',
+          stats: [],
+          points: [],
+          cmp: {
+            title: '',
+            p1: { label: '', value: '' },
+            p2: { label: '', value: '' },
+            p3: { label: '', value: '' },
+            bar1: { val1: '0%', val2: '0%', color: '' },
+            bar2: { val1: '0%', val2: '0%', color: '' },
+            bar3: { val1: '0%', val2: '0%', color: '' },
+            note: ''
+          }
+        };
     }
   };
 
@@ -278,54 +307,6 @@ export const SamPolishingSolutions: React.FC<SamPolishingSolutionsProps> = ({
                 '미국 화학회 CAS 에 독점 공인 등재된 SAM 원천 신소재 결사 공법과 차세대 고분자 기질 및 배료 설계를 이식한 MOASD의 4대 핵심 특화 포트폴리오를 점검하십시오.'
               )}
             </p>
-          </div>
-
-          {/* Tab Switcher buttons - Flowing nicely below description */}
-          <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-950/80 border border-white/10 rounded-xl xl:max-w-max">
-            <button
-              onClick={() => setActiveTab('sam-p')}
-              className={`flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === 'sam-p'
-                  ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/15'
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Gem className="w-3.5 h-3.5" />
-              {t('sam.nav.p', 'SAM Metal & Concrete Polishing', 'SAM 메탈 및 콘크리트 폴리싱')}
-            </button>
-            <button
-              onClick={() => setActiveTab('ecotube')}
-              className={`flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === 'ecotube'
-                  ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/15'
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Boxes className="w-3.5 h-3.5" />
-              {t('sam.nav.e', 'ECOTUBE (에코튜브)', 'ECOTUBE (에코튜브)')}
-            </button>
-            <button
-              onClick={() => setActiveTab('terramuvics')}
-              className={`flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === 'terramuvics'
-                  ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/15'
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              {t('sam.nav.t', 'Terramuvics (테라뮤빅스)', 'Terramuvics (테라뮤빅스)')}
-            </button>
-            <button
-              onClick={() => setActiveTab('heat-coating')}
-              className={`flex items-center gap-2 px-3.5 py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                activeTab === 'heat-coating'
-                  ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/15'
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Flame className="w-3.5 h-3.5" />
-              {t('sam.nav.h', 'Conductive Heating Coating', '발열 코팅')}
-            </button>
           </div>
         </div>
 
@@ -371,6 +352,16 @@ export const SamPolishingSolutions: React.FC<SamPolishingSolutionsProps> = ({
       {/* Main Interactive Showcase Grid */}
       {activeTab === 'ecotube' ? (
         <EcotubeAdvancedShowcase language={language} isEn={isEn} />
+      ) : activeTab === 'terramuvics' ? (
+        <TerramuvicsAdvancedShowcase language={language} isEn={isEn} />
+      ) : activeTab === 'sam-p' ? (
+        <SamPolishingAdvancedShowcase language={language} isEn={isEn} />
+      ) : activeTab === 'heat-coating' ? (
+        <HeatCoatingAdvancedShowcase language={language} isEn={isEn} />
+      ) : activeTab === 'polaris' ? (
+        <PolarisAdvancedShowcase language={language} isEn={isEn} />
+      ) : activeTab === 'hybrid-moto' ? (
+        <HybridMotorcycleAdvancedShowcase language={language} isEn={isEn} />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch pt-2">
           

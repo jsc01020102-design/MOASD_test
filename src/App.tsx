@@ -111,7 +111,7 @@ export default function App() {
     buyer: string;
   } | null>(null);
 
-  const handlePurchaseOrder = (product: Product, quantity: number, buyerInfo?: any) => {
+  const handlePurchaseOrder = (product: any, quantity: number, buyerInfo?: any) => {
     const includeVat = buyerInfo?.includeVat !== false;
     const finalVatMultiplier = includeVat ? 1.1 : 1.0;
     const totalAmount = buyerInfo?.totalAmount || (product.priceKrw * quantity * finalVatMultiplier);
@@ -807,6 +807,32 @@ export default function App() {
                                   <span className="w-1 h-1 rounded-full bg-amber-400 flex-shrink-0" />
                                   {language === 'en' ? 'Heating Coating' : '발열 코팅'}
                                 </button>
+                                
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigateToSolutions(4, 'polaris', e);
+                                    setSolutionsDropdownOpen(false);
+                                    setSamSubmenuOpen(false);
+                                  }}
+                                  className="flex items-center gap-2 px-2 py-1.5 text-[11.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
+                                >
+                                  <span className="w-1 h-1 rounded-full bg-rose-400 flex-shrink-0" />
+                                  {language === 'en' ? 'Polaris Coating' : '폴라리스 코팅'}
+                                </button>
+                                 
+                                 <button
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     navigateToSolutions(4, 'hybrid-moto', e);
+                                     setSolutionsDropdownOpen(false);
+                                     setSamSubmenuOpen(false);
+                                   }}
+                                   className="flex items-center gap-2 px-2 py-1.5 text-[11.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
+                                 >
+                                   <span className="w-1 h-1 rounded-full bg-cyan-400 flex-shrink-0" />
+                                   {language === 'en' ? 'Hybrid Motorcycle' : '하이브리드 이륜차'}
+                                 </button>
                               </div>
                             </motion.div>
                           )}
@@ -1131,6 +1157,26 @@ export default function App() {
                                   <span className="w-1 h-0.5 bg-amber-400" />
                                   {language === 'en' ? 'Heating Coating' : '발열 코팅'}
                                 </button>
+                                <button
+                                  onClick={() => {
+                                    navigateToSolutions(4, 'polaris');
+                                    setMobileMenuOpen(false);
+                                  }}
+                                  className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
+                                >
+                                  <span className="w-1 h-0.5 bg-rose-400" />
+                                  {language === 'en' ? 'Polaris Coating' : '폴라리스 코팅'}
+                                </button>
+                                 <button
+                                   onClick={() => {
+                                     navigateToSolutions(4, 'hybrid-moto');
+                                     setMobileMenuOpen(false);
+                                   }}
+                                   className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
+                                 >
+                                   <span className="w-1 h-0.5 bg-cyan-400" />
+                                   {language === 'en' ? 'Hybrid Motorcycle' : '하이브리드 이륜차'}
+                                 </button>
                               </motion.div>
                             )}
                           </AnimatePresence>
