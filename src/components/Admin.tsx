@@ -22,16 +22,17 @@ import {
   Upload,
   Image as ImageIcon,
   X as XIcon,
-  Smartphone
+  Smartphone,
+  Search
 } from 'lucide-react';
-import { Product, PRODUCTS } from './B2bMall';
+// No B2bMall imports - B2B Mall has been deleted
 
 interface AdminUser {
   id: string;
   name: string;
   phone: string;
   password?: string;
-  roleLabel: string; // 'M', '1', '2', '3', '4', '5'
+  roleLabel: string; // 'S', '1', '2', '3', '4', '5'
 }
 
 interface MemberUser {
@@ -46,8 +47,6 @@ interface MemberUser {
 
 interface AdminProps {
   language: 'ko' | 'en';
-  products: Product[];
-  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   registeredUser: MemberUser | null;
   setRegisteredUser: (user: MemberUser | null) => void;
   setIsSignedUp: (isSigned: boolean) => void;
@@ -55,8 +54,6 @@ interface AdminProps {
 
 export const Admin: React.FC<AdminProps> = ({
   language,
-  products,
-  setProducts,
   registeredUser,
   setRegisteredUser,
   setIsSignedUp
@@ -68,7 +65,17 @@ export const Admin: React.FC<AdminProps> = ({
   
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(() => {
     const saved = sessionStorage.getItem('moasd_admin_session');
-    return saved ? JSON.parse(saved) : null;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.id === 'master-admin' || parsed.name?.includes('장세창')) {
+          parsed.roleLabel = 'S';
+          sessionStorage.setItem('moasd_admin_session', JSON.stringify(parsed));
+        }
+        return parsed;
+      } catch (e) {}
+    }
+    return null;
   });
 
   // Login inputs
@@ -135,34 +142,27 @@ export const Admin: React.FC<AdminProps> = ({
   });
 
   // Active Admin Sub-tab
-  const [activeTab, setActiveTab] = useState<'members' | 'products' | 'subadmins' | 'sms'>('members');
-
-  // Product Modals / Forms state
-  const [showProductModal, setShowProductModal] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  
-  // Product Form states
-  const [prodId, setProdId] = useState('');
-  const [prodNameKo, setProdNameKo] = useState('');
-  const [prodNameEn, setProdNameEn] = useState('');
-  const [prodDescKo, setProdDescKo] = useState('');
-  const [prodDescEn, setProdDescEn] = useState('');
-  const [prodPriceKrw, setProdPriceKrw] = useState<number>(0);
-  const [prodPriceUsd, setProdPriceUsd] = useState<number>(0);
-  const [prodCategoryKo, setProdCategoryKo] = useState('');
-  const [prodCategoryEn, setProdCategoryEn] = useState('');
-  const [prodIconName, setProdIconName] = useState<'generator' | 'capacitor' | 'binder' | 'ev'>('generator');
-  const [prodSpecKoText, setProdSpecKoText] = useState('');
-  const [prodSpecEnText, setProdSpecEnText] = useState('');
-  const [prodAvailabilityKo, setProdAvailabilityKo] = useState('');
-  const [prodAvailabilityEn, setProdAvailabilityEn] = useState('');
-  const [prodImageUrl, setProdImageUrl] = useState('');
+  const [activeTab, setActiveTab] = useState<'members' | 'subadmins' | 'sms'>('members');
 
   // SubAdmin Form states
   const [newSubName, setNewSubName] = useState('');
   const [newSubPhone, setNewSubPhone] = useState('');
   const [newSubPass, setNewSubPass] = useState('');
   const [subAdminError, setSubAdminError] = useState('');
+
+  // Member Form states
+  const [showAddMemberForm, setShowAddMemberForm] = useState(false);
+  const [newMemEmail, setNewMemEmail] = useState('');
+  const [newMemName, setNewMemName] = useState('');
+  const [newMemCompany, setNewMemCompany] = useState('');
+  const [newMemPhone, setNewMemPhone] = useState('');
+  const [newMemRole, setNewMemRole] = useState<'general' | 'partner'>('general');
+
+  // Member Search states
+  const [memberSearchTerm, setMemberSearchTerm] = useState('');
+  const [memberSearchType, setMemberSearchType] = useState<'name' | 'code'>('name');
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState('');
+  const [appliedSearchType, setAppliedSearchType] = useState<'name' | 'code'>('name');
 
   // Sync registered user with the member list
   useEffect(() => {
@@ -201,7 +201,7 @@ export const Admin: React.FC<AdminProps> = ({
     residentNumber: '770102-1565719',
     phone: '010-2242-7801',
     code: '0815)*!%',
-    roleLabel: 'M'
+    roleLabel: 'S'
   };
 
   // Login handler
@@ -225,7 +225,7 @@ export const Admin: React.FC<AdminProps> = ({
 
         // Sync with general application B2B privileges
         const masterUser: MemberUser = {
-          email: 'jsc01020102@gmail.com',
+          email: 'sinhwaensol@gmail.com',
           name: '장세창 (최고 마스터 관리자)',
           company: '(주)MOASD 본사',
           phone: MASTER_ADMIN_INFO.phone,
@@ -264,7 +264,7 @@ export const Admin: React.FC<AdminProps> = ({
         // Sync with general application B2B privileges
         const subUser: MemberUser = {
           email: `${matchingSub.name.replace(/\s/g, '').toLowerCase()}@moasd.com`,
-          name: `${matchingSub.name} (부관리자)`,
+          name: `${matchingSub.name} (관리자)`,
           company: '(주)MOASD 운영부서',
           phone: matchingSub.phone,
           regDate: new Date().toLocaleDateString(),
@@ -275,7 +275,7 @@ export const Admin: React.FC<AdminProps> = ({
         setRegisteredUser(subUser);
         setIsSignedUp(true);
       } else {
-        setLoginError(language === 'en' ? 'Invalid sub-admin name or password.' : '등록된 부관리자 이름 또는 비밀번호가 일치하지 않습니다.');
+        setLoginError(language === 'en' ? 'Invalid admin name or password.' : '등록된 관리자 이름 또는 비밀번호가 일치하지 않습니다.');
       }
     }
   };
@@ -298,18 +298,18 @@ export const Admin: React.FC<AdminProps> = ({
     e.preventDefault();
     setSubAdminError('');
 
-    if (currentAdmin?.roleLabel !== 'M') {
-      setSubAdminError(language === 'en' ? 'Only Master Admin can register sub-admins.' : '마스터 관리자만 부관리자를 지정할 수 있습니다.');
+    if (currentAdmin?.roleLabel !== 'S') {
+      setSubAdminError(language === 'en' ? 'Only Master Admin can register admins.' : '마스터 관리자만 관리자를 지정할 수 있습니다.');
       return;
     }
 
     if (subAdmins.length >= 5) {
-      setSubAdminError(language === 'en' ? 'Maximum limit of 5 sub-admins reached.' : '추가 지정할 수 있는 부관리자의 수는 최대 5명(1번~5번)입니다.');
+      setSubAdminError(language === 'en' ? 'Maximum limit of 5 admins reached.' : '추가 지정할 수 있는 관리자의 수는 최대 5명(1번~5번)입니다.');
       return;
     }
 
     if (!newSubName.trim() || !newSubPhone.trim() || !newSubPass.trim()) {
-      setSubAdminError(language === 'en' ? 'Please enter all administrator details.' : '추가할 부관리자의 정보를 빈칸 없이 입력하십시오.');
+      setSubAdminError(language === 'en' ? 'Please enter all administrator details.' : '추가할 관리자의 정보를 빈칸 없이 입력하십시오.');
       return;
     }
 
@@ -338,20 +338,66 @@ export const Admin: React.FC<AdminProps> = ({
     setNewSubName('');
     setNewSubPhone('');
     setNewSubPass('');
-    alert(language === 'en' ? `Sub-Admin ${newSub.name} successfully registered at Slot No.${newSub.roleLabel}!` : `부관리자 "${newSub.name}" 님이 No.${newSub.roleLabel} 슬롯에 안전하게 추가 지정되었습니다.`);
+    alert(language === 'en' ? `Admin ${newSub.name} successfully registered at Slot No.${newSub.roleLabel}!` : `관리자 "${newSub.name}" 님이 No.${newSub.roleLabel} 슬롯에 안전하게 추가 지정되었습니다.`);
   };
 
   // Delete Sub-Admin (Master only)
   const handleDeleteSubAdmin = (id: string, name: string) => {
-    if (currentAdmin?.roleLabel !== 'M') return;
-    if (confirm(language === 'en' ? `Are you sure you want to remove Sub-Admin ${name}?` : `진짜로 부관리자 ${name}의 권한을 즉격 파기시키겠습니까?`)) {
+    if (currentAdmin?.roleLabel !== 'S') return;
+    if (confirm(language === 'en' ? `Are you sure you want to remove Admin ${name}?` : `진짜로 관리자 ${name}의 권한을 즉격 파기시키겠습니까?`)) {
       const filtered = subAdmins.filter(sa => sa.id !== id);
       setSubAdmins(filtered);
     }
   };
 
   // Member management actions
+  const handleAddMember = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentAdmin) return;
+
+    if (!newMemEmail.trim() || !newMemName.trim() || !newMemCompany.trim() || !newMemPhone.trim()) {
+      alert(language === 'en' ? 'Please fill out all member details.' : '회원 정보를 모두 빈칸 없이 입력하십시오.');
+      return;
+    }
+
+    const emailLower = newMemEmail.trim().toLowerCase();
+    const exists = members.some(m => m.email.toLowerCase() === emailLower);
+    if (exists) {
+      alert(language === 'en' ? 'This email address is already registered.' : '이미 가입 처리 완료된 이메일 주소입니다.');
+      return;
+    }
+
+    const newMem: MemberUser = {
+      email: emailLower,
+      name: newMemName.trim(),
+      company: newMemCompany.trim(),
+      phone: newMemPhone.trim(),
+      regDate: new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\s/g, '').slice(0, -1),
+      role: newMemRole,
+      partnerCode: newMemRole === 'partner' ? 'MOASD_PARTNER' : undefined
+    };
+
+    const updated = [newMem, ...members];
+    setMembers(updated);
+    localStorage.setItem('moasd_member_list', JSON.stringify(updated));
+
+    // Clear form
+    setNewMemEmail('');
+    setNewMemName('');
+    setNewMemCompany('');
+    setNewMemPhone('');
+    setNewMemRole('general');
+    setShowAddMemberForm(false);
+
+    alert(language === 'en' ? `Member "${newMem.name}" registered successfully!` : `회원 "${newMem.name}" 님이 성공적으로 신규 등록 배속 완료되었습니다.`);
+  };
+
   const handleToggleMemberRole = (memberEmail: string) => {
+    if (!currentAdmin) {
+      alert(language === 'en' ? 'Only administrators can modify member privileges.' : '가입 회원의 등급 변경 권한은 인가된 관리자에게만 허용됩니다.');
+      return;
+    }
+
     const updatedMembers = members.map(m => {
       if (m.email === memberEmail) {
         const nextRole = m.role === 'partner' ? 'general' : 'partner';
@@ -375,6 +421,11 @@ export const Admin: React.FC<AdminProps> = ({
   };
 
   const handleDeleteMember = (memberEmail: string) => {
+    if (!currentAdmin) {
+      alert(language === 'en' ? 'Only administrators can delete members.' : '가입 회원의 탈퇴 및 영구 파문 권한은 인가된 관리자에게만 허용됩니다.');
+      return;
+    }
+
     if (confirm(language === 'en' ? `Remove member ${memberEmail}?` : `${memberEmail} 회원의 시스템 등록 기록을 영구 삭제 처리하시겠습니까?`)) {
       const filtered = members.filter(m => m.email !== memberEmail);
       setMembers(filtered);
@@ -389,113 +440,21 @@ export const Admin: React.FC<AdminProps> = ({
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const filteredMembers = members.filter(mem => {
+    if (!appliedSearchTerm) return true;
+    const cleanTerm = appliedSearchTerm.trim().toLowerCase().replace(/[- ]/g, '');
+    if (!cleanTerm) return true;
 
-    if (!file.type.startsWith('image/')) {
-      alert(language === 'en' ? 'Only image files are allowed.' : '이미지 파일 포맷만 인가 가능합니다.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result && typeof event.target.result === 'string') {
-        setProdImageUrl(event.target.result);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // Product management Actions (Add/Edit/Delete)
-  const openAddProductModal = () => {
-    setEditingProduct(null);
-    setProdId(`prod-${Date.now()}`);
-    setProdNameKo('');
-    setProdNameEn('');
-    setProdDescKo('');
-    setProdDescEn('');
-    setProdPriceKrw(500000);
-    setProdPriceUsd(450);
-    setProdCategoryKo('기타 자재');
-    setProdCategoryEn('Miscellaneous');
-    setProdIconName('generator');
-    setProdSpecKoText('설계 수명: 10년 보장\n고압 제어 전하 탑재');
-    setProdSpecEnText('Service Life: 10 years\nSurge absorption units');
-    setProdAvailabilityKo('즉격 납품 가능');
-    setProdAvailabilityEn('Ready for shipment');
-    setProdImageUrl('');
-    setShowProductModal(true);
-  };
-
-  const openEditProductModal = (prod: Product) => {
-    setEditingProduct(prod);
-    setProdId(prod.id);
-    setProdNameKo(prod.nameKo);
-    setProdNameEn(prod.nameEn);
-    setProdDescKo(prod.descKo);
-    setProdDescEn(prod.descEn);
-    setProdPriceKrw(prod.priceKrw);
-    setProdPriceUsd(prod.priceUsd);
-    setProdCategoryKo(prod.categoryKo);
-    setProdCategoryEn(prod.categoryEn);
-    setProdIconName(prod.iconName);
-    setProdSpecKoText(prod.specKo.join('\n'));
-    setProdSpecEnText(prod.specEn.join('\n'));
-    setProdAvailabilityKo(prod.availabilityKo);
-    setProdAvailabilityEn(prod.availabilityEn);
-    setProdImageUrl(prod.imageUrl || '');
-    setShowProductModal(true);
-  };
-
-  const handleSaveProduct = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!prodNameKo.trim() || !prodNameEn.trim()) {
-      alert(language === 'en' ? 'Product title is required' : '상품 품명은 국문, 영문 모두 입력 필수입니다.');
-      return;
-    }
-
-    const compiledProduct: Product = {
-      id: prodId,
-      nameKo: prodNameKo,
-      nameEn: prodNameEn,
-      descKo: prodDescKo,
-      descEn: prodDescEn,
-      priceKrw: prodPriceKrw,
-      priceUsd: prodPriceUsd,
-      categoryKo: prodCategoryKo,
-      categoryEn: prodCategoryEn,
-      iconName: prodIconName,
-      specKo: prodSpecKoText.split('\n').map(s => s.trim()).filter(Boolean),
-      specEn: prodSpecEnText.split('\n').map(s => s.trim()).filter(Boolean),
-      availabilityKo: prodAvailabilityKo || '즉시 협의',
-      availabilityEn: prodAvailabilityEn || 'Upon client discussion',
-      imageUrl: prodImageUrl || undefined
-    };
-
-    let updatedList: Product[];
-    if (editingProduct) {
-      // Edit existing
-      updatedList = products.map(p => p.id === prodId ? compiledProduct : p);
+    if (appliedSearchType === 'name') {
+      const nameMatch = mem.name?.toLowerCase().includes(appliedSearchTerm.toLowerCase());
+      const companyMatch = mem.company?.toLowerCase().includes(appliedSearchTerm.toLowerCase());
+      return nameMatch || companyMatch;
     } else {
-      // Add new
-      updatedList = [...products, compiledProduct];
+      // Code search:
+      const cleanCode = (mem.partnerCode || '').trim().toLowerCase().replace(/[- ]/g, '');
+      return cleanCode.includes(cleanTerm);
     }
-
-    setProducts(updatedList);
-    localStorage.setItem('moasd_b2b_products', JSON.stringify(updatedList));
-    setShowProductModal(false);
-    setEditingProduct(null);
-  };
-
-  const handleDeleteProduct = (id: string, name: string) => {
-    if (confirm(language === 'en' ? `Delete product "${name}"?` : `정식 등록된 사업자몰 상품 "${name}" 품목을 즉격 단종/삭제 조치하시겠습니까?`)) {
-      const filtered = products.filter(p => p.id !== id);
-      setProducts(filtered);
-      localStorage.setItem('moasd_b2b_products', JSON.stringify(filtered));
-    }
-  };
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-20 relative z-10 text-slate-100 min-h-[80vh]">
@@ -542,8 +501,8 @@ export const Admin: React.FC<AdminProps> = ({
           </h1>
           <p className="text-xs text-slate-400 mt-2 font-sans">
             {language === 'en'
-              ? 'Real-time corporate member validation, enterprise product provisioning, and secure credential auditing.'
-              : '실시간 가입 회원 자격 승인/박탈, 사업자 전력 설비 상품 업로드, 부관리자 계정 배치 및 전체 시스템 상태 정밀 모니터링.'}
+              ? 'Real-time corporate member validation, and secure credential auditing.'
+              : '실시간 가입 회원 자격 승인/박탈, 관리자 계정 배치 및 전체 시스템 상태 정밀 모니터링.'}
           </p>
         </div>
         
@@ -556,7 +515,7 @@ export const Admin: React.FC<AdminProps> = ({
               <div className="text-xs font-bold text-white flex items-center gap-1.5">
                 {currentAdmin?.name}
                 <span className="text-[9px] bg-white/5 text-slate-400 px-1.5 py-0.5 rounded uppercase font-mono">
-                  {currentAdmin?.roleLabel === 'M' ? 'Master' : `Sub-No.${currentAdmin?.roleLabel}`}
+                  {currentAdmin?.roleLabel === 'S' ? 'Master (S)' : `Sub-No.${currentAdmin?.roleLabel}`}
                 </span>
               </div>
               <div className="text-[10px] text-slate-500 font-mono">{currentAdmin?.phone}</div>
@@ -608,7 +567,7 @@ export const Admin: React.FC<AdminProps> = ({
                 onClick={() => { setLoginMode('sub'); setLoginError(''); }}
                 className={`py-2 text-[11.5px] font-bold rounded-lg transition-all cursor-pointer border-0 ${loginMode === 'sub' ? 'bg-cyan-400 text-slate-950 font-extrabold' : 'text-slate-400 hover:text-slate-200 bg-transparent'}`}
               >
-                {language === 'en' ? 'Sub-Administrators' : '등록 부관리자'}
+                {language === 'en' ? 'Administrators' : '등록 관리자'}
               </button>
             </div>
 
@@ -653,7 +612,7 @@ export const Admin: React.FC<AdminProps> = ({
                 <div className="space-y-4">
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-mono text-slate-400 uppercase font-black block tracking-wider">
-                      {language === 'en' ? 'Admin Username' : '부관리자 등록 성함'}
+                      {language === 'en' ? 'Admin Username' : '관리자 등록 성함'}
                     </label>
                     <input 
                       type="text"
@@ -666,7 +625,7 @@ export const Admin: React.FC<AdminProps> = ({
 
                   <div className="space-y-1.5">
                     <label className="text-[11px] font-mono text-slate-400 uppercase font-black block tracking-wider">
-                      {language === 'en' ? 'Assigned Passcode' : '부관리자 고유 비밀번호'}
+                      {language === 'en' ? 'Assigned Passcode' : '관리자 고유 비밀번호'}
                     </label>
                     <input 
                       type="password"
@@ -705,25 +664,14 @@ export const Admin: React.FC<AdminProps> = ({
               </span>
             </button>
 
-            <button
-              onClick={() => setActiveTab('products')}
-              className={`pb-4 px-4 text-sm font-bold flex items-center gap-2 transition-all cursor-pointer bg-transparent border-0 border-b-2 ${activeTab === 'products' ? 'text-cyan-400 border-cyan-400 font-extrabold' : 'text-slate-400 border-transparent hover:text-slate-200'}`}
-            >
-              <Sliders className="w-4 h-4" />
-              <span>{language === 'en' ? 'B2B Products Registry' : '사업자몰 품목 수정 및 등록'}</span>
-              <span className="text-[10px] bg-white/5 font-mono text-cyan-400 px-1.5 py-0.5 rounded-full font-bold">
-                {products.length}
-              </span>
-            </button>
-
             {/* Only Master Admin can see/add sub-admins list tab */}
-            {currentAdmin?.roleLabel === 'M' && (
+            {currentAdmin?.roleLabel === 'S' && (
               <button
                 onClick={() => setActiveTab('subadmins')}
                 className={`pb-4 px-4 text-sm font-bold flex items-center gap-2 transition-all cursor-pointer bg-transparent border-0 border-b-2 ${activeTab === 'subadmins' ? 'text-cyan-400 border-cyan-400 font-extrabold' : 'text-slate-400 border-transparent hover:text-slate-200'}`}
               >
                 <Shield className="w-4 h-4" />
-                <span>{language === 'en' ? 'Deploy Sub-Admins' : '부관리자 발탁 (M)'}</span>
+                <span>{language === 'en' ? 'Deploy Admins' : '관리자 발탁 (S)'}</span>
                 <span className="text-[10px] bg-white/5 font-mono text-cyan-400 px-1.5 py-0.5 rounded-full font-bold">
                   {subAdmins.length}/5
                 </span>
@@ -749,15 +697,156 @@ export const Admin: React.FC<AdminProps> = ({
             {/* T1: Members Management */}
             {activeTab === 'members' && (
               <div className="space-y-6 text-left">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <h3 className="text-lg font-bold text-white flex items-center gap-2">
                     <UserCheck className="text-cyan-400 w-5 h-5" />
                     {language === 'en' ? 'Enterprise Client Base' : '가입 기업 및 바이어 인적 목록 상태'}
                   </h3>
-                  <span className="text-[11px] text-slate-450 font-mono">
-                    {language === 'en' ? 'Persisted locally and synced instantly' : '실시간 동기화 상태: 기밀 인가'}
-                  </span>
+                  <div className="flex flex-wrap items-center gap-3">
+                    {/* Member Search bar */}
+                    <div className="flex items-center gap-1.5 bg-slate-950/80 border border-white/10 rounded-xl px-2.5 py-1.5 shrink-0">
+                      <select
+                        value={memberSearchType}
+                        onChange={(e) => setMemberSearchType(e.target.value as 'name' | 'code')}
+                        className="bg-transparent text-slate-300 text-xs border-0 outline-none pr-1.5 font-bold cursor-pointer hover:text-white"
+                      >
+                        <option value="name" className="bg-slate-900 text-white">{language === 'en' ? 'Name' : '이름검색'}</option>
+                        <option value="code" className="bg-slate-900 text-white">{language === 'en' ? 'Code' : '코드검색'}</option>
+                      </select>
+                      <div className="h-4 w-[1px] bg-white/10 shrink-0 mx-1" />
+                      <input
+                        type="text"
+                        placeholder={memberSearchType === 'name' ? (language === 'en' ? 'Enter name...' : '이름/회사명...') : (language === 'en' ? 'M코드번호 입력...' : 'M코드번호 입력...')}
+                        value={memberSearchTerm}
+                        onChange={(e) => setMemberSearchTerm(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            setAppliedSearchTerm(memberSearchTerm);
+                            setAppliedSearchType(memberSearchType);
+                          }
+                        }}
+                        className="bg-transparent text-slate-200 text-xs border-0 outline-none w-28 md:w-36 focus:ring-0 placeholder-slate-600 font-mono"
+                      />
+                      <button
+                        onClick={() => {
+                          setAppliedSearchTerm(memberSearchTerm);
+                          setAppliedSearchType(memberSearchType);
+                        }}
+                        className="p-1 rounded-lg hover:bg-white/5 text-cyan-400 border-0 cursor-pointer transition-colors animate-pulse"
+                        title={language === 'en' ? 'Search' : '검색'}
+                      >
+                        <Search className="w-3.5 h-3.5" />
+                      </button>
+                      {appliedSearchTerm && (
+                        <button
+                          onClick={() => {
+                            setMemberSearchTerm('');
+                            setAppliedSearchTerm('');
+                          }}
+                          className="p-1 rounded-lg hover:bg-white/5 text-slate-400 border-0 cursor-pointer transition-colors"
+                          title={language === 'en' ? 'Reset' : '초기화'}
+                        >
+                          <XIcon className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => setShowAddMemberForm(!showAddMemberForm)}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-350 text-slate-950 font-extrabold text-xs tracking-wide transition-all shadow-md hover:shadow-cyan-400/10 cursor-pointer border-0 shrink-0"
+                    >
+                      <Plus className="w-4 h-4 stroke-[3px]" />
+                      <span>{language === 'en' ? 'Add Member' : '신규 회원 수동 등록'}</span>
+                    </button>
+                    <span className="text-[11px] text-slate-450 font-mono">
+                      {language === 'en' ? 'Synced instantly' : '관리 실시간 동기화 상태'}
+                    </span>
+                  </div>
                 </div>
+
+                {showAddMemberForm && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-5 rounded-2xl bg-slate-950/80 border border-cyan-500/20 space-y-4"
+                  >
+                    <h4 className="text-xs font-extrabold text-cyan-400 font-mono">
+                      [SECURE ADMIT] REGISTER NEW CLIENT / BUYER MEMBER
+                    </h4>
+                    <form onSubmit={handleAddMember} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                      <div className="space-y-1 text-left">
+                        <label className="text-[11px] font-bold text-slate-400">{language === 'en' ? 'Email Address' : '이메일 주소'}</label>
+                        <input
+                          type="email"
+                          required
+                          value={newMemEmail}
+                          onChange={e => setNewMemEmail(e.target.value)}
+                          placeholder="partner@company.com"
+                          className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 font-mono"
+                        />
+                      </div>
+                      <div className="space-y-1 text-left">
+                        <label className="text-[11px] font-bold text-slate-400">{language === 'en' ? 'Representative Name' : '기안자 대표 성명'}</label>
+                        <input
+                          type="text"
+                          required
+                          value={newMemName}
+                          onChange={e => setNewMemName(e.target.value)}
+                          placeholder="홍길동 대표"
+                          className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-400"
+                        />
+                      </div>
+                      <div className="space-y-1 text-left">
+                        <label className="text-[11px] font-bold text-slate-400">{language === 'en' ? 'Company Name' : '회사명 / 소속'}</label>
+                        <input
+                          type="text"
+                          required
+                          value={newMemCompany}
+                          onChange={e => setNewMemCompany(e.target.value)}
+                          placeholder="우주전력(주)"
+                          className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-400"
+                        />
+                      </div>
+                      <div className="space-y-1 text-left">
+                        <label className="text-[11px] font-bold text-slate-400">{language === 'en' ? 'Contact Phone' : '연락처 번호'}</label>
+                        <input
+                          type="text"
+                          required
+                          value={newMemPhone}
+                          onChange={e => setNewMemPhone(e.target.value)}
+                          placeholder="010-1234-5678"
+                          className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 font-mono"
+                        />
+                      </div>
+                      <div className="space-y-1 text-left">
+                        <label className="text-[11px] font-bold text-slate-400">{language === 'en' ? 'Tier Class' : '부여 계정 등급'}</label>
+                        <select
+                          value={newMemRole}
+                          onChange={e => setNewMemRole(e.target.value as 'general' | 'partner')}
+                          className="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-400"
+                        >
+                          <option value="general">{language === 'en' ? 'General' : '일반 등업 대기자'}</option>
+                          <option value="partner">{language === 'en' ? 'B2B Partner' : 'B2B 파트너 자재몰 개방'}</option>
+                        </select>
+                      </div>
+                      <div className="md:col-span-2 lg:col-span-5 flex justify-end gap-2.5 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowAddMemberForm(false)}
+                          className="px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-xs cursor-pointer border border-white/5"
+                        >
+                          {language === 'en' ? 'Cancel' : '취소하기'}
+                        </button>
+                        <button
+                          type="submit"
+                          className="px-5 py-2 rounded-lg bg-cyan-400 hover:bg-cyan-350 text-slate-950 font-black text-xs cursor-pointer border-0 shadow-md shadow-cyan-400/10"
+                        >
+                          {language === 'en' ? 'Register' : '안전 등록 승인'}
+                        </button>
+                      </div>
+                    </form>
+                  </motion.div>
+                )}
 
                 <div className="overflow-x-auto rounded-xl border border-white/5 bg-slate-950/60">
                   <table className="w-full text-left border-collapse text-xs">
@@ -772,147 +861,73 @@ export const Admin: React.FC<AdminProps> = ({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5 font-sans">
-                      {members.map((mem) => {
-                        const isGlobalUser = registeredUser && registeredUser.email === mem.email;
-                        return (
-                          <tr key={mem.email} className="hover:bg-white/[0.01] transition-colors">
-                            <td className="p-4 font-bold text-white flex items-center gap-2">
-                              {mem.company}
-                              {isGlobalUser && (
-                                <span className="text-[9px] font-mono font-black text-xs text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded-md animate-pulse">
-                                  Current YOU
+                      {filteredMembers.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="p-12 text-center text-slate-500 font-sans">
+                            {language === 'en' ? 'No matching members found.' : '검색 조건에 부합하는 회원이 존재하지 않습니다.'}
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredMembers.map((mem) => {
+                          const isGlobalUser = registeredUser && registeredUser.email === mem.email;
+                          return (
+                            <tr key={mem.email} className="hover:bg-white/[0.01] transition-colors">
+                              <td className="p-4 font-bold text-white flex items-center gap-2">
+                                {mem.company}
+                                {isGlobalUser && (
+                                  <span className="text-[9px] font-mono font-black text-xs text-cyan-400 bg-cyan-400/10 px-1.5 py-0.5 rounded-md animate-pulse">
+                                    Current YOU
+                                  </span>
+                                )}
+                              </td>
+                              <td className="p-4 text-slate-200">{mem.name}</td>
+                              <td className="p-4">
+                                <div className="text-slate-300 font-mono">{mem.email}</div>
+                                <div className="text-slate-500 text-[10px] mt-0.5 font-mono">{mem.phone}</div>
+                              </td>
+                              <td className="p-4 text-slate-450 font-mono">{mem.regDate}</td>
+                              <td className="p-4">
+                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-widest leading-none ${mem.role === 'partner' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'bg-slate-800 text-slate-400 border border-white/5'}`}>
+                                  {mem.role === 'partner' ? 'PARTNER' : 'GENERAL'}
                                 </span>
-                              )}
-                            </td>
-                            <td className="p-4 text-slate-200">{mem.name}</td>
-                            <td className="p-4">
-                              <div className="text-slate-300 font-mono">{mem.email}</div>
-                              <div className="text-slate-500 text-[10px] mt-0.5 font-mono">{mem.phone}</div>
-                            </td>
-                            <td className="p-4 text-slate-450 font-mono">{mem.regDate}</td>
-                            <td className="p-4">
-                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-widest leading-none ${mem.role === 'partner' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'bg-slate-800 text-slate-400 border border-white/5'}`}>
-                                {mem.role === 'partner' ? 'PARTNER' : 'GENERAL'}
-                              </span>
-                              {mem.partnerCode && (
-                                <span className="block text-[9px] font-mono text-purple-400/70 mt-1 uppercase">
-                                  Code: {mem.partnerCode}
-                                </span>
-                              )}
-                            </td>
-                            <td className="p-4">
-                              <div className="flex items-center justify-center gap-2">
-                                <button
-                                  onClick={() => handleToggleMemberRole(mem.email)}
-                                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer border-0 ${mem.role === 'partner' ? 'bg-slate-800 hover:bg-slate-750 text-slate-300' : 'bg-purple-400/10 hover:bg-purple-400/20 text-purple-400'}`}
-                                >
-                                  {mem.role === 'partner' ? '일반 전환' : '파트너 격상'}
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteMember(mem.email)}
-                                  className="p-1.5 rounded-lg bg-red-400/10 hover:bg-red-400/20 text-red-400 transition-all cursor-pointer border-0"
-                                  title={language === 'en' ? 'Revoke / Remove Registration' : '등록 정보 완전 영구 파문'}
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                                {mem.partnerCode && (
+                                  <span className="block text-[9px] font-mono text-purple-400/70 mt-1 uppercase">
+                                    Code: {mem.partnerCode}
+                                  </span>
+                                )}
+                              </td>
+                              <td className="p-4">
+                                <div className="flex items-center justify-center gap-2">
+                                  <button
+                                    onClick={() => handleToggleMemberRole(mem.email)}
+                                    className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer border-0 ${
+                                      mem.role === 'partner' ? 'bg-slate-800 hover:bg-slate-750 text-slate-300' : 'bg-purple-400/10 hover:bg-purple-400/20 text-purple-400'
+                                    }`}
+                                    title={language === 'en' ? 'Toggle member level' : '일반/파트너 회원 등급 수동 전환'}
+                                  >
+                                    {mem.role === 'partner' ? '일반 전환' : '파트너 격상'}
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteMember(mem.email)}
+                                    className="p-1.5 rounded-lg transition-all cursor-pointer border-0 bg-red-400/10 hover:bg-red-400/20 text-red-400"
+                                    title={language === 'en' ? 'Revoke / Remove Registration' : '등록 정보 완전 영구 파문'}
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
                     </tbody>
                   </table>
                 </div>
               </div>
             )}
 
-            {/* T2: Products Management */}
-            {activeTab === 'products' && (
-              <div className="space-y-6 text-left">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                      <Briefcase className="text-cyan-400 w-5 h-5" />
-                      {language === 'en' ? 'B2B Product Roster' : '사업자몰 공급 설비 물류 DB'}
-                    </h3>
-                    <p className="text-xs text-slate-450 mt-1">
-                      {language === 'en' ? 'Modify specs, custom configurations or register next-generation materials.' : '실제 사업자몰 단가, 제원 설명, 국문/영문 설계 내역을 직적 수정 적용.'}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={openAddProductModal}
-                    className="flex items-center gap-1.5 px-4.5 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-350 text-slate-950 font-black text-xs tracking-wide transition-all shadow-md hover:shadow-cyan-400/10 cursor-pointer border-0 shrink-0"
-                  >
-                    <Plus className="w-4 h-4 stroke-[3px]" />
-                    <span>{language === 'en' ? 'Register New Product' : '새로운 설비 대가 추가 등록'}</span>
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {products.map((prod) => (
-                    <div 
-                      key={prod.id}
-                      className="bg-slate-950/80 border border-white/5 rounded-2xl p-5 flex flex-col justify-between hover:border-cyan-400/20 transition-all"
-                    >
-                      <div className="space-y-3.5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-mono text-cyan-400 bg-cyan-400/5 px-2 py-0.5 rounded border border-cyan-400/10 uppercase font-bold">
-                            {prod.categoryKo}
-                          </span>
-                          <span className="text-[10px] font-mono text-slate-500 font-bold">
-                            ID: {prod.id}
-                          </span>
-                        </div>
-
-                        <div>
-                          <h4 className="text-sm font-extrabold text-white leading-tight">
-                            {prod.nameKo}
-                          </h4>
-                          <span className="text-[11px] font-mono text-slate-400 block mt-0.5">
-                            {prod.nameEn}
-                          </span>
-                        </div>
-
-                        <p className="text-[11px] text-slate-450 leading-relaxed line-clamp-2">
-                          {prod.descKo}
-                        </p>
-
-                        <div className="border-t border-white/5 pt-3.5 space-y-1 text-[11px] text-slate-400">
-                          <div>
-                            <span className="text-slate-500 font-sans">{language === 'en' ? 'KRW Price:' : '원화 권장가:'}</span>{' '}
-                            <span className="text-cyan-400 font-bold font-mono">{prod.priceKrw.toLocaleString()} 원</span>
-                          </div>
-                          <div>
-                            <span className="text-slate-500 font-sans">{language === 'en' ? 'USD Price:' : '수출 달러 대가:'}</span>{' '}
-                            <span className="text-cyan-400 font-bold font-mono">${prod.priceUsd.toLocaleString()}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex border-t border-white/5 mt-4 pt-3.5 gap-2.5">
-                        <button
-                          onClick={() => openEditProductModal(prod)}
-                          className="flex-1 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer border border-white/5"
-                        >
-                          <Edit className="w-3.5 h-3.5 text-cyan-400" />
-                          <span>수정하기</span>
-                        </button>
-                        <button
-                          onClick={() => handleDeleteProduct(prod.id, prod.nameKo)}
-                          className="px-3 py-2 rounded-lg bg-red-400/5 hover:bg-red-400/15 text-red-400 font-bold text-[11px] flex items-center justify-center cursor-pointer border border-red-400/10"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* T3: Deploy Sub Admins (Master Only) */}
-            {activeTab === 'subadmins' && currentAdmin?.roleLabel === 'M' && (
+            {/* T2: Deploy Sub Admins (Master Only) */}
+            {activeTab === 'subadmins' && currentAdmin?.roleLabel === 'S' && (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left">
                 
                 {/* Left side: Add Sub Admin form */}
@@ -920,7 +935,7 @@ export const Admin: React.FC<AdminProps> = ({
                   <div>
                     <h3 className="text-base font-bold text-white flex items-center gap-2">
                       <UserPlus className="text-cyan-400 w-4 h-4" />
-                      {language === 'en' ? 'Deploy Sub-Administrator' : '부관리자 신규 배속 등록'}
+                      {language === 'en' ? 'Deploy Administrator' : '관리자 신규 배속 등록'}
                     </h3>
                     <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
                       {language === 'en' ? 'Submit official name, passcode and direct contact. Max 5 allowed.' : '추가 지정은 1번부터 5번 포트 슬롯까지 배색 탑재할 수 있습니다.'}
@@ -1025,7 +1040,7 @@ export const Admin: React.FC<AdminProps> = ({
                     {/* Sub Admins list mapper */}
                     {subAdmins.length === 0 ? (
                       <div className="border border-dashed border-white/5 p-12 rounded-2xl text-center space-y-2 text-slate-500 text-xs">
-                        <p>{language === 'en' ? 'No sub-admins deployed yet.' : '지정 배치된 임시 부관리자가 존재하지 않습니다.'}</p>
+                        <p>{language === 'en' ? 'No admins deployed yet.' : '지정 배치된 임시 관리자가 존재하지 않습니다.'}</p>
                         <p className="text-[10px] text-slate-650">{language === 'en' ? 'Use left console to designate sub-clerks.' : '좌측 발탁 제어판을 사용하여 1번에서 5번 슬롯의 대리 정예를 임명하십시오.'}</p>
                       </div>
                     ) : (
@@ -1164,282 +1179,7 @@ export const Admin: React.FC<AdminProps> = ({
         </div>
       )}
 
-      {/* Product Add/Edit Modal (B2b and general) */}
-      <AnimatePresence>
-        {showProductModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-2xl p-6.5 text-left text-slate-100 shadow-2xl max-h-[85vh] overflow-y-auto"
-            >
-              <div className="flex justify-between items-center border-b border-white/5 pb-4.5 mb-5">
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <FolderPlus className="w-5 h-5 text-cyan-400" />
-                  <span>
-                    {editingProduct 
-                      ? `[수정 모드] ${editingProduct.nameKo} 정보 개정` 
-                      : '새로운 사업자 전력 설비 상품 신재 등록'}
-                  </span>
-                </h3>
-                <button
-                  onClick={() => setShowProductModal(false)}
-                  className="p-1.5 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer border-0 bg-transparent"
-                >
-                  Close
-                </button>
-              </div>
-
-              <form onSubmit={handleSaveProduct} className="space-y-4 text-xs font-sans">
-                
-                {/* Names */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-mono text-slate-400 font-bold block">상품 품명 (국문 필수)</label>
-                    <input 
-                      type="text"
-                      value={prodNameKo}
-                      onChange={(e) => setProdNameKo(e.target.value)}
-                      placeholder="예) HGE3D00 스마트 하이브리드 발전기"
-                      className="w-full bg-slate-950 border border-white/10 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-slate-100 outline-none"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-mono text-slate-400 font-bold block">상품 품명 (영문 필수)</label>
-                    <input 
-                      type="text"
-                      value={prodNameEn}
-                      onChange={(e) => setProdNameEn(e.target.value)}
-                      placeholder="예) HGE3D00 Smart Hybrid Generator"
-                      className="w-full bg-slate-950 border border-white/10 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-slate-100 outline-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Category & Icon */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-mono text-slate-400 font-bold block">카테고리 국문명 / 영문명</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <input 
-                        type="text"
-                        value={prodCategoryKo}
-                        onChange={(e) => setProdCategoryKo(e.target.value)}
-                        placeholder="예) 발전기 / ESS"
-                        className="w-full bg-slate-950 border border-white/10 focus:border-cyan-400 rounded-xl px-3 py-2 text-[11px] text-slate-200 outline-none"
-                      />
-                      <input 
-                        type="text"
-                        value={prodCategoryEn}
-                        onChange={(e) => setProdCategoryEn(e.target.value)}
-                        placeholder="예) Power & Storage"
-                        className="w-full bg-slate-950 border border-white/10 focus:border-cyan-400 rounded-xl px-3 py-2 text-[11px] text-slate-200 outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-mono text-slate-400 font-bold block">지정 아이콘 스타일</label>
-                    <select
-                      value={prodIconName}
-                      onChange={(e) => setProdIconName(e.target.value as any)}
-                      className="w-full bg-slate-950 border border-white/10 focus:border-cyan-400 rounded-xl px-3 py-2 text-[11px] text-slate-250 outline-none"
-                    >
-                      <option value="generator">⚡ 발전 장치 (Generator)</option>
-                      <option value="capacitor">🔋 축전 커패시터 (Capacitor)</option>
-                      <option value="binder">🧪 극판 신소재 (SAM Binder)</option>
-                      <option value="ev">🔌 친환경 모빌리티 (EV Kit)</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Descs */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-mono text-slate-400 font-bold block">국문 상세 설명</label>
-                  <textarea 
-                    value={prodDescKo}
-                    onChange={(e) => setProdDescKo(e.target.value)}
-                    rows={2}
-                    placeholder="미국 CAS 등재 SAM 신물질과 혁신 전지 어레이가 기주 대응 결합된..."
-                    className="w-full bg-slate-950 border border-white/10 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-slate-200 outline-none"
-                  />
-                </div>
-                
-                <div className="space-y-1">
-                  <label className="text-[10px] font-mono text-slate-400 font-bold block">영문 상세 설명 (English Description)</label>
-                  <textarea 
-                    value={prodDescEn}
-                    onChange={(e) => setProdDescEn(e.target.value)}
-                    rows={2}
-                    placeholder="Next-generation industrial grid storage stabilizer integrating proprietary bindings..."
-                    className="w-full bg-slate-950 border border-white/10 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-slate-200 outline-none"
-                  />
-                </div>
-
-                {/* Product Image Attachment Area */}
-                <div className="p-4 bg-slate-950/60 rounded-xl border border-white/5 space-y-3">
-                  <span className="text-[10px] font-mono text-cyan-400 font-extrabold tracking-wider block uppercase">
-                    📸 {language === 'en' ? 'Product Media Specs' : '쇼핑몰 사양 제품 이미지 첨부'}
-                  </span>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-                    {/* Preview box */}
-                    <div className="relative aspect-[16/10] bg-slate-950 rounded-lg border border-white/10 flex items-center justify-center overflow-hidden">
-                      {prodImageUrl ? (
-                        <>
-                          <img 
-                            src={prodImageUrl} 
-                            alt="Preview" 
-                            className="w-full h-full object-cover" 
-                            referrerPolicy="no-referrer"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setProdImageUrl('')}
-                            className="absolute top-1 right-1 p-1 rounded-full bg-red-500/80 hover:bg-red-650 text-white cursor-pointer transition-colors border-0"
-                            title={language === 'en' ? 'Remove Image' : '이미지 초기화'}
-                          >
-                            <XIcon className="w-3.5 h-3.5" />
-                          </button>
-                        </>
-                      ) : (
-                        <div className="text-center p-3 text-slate-500 flex flex-col items-center gap-1">
-                          <ImageIcon className="w-5 h-5 opacity-40" />
-                          <span className="text-[9px] font-mono uppercase">No preview</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Image Attachment Choice inputs */}
-                    <div className="sm:col-span-2 space-y-2">
-                      {/* File select button */}
-                      <label className="flex flex-col items-center justify-center border border-dashed border-cyan-400/20 hover:border-cyan-400/50 bg-cyan-400/5 hover:bg-cyan-400/10 rounded-xl p-3 cursor-pointer transition-all space-y-1">
-                        <Upload className="w-4 h-4 text-cyan-400 animate-pulse" />
-                        <span className="text-[11px] font-bold text-cyan-400">
-                          {language === 'en' ? 'Upload Image File (Drag-and-Drop)' : '기기에서 제품 사진 올리기'}
-                        </span>
-                        <span className="text-[9px] text-slate-500">
-                          PNG, JPG, WebP supported
-                        </span>
-                        <input 
-                          type="file" 
-                          accept="image/*" 
-                          onChange={handleImageUpload} 
-                          className="hidden" 
-                        />
-                      </label>
-
-                      {/* Or URL paste input */}
-                      <div className="space-y-1">
-                        <span className="text-[9px] text-slate-500 font-bold block">{language === 'en' ? 'Or Paste Image URL:' : '또는 직접 이미지 URL 주소 입력:'}</span>
-                        <input 
-                          type="url"
-                          value={prodImageUrl}
-                          onChange={(e) => setProdImageUrl(e.target.value)}
-                          placeholder="https://images.unsplash.com/photo-..."
-                          className="w-full bg-slate-950 border border-white/5 focus:border-cyan-400 rounded-lg px-2.5 py-1.5 text-[10px] text-slate-300 font-mono outline-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Prices */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-mono text-slate-400 font-bold block">원화 기업 조달 대가 (KRW Price)</label>
-                    <input 
-                      type="number"
-                      value={prodPriceKrw}
-                      onChange={(e) => setProdPriceKrw(parseInt(e.target.value) || 0)}
-                      className="w-full bg-slate-950 border border-white/10 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-slate-100 font-mono outline-none"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-mono text-slate-400 font-bold block">해외 수출 권장 대가 (USD Price)</label>
-                    <input 
-                      type="number"
-                      value={prodPriceUsd}
-                      onChange={(e) => setProdPriceUsd(parseInt(e.target.value) || 0)}
-                      className="w-full bg-slate-950 border border-white/10 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-slate-100 font-mono outline-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Specs textareas (split by newline) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-mono text-slate-400 font-bold block">
-                      국문 설계 제원 (한 줄에 하나씩 입력)
-                    </label>
-                    <textarea 
-                      value={prodSpecKoText}
-                      onChange={(e) => setProdSpecKoText(e.target.value)}
-                      rows={3}
-                      placeholder="출력 전압: 삼상 가변 380V&#10;가동 주기: 35,000회 보장"
-                      className="w-full bg-slate-950 border border-white/10 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-slate-200 font-mono outline-none"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-mono text-slate-400 font-bold block">
-                      영문 설계 제원 (한 줄에 하나씩 입력)
-                    </label>
-                    <textarea 
-                      value={prodSpecEnText}
-                      onChange={(e) => setProdSpecEnText(e.target.value)}
-                      rows={3}
-                      placeholder="AC Output: 3-Phase 380V Variable&#10;Life Cycle: 35,000 Warranted"
-                      className="w-full bg-slate-950 border border-white/10 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-slate-200 font-mono outline-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Availabilities */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-mono text-slate-400 font-bold block">국문 생산/납품 예비일</label>
-                    <input 
-                      type="text"
-                      value={prodAvailabilityKo}
-                      onChange={(e) => setProdAvailabilityKo(e.target.value)}
-                      placeholder="예) 본사 조립 승인 즉시 즉격 발하"
-                      className="w-full bg-slate-950 border border-white/10 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-slate-200 outline-none"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-mono text-slate-400 font-bold block">영문 생산/납품 예비일 (Availability English)</label>
-                    <input 
-                      type="text"
-                      value={prodAvailabilityEn}
-                      onChange={(e) => setProdAvailabilityEn(e.target.value)}
-                      placeholder="예) Immediate shipment upon validation"
-                      className="w-full bg-slate-950 border border-white/10 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-slate-200 outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-3.5 pt-4 border-t border-white/5">
-                  <button
-                    type="button"
-                    onClick={() => setShowProductModal(false)}
-                    className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-755 text-slate-300 font-bold cursor-pointer border-0"
-                  >
-                    {language === 'en' ? 'Cancel' : '취소'}
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-350 text-slate-950 font-black tracking-wide cursor-pointer border-0 shadow-md"
-                  >
-                    {language === 'en' ? 'SAVE CHANGES' : '공조 DB 저장 완료'}
-                  </button>
-                </div>
-
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* Product modal deleted - B2B Mall is not in operation */}
 
     </div>
   );

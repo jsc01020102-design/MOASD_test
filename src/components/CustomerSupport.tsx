@@ -49,8 +49,8 @@ const DEFAULT_NOTICES: Notice[] = [
     titleEn: '[(주)MOASD Notice] Pre-Security Vow for Global SAM Laboratory Site Inspection',
     content: 'SAM 신소재 시뮬레이터 및 고전도 축전 구조물 융합 레이어를 보존하기 위하여, 본사 사옥 5층 실험실 출입 협력업체 정기 실사단 보안 패스 카드 발급용 사전 서약을 진행하여 주시기 바랍니다.',
     contentEn: 'To protect the SAM superconductive layers, we coordinate mandatory pre-clearance procedures for delegates visiting R&D clean rooms. Please verify registration details.',
-    author: '최고경영자국 (장세창)',
-    authorEn: 'Founder Office (S.C. Jang)',
+    author: '최고경영자국 (S)',
+    authorEn: 'Founder Office (S)',
     date: '2026.06.15',
     isPinned: true
   },
@@ -118,7 +118,13 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
   const [subTab, setSubTab] = useState<'notices' | 'inquiries'>('notices');
   const [notices, setNotices] = useState<Notice[]>(() => {
     const saved = localStorage.getItem('moasd_support_notices');
-    return saved ? JSON.parse(saved) : DEFAULT_NOTICES;
+    const loaded: Notice[] = saved ? JSON.parse(saved) : DEFAULT_NOTICES;
+    return loaded.map(n => {
+      if (n.author === '최고경영자국 (장세창)') {
+        return { ...n, author: '최고경영자국 (S)', authorEn: 'Founder Office (S)' };
+      }
+      return n;
+    });
   });
   const [inquiries, setInquiries] = useState<Inquiry[]>(() => {
     const saved = localStorage.getItem('moasd_support_inquiries');
@@ -157,30 +163,54 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  // Check if visitor is Admin/Master
-  const checkIsAdminOrMaster = (): boolean => {
-    // 1. Session check
-    const adminSessionActive = sessionStorage.getItem('moasd_admin_session') !== null;
-    if (adminSessionActive) return true;
+  // Check if visitor is Master ('S') or Sub-Admin ('1'-'5')
+  const getAdminSession = () => {
+    const adminSessionStr = sessionStorage.getItem('moasd_admin_session');
+    if (adminSessionStr) {
+      try {
+        const parsed = JSON.parse(adminSessionStr);
+        if (parsed.id === 'master-admin' || parsed.name?.includes('장세창')) {
+          parsed.roleLabel = 'S';
+        }
+        return parsed;
+      } catch (e) {}
+    }
+    return null;
+  };
 
-    // 2. Logged User email/id/name credentials
+  const checkIsMaster = (): boolean => {
+    const adminSession = getAdminSession();
+    if (adminSession && adminSession.roleLabel === 'S') {
+      return true;
+    }
     if (registeredUser) {
       const email = registeredUser.email.toLowerCase();
       const name = registeredUser.name;
-      if (email === 'jsc01020102@gmail.com' || email === 'master' || name === '장세창') {
+      if (email === 'sinhwaensol@gmail.com' || email === 'master' || name?.includes('장세창')) {
         return true;
       }
     }
     return false;
   };
 
-  const isMasterOrAdmin = checkIsAdminOrMaster();
+  const checkIsSubAdmin = (): boolean => {
+    const adminSession = getAdminSession();
+    // Any admin role label that is not 'S' (like '1', '2', etc) is a sub-admin
+    if (adminSession && adminSession.roleLabel && adminSession.roleLabel !== 'S') {
+      return true;
+    }
+    return false;
+  };
 
-  // Create Notice handler
+  const isMaster = checkIsMaster();
+  const isSubAdmin = checkIsSubAdmin();
+  const isMasterOrAdmin = isMaster || isSubAdmin; // Either Master or Sub-Admin can manage inquiries
+
+  // Create Notice handler (Master S only)
   const handleCreateNotice = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isMasterOrAdmin) {
-      triggerToast(language === 'en' ? '❌ Only Master / Admin can post notices.' : '❌ 마스터와 관리자만 공지사항을 작성할 수 있습니다.');
+    if (!isMaster) {
+      triggerToast(language === 'en' ? '❌ Only the Master Admin can post notices.' : '❌ 최고 마스터 관리자(S)만 공지사항을 작성할 수 있습니다.');
       return;
     }
     if (!newNoticeTitle.trim() || !newNoticeContent.trim()) {
@@ -194,7 +224,7 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
       titleEn: newNoticeTitleEn.trim() || newNoticeTitle.trim(),
       content: newNoticeContent.trim(),
       contentEn: newNoticeContentEn.trim() || newNoticeContent.trim(),
-      author: language === 'en' ? 'Administrator' : '최고 관리자 (마스터)',
+      author: language === 'en' ? 'Administrator' : '최고 관리자 (S)',
       authorEn: 'Security Admin',
       date: new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\s/g, '').slice(0, -1),
       isPinned: newNoticeIsPinned
@@ -213,7 +243,7 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
   // Delete Notice handler
   const handleDeleteNotice = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!isMasterOrAdmin) return;
+    if (!isMaster) return;
     if (confirm(language === 'en' ? 'Delete this notice?' : '해당 공지글을 즉격 삭제하시겠습니까?')) {
       setNotices(prev => prev.filter(n => n.id !== id));
       triggerToast(language === 'en' ? 'Notice deleted.' : '선택하신 공지글이 안전하게 소거되었습니다.');
@@ -255,6 +285,14 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
     if (!isMasterOrAdmin) return;
     if (!answerText.trim()) return;
 
+    const activeAdmin = getAdminSession();
+    let authorDisplay = language === 'en' ? 'Master S' : '최고 마스터 S';
+    if (activeAdmin) {
+      if (activeAdmin.roleLabel !== 'S') {
+        authorDisplay = activeAdmin.name + (language === 'en' ? ' (Admin)' : ' (등록 관리자)');
+      }
+    }
+
     setInquiries(prev => prev.map(inq => {
       if (inq.id === inqId) {
         return {
@@ -262,7 +300,7 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
           answers: [
             ...(inq.answers || []),
             {
-              author: language === 'en' ? 'Master S.C. Jang' : '최고 마스터 장세창',
+              author: authorDisplay,
               content: answerText.trim(),
               date: new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\s/g, '').slice(0, -1)
             }
@@ -379,8 +417,8 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
                 {language === 'en' ? 'Official Press & Guidelines' : '사옥 정식 공식 게재문 및 권장 서약 지침'}
               </span>
 
-              {/* Master / Admin notice button */}
-              {isMasterOrAdmin && (
+              {/* Master notice button */}
+              {isMaster && (
                 <button
                   onClick={() => setShowNoticeForm(!showNoticeForm)}
                   className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-cyan-400 text-slate-950 text-xs font-bold font-mono transition-transform active:scale-95 cursor-pointer shadow-md shadow-cyan-950/20"
@@ -391,8 +429,8 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
               )}
             </div>
 
-            {/* Notice creation Form for Admins */}
-            {showNoticeForm && isMasterOrAdmin && (
+            {/* Notice creation Form for Master only */}
+            {showNoticeForm && isMaster && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -522,7 +560,7 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
                           <span>{n.date}</span>
                         </div>
                         
-                        {isMasterOrAdmin && (
+                        {isMaster && (
                           <button
                             onClick={(e) => handleDeleteNotice(n.id, e)}
                             className="p-1 text-slate-500 hover:text-red-400 transition-colors rounded hover:bg-red-950/20"

@@ -12,7 +12,7 @@ import { SamPolishingSolutions } from './components/SamPolishingSolutions';
 import { ConsultingSimulator } from './components/ConsultingSimulator';
 import { MainHeroSlider } from './components/MainHeroSlider';
 import { Factory3DWalkthrough } from './components/Factory3DWalkthrough';
-import { B2bMall, PRODUCTS, Product } from './components/B2bMall';
+// B2B Mall component and product models completely removed as requested
 import { Admin } from './components/Admin';
 import { MediaCenter } from './components/MediaCenter';
 import { CustomerSupport } from './components/CustomerSupport';
@@ -103,10 +103,6 @@ export default function App() {
   }, []);
 
   const [currentTab, setCurrentTab] = useState<'home' | 'about' | 'solutions' | 'partners' | 'mediacenter' | 'support' | 'admin'>('home');
-  const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem('moasd_b2b_products');
-    return saved ? JSON.parse(saved) : PRODUCTS;
-  });
   const [purchaseSmsToast, setPurchaseSmsToast] = useState<{
     show: boolean;
     itemName: string;
@@ -325,11 +321,11 @@ export default function App() {
     // 1. Check Master Admin
     const MASTER_ADMIN_PASS = '0815)*!%';
     if (
-      (inputNameOrEmail === '장세창' || inputNameOrEmail === 'jsc01020102@gmail.com' || inputNameOrEmail === 'master') &&
+      (inputNameOrEmail === '장세창' || inputNameOrEmail === 'sinhwaensol@gmail.com' || inputNameOrEmail === 'master') &&
       inputPass === MASTER_ADMIN_PASS
     ) {
       const masterUser = {
-        email: 'jsc01020102@gmail.com',
+        email: 'sinhwaensol@gmail.com',
         name: '장세창 최고관리자',
         company: '(주)MOASD',
         phone: '010-2242-7801',
@@ -342,7 +338,7 @@ export default function App() {
         id: 'master-admin',
         name: '장세창',
         phone: '010-2242-7801',
-        roleLabel: 'M'
+        roleLabel: 'S'
       };
       sessionStorage.setItem('moasd_admin_session', JSON.stringify(adminSession));
       
@@ -380,7 +376,7 @@ export default function App() {
     if (matchingSub) {
       const subUser = {
         email: `${matchingSub.name.replace(/\s/g, '').toLowerCase()}@moasd.com`,
-        name: `${matchingSub.name} (부관리자)`,
+        name: `${matchingSub.name} (관리자)`,
         company: '(주)MOASD 운영부서',
         phone: matchingSub.phone,
         regDate: new Date().toLocaleDateString(),
@@ -402,13 +398,13 @@ export default function App() {
         toPhone: '010-2242-7801',
         fromName: 'MOASD AI 시스템',
         fromPhone: '080-FREE-SMS',
-        text: `[MOASD AI 통보] 등록 부관리자 '${matchingSub.name}' 님이 별도 가입 없이 직격 원격 단말로 일반 포탈 로그인을 수행하였습니다.`,
+        text: `[MOASD AI 통보] 등록 관리자 '${matchingSub.name}' 님이 별도 가입 없이 직격 원격 단말로 일반 포탈 로그인을 수행하였습니다.`,
         timestamp: new Date().toLocaleString(),
         type: 'status'
       };
       localStorage.setItem('moasd_simulated_sms_logs', JSON.stringify([loginSms, ...existingLogs]));
 
-      alert(language === 'en' ? `Welcome back Admin ${matchingSub.name}!` : `부관리자 "${matchingSub.name}" 님 반갑습니다! 가입 없이 즉각 로그인 하였습니다.`);
+      alert(language === 'en' ? `Welcome back Admin ${matchingSub.name}!` : `관리자 "${matchingSub.name}" 님 반갑습니다! 가입 없이 즉각 로그인 하였습니다.`);
       return;
     }
 
@@ -2134,8 +2130,6 @@ export default function App() {
     <div className="pt-16 min-h-[85vh] bg-slate-950">
       <Admin 
         language={language}
-        products={products}
-        setProducts={setProducts}
         registeredUser={registeredUser}
         setRegisteredUser={setRegisteredUser}
         setIsSignedUp={setIsSignedUp}
@@ -2209,7 +2203,7 @@ export default function App() {
                 <strong>{language === 'en' ? "Services:" : "사업내역:"}</strong> {language === 'en' ? "Business process scaling & SI systems integration" : "비즈니스 프로세스 개선 컨설팅 및 SI 솔루션 연동"}
               </p>
               <p>
-                <strong>{language === 'en' ? "Contact Sales:" : "수신 연락처:"}</strong> jsc01020102@gmail.com
+                <strong>{language === 'en' ? "Contact Sales:" : "수신 연락처:"}</strong> sinhwaensol@gmail.com
               </p>
             </div>
           </div>
@@ -2371,11 +2365,11 @@ export default function App() {
                 // 0. Check Master Admin
                 const MASTER_ADMIN_PASS = '0815)*!%';
                 if (
-                  (inputVal === '장세창' || inputVal === 'jsc01020102@gmail.com' || inputVal === 'master') &&
+                  (inputVal === '장세창' || inputVal === 'sinhwaensol@gmail.com' || inputVal === 'master') &&
                   inputPass === MASTER_ADMIN_PASS
                 ) {
                   const masterUser = {
-                    email: 'jsc01020102@gmail.com',
+                    email: 'sinhwaensol@gmail.com',
                     name: '장세창 최고관리자',
                     company: '(주)MOASD',
                     phone: '010-2242-7801',
@@ -2387,6 +2381,7 @@ export default function App() {
                   const adminSession = {
                     id: 'master-admin',
                     name: '장세창 최고관리자',
+                    roleLabel: 'S',
                     loginTime: new Date().toISOString()
                   };
                   sessionStorage.setItem('moasd_admin_session', JSON.stringify(adminSession));
