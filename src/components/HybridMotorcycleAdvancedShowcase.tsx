@@ -154,12 +154,12 @@ export const HybridMotorcycleAdvancedShowcase: React.FC<HybridMotorcycleAdvanced
                 {isEn ? "DOOHYUN INFRATECH CORE PATENT" : "당사 고유 특허 하이브리드 파워트레인"}
               </span>
               <h4 className="text-xl md:text-2xl font-black text-white tracking-tight">
-                {isEn ? "01. Dual-Drive Hybrid Motorcycle Solution" : "01. 가솔린 엔진과 전기 모터의 지능형 교차 구동 하이브리드 이륜차"}
+                {isEn ? "01. Dual-Drive Hybrid Motorcycle Solution" : "01. 가솔린 엔진과 전기 모터의 지능형 교차 구동 하이브리드 오토바이"}
               </h4>
               <p className="text-xs md:text-sm text-slate-300 leading-relaxed font-sans bg-slate-950/30 p-4 border border-white/5 rounded-xl">
                 {isEn
                   ? "Unlike conventional commercial e-scooters that suffer from rapid battery depletion on steep hills, Doohyun Infratech's patented Hybrid powertrain system seamlessly combines a fuel-efficient gasoline engine and a high-performance In-Wheel electric motor. Drivers can switch between energy modes automatically or manually based on payload, environment, and battery state, maximizing commercial durability."
-                  : "기존 가솔린 이륜차의 극심한 대기오염 물질·소음 유발 한계와, 순수 전기 이륜차의 짧은 주행거리 및 배터리 방전 문제를 완벽히 동시 극복했습니다. 당사가 원천 특허를 보유한 통합 제어(Controller & Power conv, ACD, Battery) 기술을 탑재하여 평시에는 저소음·무매연 전기모터로 정숙 기동하고, 고출력 경사로 및 방전 위기 시 휘발유 엔진으로 신속 변환함으로써 최상의 물류 이송 안정성을 보증합니다."
+                  : "기존 가솔린 오토바이의 극심한 대기오염 물질·소음 유발 한계와, 순수 전기 오토바이의 짧은 주행거리 및 배터리 방전 문제를 완벽히 동시 극복했습니다. 당사가 원천 특허를 보유한 통합 제어(Controller & Power conv, ACD, Battery) 기술을 탑재하여 평시에는 저소음·무매연 전기모터로 정숙 기동하고, 고출력 경사로 및 방전 위기 시 휘발유 엔진으로 신속 변환함으로써 최상의 물류 이송 안정성을 보증합니다."
                 }
               </p>
             </div>
@@ -268,7 +268,7 @@ export const HybridMotorcycleAdvancedShowcase: React.FC<HybridMotorcycleAdvanced
               <p className="text-xs md:text-sm text-slate-300 leading-relaxed font-sans bg-slate-950/30 p-4 border border-white/5 rounded-xl">
                 {isEn
                   ? "Electric motors inherently consume the most energy during starting and climbing. By intelligently firing the combustion engine exclusively during high-load intervals, the hybrid motorcycle preserves battery cell health and guarantees sustained operation without the need for bloated, expensive batteries."
-                  : "전기 이륜차의 가장 고질적인 전력 급감 원인은 출발 가속 시와 급오르막 기동 시 발생합니다. 당사의 하이브리드 제어기는 부하 하중을 기가헤르츠 단위로 실시간 감지하여, 에너지 소모가 폭증하는 고부하 영역에서는 휘발유 엔진을 구동하고, 배터리 소모가 안정화된 크루징 시에는 전기 모터로 자율 선회하는 완벽한 연비 분배 오퍼레이션을 수행합니다."
+                  : "전기 오토바이의 가장 고질적인 전력 급감 원인은 출발 가속 시와 급오르막 기동 시 발생합니다. 당사의 하이브리드 제어기는 부하 하중을 기가헤르츠 단위로 실시간 감지하여, 에너지 소모가 폭증하는 고부하 영역에서는 휘발유 엔진을 구동하고, 배터리 소모가 안정화된 크루징 시에는 전기 모터로 자율 선회하는 완벽한 연비 분배 오퍼레이션을 수행합니다."
                 }
               </p>
             </div>
@@ -375,7 +375,7 @@ export const HybridMotorcycleAdvancedShowcase: React.FC<HybridMotorcycleAdvanced
           <div className="lg:col-span-12 flex flex-col space-y-6">
             <div className="space-y-4 text-center max-w-3xl mx-auto">
               <span className="text-[10px] font-mono font-black tracking-widest text-cyan-400 uppercase bg-cyan-950/30 px-2.5 py-1 rounded border border-cyan-400/10 inline-block">
-                {isEn ? "QUANTITATIVE RIGOROUS CONTRAST" : "3대 핵심 이륜차 구동 공법 정량 대조"}
+                {isEn ? "QUANTITATIVE RIGOROUS CONTRAST" : "3대 핵심 오토바이 구동 공법 정량 대조"}
               </span>
               <h4 className="text-xl md:text-2xl font-black text-white tracking-tight">
                 {isEn ? "03. Hybrid vs. Pure Electric vs. Gasoline Motorcycle" : "03. 친환경과 효율의 극한 조율: 하이브리드 vs 전기 vs 가솔린"}
@@ -383,7 +383,7 @@ export const HybridMotorcycleAdvancedShowcase: React.FC<HybridMotorcycleAdvanced
               <p className="text-xs md:text-sm text-slate-300 leading-relaxed font-sans">
                 {isEn
                   ? "Standard pure electric motorcycles fail under heavy logistics workloads due to rigid charging times and short range, requiring expensive batteries that inflate purchase prices. The hybrid solution bypasses this bottleneck entirely, delivering infinite range and zero climbing constraints at a price matching electric scooters."
-                  : "현재 출시된 순수 전기이륜차는 배달용 플랫폼 노동 시장의 하루 평균 주행거리(70km 이상)와 가파른 경사로 부하를 소화하기 위해 고가의 Li-ion 배터리가 강제되어 가격 상승과 보급 지연을 겪고 있습니다. 당사 하이브리드는 배터리 소모가 폭증하는 등판 구간을 가솔린 엔진으로 우회 보완함으로써 저렴한 배터리로도 완벽한 기동을 지원, 압도적 가격 경쟁력을 시현합니다."
+                  : "현재 출시된 순수 전기오토바이는 배달용 플랫폼 노동 시장의 하루 평균 주행거리(70km 이상)와 가파른 경사로 부하를 소화하기 위해 고가의 Li-ion 배터리가 강제되어 가격 상승과 보급 지연을 겪고 있습니다. 당사 하이브리드는 배터리 소모가 폭증하는 등판 구간을 가솔린 엔진으로 우회 보완함으로써 저렴한 배터리로도 완벽한 기동을 지원, 압도적 가격 경쟁력을 시현합니다."
                 }
               </p>
             </div>
@@ -394,9 +394,9 @@ export const HybridMotorcycleAdvancedShowcase: React.FC<HybridMotorcycleAdvanced
                 <thead>
                   <tr className="border-b border-white/10 bg-slate-900/50">
                     <th className="p-4 font-black text-slate-300 uppercase tracking-wider w-1/5">{isEn ? "Specification" : "구분"}</th>
-                    <th className="p-4 font-black text-cyan-400 uppercase tracking-wider w-1/4">{isEn ? "Hybrid (Our Tech)" : "하이브리드 이륜차 (당사)"}</th>
-                    <th className="p-4 font-black text-emerald-400 uppercase tracking-wider w-1/4">{isEn ? "Pure Electric (EN-1S)" : "순수 전기이륜차 (EN-1S 대조)"}</th>
-                    <th className="p-4 font-black text-rose-400 uppercase tracking-wider w-1/4">{isEn ? "Legacy Gasoline (M-Boy)" : "기존 가솔린이륜차 (대조)"}</th>
+                    <th className="p-4 font-black text-cyan-400 uppercase tracking-wider w-1/4">{isEn ? "Hybrid (Our Tech)" : "하이브리드 오토바이 (당사)"}</th>
+                    <th className="p-4 font-black text-emerald-400 uppercase tracking-wider w-1/4">{isEn ? "Pure Electric (EN-1S)" : "순수 전기오토바이 (EN-1S 대조)"}</th>
+                    <th className="p-4 font-black text-rose-400 uppercase tracking-wider w-1/4">{isEn ? "Legacy Gasoline (M-Boy)" : "기존 가솔린오토바이 (대조)"}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5 text-slate-300">
@@ -579,7 +579,7 @@ export const HybridMotorcycleAdvancedShowcase: React.FC<HybridMotorcycleAdvanced
                 {/* Legacy Engine Row */}
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs text-slate-400 font-medium">
-                    <span>{isEn ? "Legacy Gasoline Motorcycle Overhead" : "기존 가솔린 이륜차 총액"}</span>
+                    <span>{isEn ? "Legacy Gasoline Motorcycle Overhead" : "기존 가솔린 오토바이 총액"}</span>
                     <span className="font-mono text-rose-400 font-extrabold">₩ {Math.round(engineTotalAnnualCost).toLocaleString()}</span>
                   </div>
                   <div className="h-2 w-full bg-slate-950 rounded-full overflow-hidden">
@@ -594,7 +594,7 @@ export const HybridMotorcycleAdvancedShowcase: React.FC<HybridMotorcycleAdvanced
                 {/* Hybrid Row */}
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs text-slate-300 font-medium">
-                    <span className="text-cyan-400 font-bold">{isEn ? "Doohyun Hybrid Motorcycle Overhead" : "당사 하이브리드 이륜차 총액"}</span>
+                    <span className="text-cyan-400 font-bold">{isEn ? "Doohyun Hybrid Motorcycle Overhead" : "당사 하이브리드 오토바이 총액"}</span>
                     <span className="font-mono text-cyan-300 font-extrabold">₩ {Math.round(hybridTotalAnnualCost).toLocaleString()}</span>
                   </div>
                   <div className="h-2 w-full bg-slate-950 rounded-full overflow-hidden">
@@ -623,7 +623,7 @@ export const HybridMotorcycleAdvancedShowcase: React.FC<HybridMotorcycleAdvanced
                   <span className="text-[10px] text-emerald-400 font-bold block">
                     {isEn 
                       ? `★ Recovers ${Math.round(savingsPercent)}% of operational fuel overhead each year!` 
-                      : `★ 엔진이륜차 대비 연간 총 유지비의 약 ${Math.round(savingsPercent)}%를 영구 세이빙!`
+                      : `★ 엔진오토바이 대비 연간 총 유지비의 약 ${Math.round(savingsPercent)}%를 영구 세이빙!`
                     }
                   </span>
                 </div>
@@ -655,7 +655,7 @@ export const HybridMotorcycleAdvancedShowcase: React.FC<HybridMotorcycleAdvanced
           <div className="lg:col-span-6 flex flex-col justify-between space-y-6">
             <div className="space-y-4">
               <span className="text-[10px] font-mono font-black tracking-widest text-cyan-400 uppercase bg-cyan-950/30 px-2.5 py-1 rounded border border-cyan-400/10 inline-block">
-                {isEn ? "CHRONOLOGICAL PROGRESS ROADMAP" : "하이브리드 이륜차 특허 원천 개발 역사"}
+                {isEn ? "CHRONOLOGICAL PROGRESS ROADMAP" : "하이브리드 오토바이 특허 원천 개발 역사"}
               </span>
               <h4 className="text-xl md:text-2xl font-black text-white tracking-tight flex items-center gap-2">
                 <Award className="w-5 h-5 text-amber-400" />
@@ -664,7 +664,7 @@ export const HybridMotorcycleAdvancedShowcase: React.FC<HybridMotorcycleAdvanced
               <p className="text-xs text-slate-300 leading-relaxed font-sans">
                 {isEn
                   ? "We have continuously advanced our core dual-drive patents through rigorous Korean-Chinese joint international high-tech development projects, leading to solid EURO5 compliance certifications."
-                  : "당사의 하이브리드 이륜차 기술은 단순 시제품 연구에 그치지 않고, 한중 양국 정부 산하의 정식 국제 공동 기술 개발 과제로 채택되어 성공적으로 수명 및 환경 배출 테스트를 통과한 독보적 안심 패키지입니다."
+                  : "당사의 하이브리드 오토바이 기술은 단순 시제품 연구에 그치지 않고, 한중 양국 정부 산하의 정식 국제 공동 기술 개발 과제로 채택되어 성공적으로 수명 및 환경 배출 테스트를 통과한 독보적 안심 패키지입니다."
                 }
               </p>
             </div>
@@ -674,7 +674,7 @@ export const HybridMotorcycleAdvancedShowcase: React.FC<HybridMotorcycleAdvanced
               {[
                 { 
                   year: "2019. 이전", 
-                  title: isEn ? "Original Hybrid Patents Registered" : "하이브리드 이륜차 핵심 특허 등록 완료",
+                  title: isEn ? "Original Hybrid Patents Registered" : "하이브리드 오토바이 핵심 특허 등록 완료",
                   desc: isEn ? "Secured foundational dual-power switching architecture patents." : "가솔린-전기 자동 동력 전달 및 ACD 결합 특허 등록 및 원천 개발 완료."
                 },
                 { 
@@ -737,7 +737,7 @@ export const HybridMotorcycleAdvancedShowcase: React.FC<HybridMotorcycleAdvanced
                 <div className="p-3.5 bg-slate-900/50 border border-white/5 rounded-xl space-y-1.5">
                   <div className="text-xs font-black text-amber-400 flex items-center gap-1.5">
                     <Activity className="w-3.5 h-3.5" />
-                    {isEn ? "2. Global Market Retrofit Blueprint" : "2. 글로벌 영토 확장: 휘발유 이륜차 업그레이드 개조 패키지"}
+                    {isEn ? "2. Global Market Retrofit Blueprint" : "2. 글로벌 영토 확장: 휘발유 오토바이 업그레이드 개조 패키지"}
                   </div>
                   <ul className="text-[11px] text-slate-300 space-y-1 font-sans leading-normal list-none pl-0">
                     <li>• <span className="font-bold text-slate-200">{isEn ? "China Base (Zhejiang Chuantai)" : "중국 거점 (절강천태)"}</span>: {isEn ? "Utilizing vast production lines to deploy assembly plants." : "시제품 생산 설비 무상 제공 및 타로 모터스(TARO) 현지 제조 인프라 연동."}</li>

@@ -127,7 +127,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
           if (idx === 0) label = isEn ? 'ESS Device' : 'ESS (에너지저장장치)';
           else if (idx === 1) label = isEn ? 'Solar Energy' : '태양열';
           else if (idx === 2) label = isEn ? 'E-Bicycle' : '자전거';
-          else if (idx === 3) label = isEn ? 'E-Motorcycle' : '오토바이';
+          else if (idx === 3) label = isEn ? 'Motorcycle' : '오토바이';
           else if (idx === 4) label = isEn ? 'SAM Materials' : 'SAM 신소재';
           else if (idx === 5) label = isEn ? 'HGE3D00 Gen' : 'HGE3D00 발전기';
           else if (idx === 6) label = isEn ? 'Biochar Agri' : '바이오차 비료';
@@ -502,7 +502,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                       </div>
                       <div className="text-left">
                         <span className="text-[10px] font-mono text-cyan-400 font-extrabold uppercase tracking-widest block">HYBRID MOTO TECHNICAL BRIEFING</span>
-                        <span className="text-xs font-bold text-slate-200">{isEn ? 'Hybrid Motorcycle Advanced Showcase Ready' : '하이브리드 이륜차 정밀 구동 분석자료 탑재'}</span>
+                        <span className="text-xs font-bold text-slate-200">{isEn ? 'Hybrid Motorcycle Advanced Showcase Ready' : '하이브리드 오토바이 정밀 구동 분석자료 탑재'}</span>
                       </div>
                     </div>
                     <p className="text-[11px] text-cyan-200/90 font-sans leading-relaxed text-left font-medium mb-3">

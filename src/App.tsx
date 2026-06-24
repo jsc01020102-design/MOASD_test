@@ -164,8 +164,10 @@ export default function App() {
   const [loginModalTab, setLoginModalTab] = useState<'partner' | 'general'>('partner');
   const [solutionsDropdownOpen, setSolutionsDropdownOpen] = useState<boolean>(false);
   const [samSubmenuOpen, setSamSubmenuOpen] = useState<boolean>(false);
+  const [motorcycleSubmenuOpen, setMotorcycleSubmenuOpen] = useState<boolean>(false);
   const [mobileSolutionsOpen, setMobileSolutionsOpen] = useState<boolean>(false);
   const [mobileSamOpen, setMobileSamOpen] = useState<boolean>(false);
+  const [mobileMotorcycleOpen, setMobileMotorcycleOpen] = useState<boolean>(false);
 
   // SignUp / 회원가입 states & local storage persistence
   const [portalTab, setPortalTab] = useState<'signup' | 'login'>('login');
@@ -681,6 +683,7 @@ export default function App() {
               onMouseLeave={() => {
                 setSolutionsDropdownOpen(false);
                 setSamSubmenuOpen(false);
+                setMotorcycleSubmenuOpen(false);
               }}
             >
               <button 
@@ -821,34 +824,73 @@ export default function App() {
                                   {language === 'en' ? 'Polaris Coating' : '폴라리스 코팅'}
                                 </button>
                                  
-                                 <button
-                                   onClick={(e) => {
-                                     e.stopPropagation();
-                                     navigateToSolutions(4, 'hybrid-moto', e);
-                                     setSolutionsDropdownOpen(false);
-                                     setSamSubmenuOpen(false);
-                                   }}
-                                   className="flex items-center gap-2 px-2 py-1.5 text-[11.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
-                                 >
-                                   <span className="w-1 h-1 rounded-full bg-cyan-400 flex-shrink-0" />
-                                   {language === 'en' ? 'Hybrid Motorcycle' : '하이브리드 이륜차'}
-                                 </button>
+                                 
                               </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
                       </div>
 
-                      <button
-                        onClick={(e) => {
-                          navigateToSolutions(3, undefined, e);
-                          setSolutionsDropdownOpen(false);
-                        }}
-                        className="flex items-center gap-2.5 px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
+                      {/* Motorcycle with nested sub-flyout */}
+                      <div 
+                        className="relative"
+                        onMouseEnter={() => setMotorcycleSubmenuOpen(true)}
+                        onMouseLeave={() => setMotorcycleSubmenuOpen(false)}
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0" />
-                        {language === 'en' ? 'E-Motorcycle' : '오토바이'}
-                      </button>
+                        <button
+                          onClick={(e) => {
+                            navigateToSolutions(3, undefined, e);
+                            setSolutionsDropdownOpen(false);
+                          }}
+                          className="flex items-center justify-between px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0" />
+                            <span>{language === 'en' ? 'Motorcycle' : '오토바이'}</span>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 text-slate-450" />
+                        </button>
+
+                        <AnimatePresence>
+                          {motorcycleSubmenuOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, x: 8 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: 8 }}
+                              transition={{ duration: 0.15 }}
+                              className="absolute top-0 left-full ml-1 w-60 rounded-xl bg-slate-950/98 border border-white/10 p-2 shadow-2xl backdrop-blur-2xl z-50"
+                            >
+                              <div className="flex flex-col gap-1">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigateToSolutions(3, undefined, e);
+                                    setSolutionsDropdownOpen(false);
+                                    setMotorcycleSubmenuOpen(false);
+                                  }}
+                                  className="flex items-center gap-2 px-2 py-1.5 text-[11.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
+                                >
+                                  <span className="w-1 h-1 rounded-full bg-cyan-400 flex-shrink-0" />
+                                  {language === 'en' ? 'Hybrid Motorcycle' : '하이브리드 오토바이'}
+                                </button>
+                                
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigateToSolutions(3, undefined, e);
+                                    setSolutionsDropdownOpen(false);
+                                    setMotorcycleSubmenuOpen(false);
+                                  }}
+                                  className="flex items-center gap-2 px-2 py-1.5 text-[11.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
+                                >
+                                  <span className="w-1 h-1 rounded-full bg-purple-400 flex-shrink-0" />
+                                  {language === 'en' ? 'Electric Motorcycle' : '전기 오토바이'}
+                                </button>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
 
                       <button
                         onClick={(e) => {
@@ -1167,32 +1209,60 @@ export default function App() {
                                   <span className="w-1 h-0.5 bg-rose-400" />
                                   {language === 'en' ? 'Polaris Coating' : '폴라리스 코팅'}
                                 </button>
-                                 <button
-                                   onClick={() => {
-                                     navigateToSolutions(4, 'hybrid-moto');
-                                     setMobileMenuOpen(false);
-                                   }}
-                                   className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
-                                 >
-                                   <span className="w-1 h-0.5 bg-cyan-400" />
-                                   {language === 'en' ? 'Hybrid Motorcycle' : '하이브리드 이륜차'}
-                                 </button>
+                                 
                               </motion.div>
                             )}
                           </AnimatePresence>
                         </div>
 
                         {/* 오토바이 */}
-                        <button
-                          onClick={() => {
-                            navigateToSolutions(3);
-                            setMobileMenuOpen(false);
-                          }}
-                          className="text-left text-xs font-bold text-slate-400 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-2 bg-transparent border-0"
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0" />
-                          {language === 'en' ? 'E-Motorcycle' : '오토바이'}
-                        </button>
+                        {/* 오토바이 */}
+                        <div className="flex flex-col">
+                          <button
+                            onClick={() => setMobileMotorcycleOpen(!mobileMotorcycleOpen)}
+                            className="text-left text-xs font-bold text-slate-400 hover:text-cyan-400 py-1 cursor-pointer flex items-center justify-between bg-transparent border-0 w-full"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0" />
+                              <span>{language === 'en' ? 'Motorcycle' : '오토바이'}</span>
+                            </div>
+                            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 text-slate-450 ${mobileMotorcycleOpen ? 'rotate-180 text-cyan-400' : ''}`} />
+                          </button>
+
+                          <AnimatePresence>
+                            {mobileMotorcycleOpen && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.15 }}
+                                className="pl-4 flex flex-col gap-2 pt-1.5 overflow-hidden pb-1"
+                              >
+                                <button
+                                  onClick={() => {
+                                    navigateToSolutions(3);
+                                    setMobileMenuOpen(false);
+                                  }}
+                                  className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
+                                >
+                                  <span className="w-1 h-0.5 bg-cyan-400" />
+                                  {language === 'en' ? 'Hybrid Motorcycle' : '하이브리드 오토바이'}
+                                </button>
+                                
+                                <button
+                                  onClick={() => {
+                                    navigateToSolutions(3);
+                                    setMobileMenuOpen(false);
+                                  }}
+                                  className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
+                                >
+                                  <span className="w-1 h-0.5 bg-purple-400" />
+                                  {language === 'en' ? 'Electric Motorcycle' : '전기 오토바이'}
+                                </button>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
 
                         {/* 자전거 */}
                         <button

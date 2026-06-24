@@ -5,7 +5,6 @@ import { TerramuvicsAdvancedShowcase } from './TerramuvicsAdvancedShowcase';
 import { SamPolishingAdvancedShowcase } from './SamPolishingAdvancedShowcase';
 import { HeatCoatingAdvancedShowcase } from './HeatCoatingAdvancedShowcase';
 import { PolarisAdvancedShowcase } from './PolarisAdvancedShowcase';
-import { HybridMotorcycleAdvancedShowcase } from './HybridMotorcycleAdvancedShowcase';
 import { 
   Sparkles, 
   Layers, 
@@ -33,7 +32,7 @@ import {
   Info
 } from 'lucide-react';
 
-export type SolutionTab = 'sam-p' | 'ecotube' | 'terramuvics' | 'heat-coating' | 'polaris' | 'hybrid-moto';
+export type SolutionTab = 'sam-p' | 'ecotube' | 'terramuvics' | 'heat-coating' | 'polaris';
 
 export interface SamPolishingSolutionsProps {
   activeTab?: string | null;
@@ -48,7 +47,7 @@ export const SamPolishingSolutions: React.FC<SamPolishingSolutionsProps> = ({
   const [internalActiveTab, setInternalActiveTab] = useState<SolutionTab>('sam-p');
   
   const currentTabRaw = controlledActiveTab || internalActiveTab;
-  const activeTab: SolutionTab = (currentTabRaw === 'sam-p' || currentTabRaw === 'ecotube' || currentTabRaw === 'terramuvics' || currentTabRaw === 'heat-coating' || currentTabRaw === 'polaris' || currentTabRaw === 'hybrid-moto')
+  const activeTab: SolutionTab = (currentTabRaw === 'sam-p' || currentTabRaw === 'ecotube' || currentTabRaw === 'terramuvics' || currentTabRaw === 'heat-coating' || currentTabRaw === 'polaris')
     ? (currentTabRaw as SolutionTab)
     : 'sam-p';
 
@@ -68,7 +67,7 @@ export const SamPolishingSolutions: React.FC<SamPolishingSolutionsProps> = ({
       const customEvent = e as CustomEvent<{ tab: string }>;
       if (customEvent.detail && customEvent.detail.tab) {
         const targetTab = customEvent.detail.tab;
-        if (targetTab === 'sam-p' || targetTab === 'ecotube' || targetTab === 'terramuvics' || targetTab === 'heat-coating' || targetTab === 'polaris' || targetTab === 'hybrid-moto') {
+        if (targetTab === 'sam-p' || targetTab === 'ecotube' || targetTab === 'terramuvics' || targetTab === 'heat-coating' || targetTab === 'polaris') {
           setActiveTab(targetTab as SolutionTab);
         }
         const section = document.getElementById('sam-solutions-showcase');
@@ -252,7 +251,6 @@ export const SamPolishingSolutions: React.FC<SamPolishingSolutionsProps> = ({
         };
 
       case 'polaris':
-      case 'hybrid-moto':
         return {
           title: '',
           subtitle: '',
@@ -360,8 +358,6 @@ export const SamPolishingSolutions: React.FC<SamPolishingSolutionsProps> = ({
         <HeatCoatingAdvancedShowcase language={language} isEn={isEn} />
       ) : activeTab === 'polaris' ? (
         <PolarisAdvancedShowcase language={language} isEn={isEn} />
-      ) : activeTab === 'hybrid-moto' ? (
-        <HybridMotorcycleAdvancedShowcase language={language} isEn={isEn} />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch pt-2">
           
