@@ -696,7 +696,22 @@ export const Admin: React.FC<AdminProps> = ({
             
             {/* T1: Members Management */}
             {activeTab === 'members' && (
-              <div className="space-y-6 text-left">
+              !(currentAdmin && (currentAdmin.roleLabel === 'S' || ['1', '2', '3', '4', '5'].includes(currentAdmin.roleLabel))) ? (
+                <div className="py-16 text-center space-y-4">
+                  <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto">
+                    <Shield className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white">
+                    {language === 'en' ? 'Access Denied' : '조회 권한 제한'}
+                  </h3>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+                    {language === 'en'
+                      ? 'The member list is strictly confidential and can only be accessed by the Master Admin or authorized administrators.'
+                      : '회원목록은 극비 보안 항목으로 최고 마스터 관리자 및 인가된 시스템 관리자 이외에는 어떠한 등급의 인원도 열람할 수 없습니다.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-6 text-left">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <h3 className="text-lg font-bold text-white flex items-center gap-2">
                     <UserCheck className="text-cyan-400 w-5 h-5" />
@@ -924,7 +939,8 @@ export const Admin: React.FC<AdminProps> = ({
                   </table>
                 </div>
               </div>
-            )}
+            )
+          )}
 
             {/* T2: Deploy Sub Admins (Master Only) */}
             {activeTab === 'subadmins' && currentAdmin?.roleLabel === 'S' && (

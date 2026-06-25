@@ -18,7 +18,10 @@ import {
   Play,
   Pause,
   Home,
-  Trees
+  Trees,
+  Sliders,
+  Upload,
+  Trash2
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { HybridMotorcycleAdvancedShowcase } from './HybridMotorcycleAdvancedShowcase';
@@ -67,6 +70,27 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
   };
 
   const isEn = language === 'en';
+
+  // Load custom services with imageUrl from localStorage if available
+  const [services, setServices] = useState<any[]>(() => {
+    const saved = localStorage.getItem('moasd_custom_services');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    return MOASD_SERVICES;
+  });
+
+  // Admin Edit Mode states - check if admin logged in OR toggle override
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(() => {
+    const hasAdminSession = sessionStorage.getItem('moasd_admin_session') !== null;
+    const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
+    return hasAdminSession || manualToggle;
+  });
+
   const [viewMode, setViewMode] = useState<'image' | 'diagram'>('image');
   const [activeStep, setActiveStep] = useState<number>(0);
   const [isAutoplay, setIsAutoplay] = useState<boolean>(true);
@@ -74,14 +98,41 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
   const [biocharStep, setBiocharStep] = useState<number>(0);
   const [hoveredEquip, setHoveredEquip] = useState<string | null>('trailer');
 
+  // Sync admin mode and storage modifications
   useEffect(() => {
+    const syncState = () => {
+      const hasAdminSession = sessionStorage.getItem('moasd_admin_session') !== null;
+      const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
+      setIsAdminMode(hasAdminSession || manualToggle);
+
+      const saved = localStorage.getItem('moasd_custom_services');
+      if (saved) {
+        try {
+          setServices(JSON.parse(saved));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    };
+    window.addEventListener('storage', syncState);
+    const interval = setInterval(syncState, 1500);
+    return () => {
+      window.removeEventListener('storage', syncState);
+      clearInterval(interval);
+    };
+  }, []);
+
+  useEffect(() => {
+    const currentService = services[activeIndex];
     if (activeIndex === 5) {
       setViewMode('diagram');
-    } else {
+    } else if (currentService && currentService.imageUrl) {
       setViewMode('image');
+    } else {
+      setViewMode('diagram');
     }
     setActiveStep(0);
-  }, [activeIndex]);
+  }, [activeIndex, services]);
 
   useEffect(() => {
     if (activeIndex !== 5 || viewMode !== 'diagram' || !isAutoplay) return;
@@ -96,7 +147,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
       const customEvent = e as CustomEvent<{ index: number }>;
       if (customEvent.detail && typeof customEvent.detail.index === 'number') {
         const targetIdx = customEvent.detail.index;
-        if (targetIdx >= 0 && targetIdx < MOASD_SERVICES.length) {
+        if (targetIdx >= 0 && targetIdx < services.length) {
           setActiveIndex(targetIdx);
           const bgSection = document.getElementById('services-section');
           if (bgSection) {
@@ -109,9 +160,38 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
     return () => {
       window.removeEventListener('moasd-change-carousel-idx', handleCarouselChange);
     };
-  }, [setControlledActiveIndex]);
+  }, [setControlledActiveIndex, services.length]);
 
-  const service = MOASD_SERVICES[activeIndex];
+  const handleImageUpload = (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64Data = reader.result as string;
+      const updated = [...services];
+      updated[idx] = {
+        ...updated[idx],
+        imageUrl: base64Data
+      };
+      setServices(updated);
+      localStorage.setItem('moasd_custom_services', JSON.stringify(updated));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleImageDelete = (idx: number) => {
+    if (confirm(isEn ? "Are you sure you want to delete this image?" : "이 이미지를 정말로 삭제하시겠습니까?")) {
+      const updated = [...services];
+      const newService = { ...updated[idx] };
+      delete newService.imageUrl;
+      updated[idx] = newService;
+      setServices(updated);
+      localStorage.setItem('moasd_custom_services', JSON.stringify(updated));
+    }
+  };
+
+  const service = services[activeIndex];
   const serviceTitle = isEn && service.titleEn ? service.titleEn : service.title;
   const serviceSubtitle = isEn && service.subtitleEn ? service.subtitleEn : service.subtitle;
   const serviceDesc = isEn && service.descriptionEn ? service.descriptionEn : service.description;
@@ -121,11 +201,11 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
       
       {/* Chapter Segmented Navigation Pill List for Easy Chapter Navigation */}
       <div className="w-full flex justify-center mb-10 flex-wrap gap-2.5">
-        {MOASD_SERVICES.map((serv, idx) => {
+        {services.map((serv, idx) => {
           const isActive = idx === activeIndex;
           let label = isEn ? serv.titleEn : serv.title;
           // Shorten labels on buttons
-          if (idx === 0) label = isEn ? 'ESS Device' : 'ESS (에너지저장장치)';
+          if (idx === 0) label = isEn ? 'Hybrid Supercapacitor' : '하이브리드 슈퍼 커패시터';
           else if (idx === 1) label = isEn ? 'Solar Energy' : '태양열';
           else if (idx === 2) label = isEn ? 'E-Bicycle' : '자전거';
           else if (idx === 3) label = isEn ? 'Motorcycle' : '오토바이';
@@ -156,6 +236,51 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
         })}
       </div>
 
+      {/* Dynamic Master/Admin Control Panel Bar */}
+      <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900/40 border border-white/5 rounded-2xl p-4 sm:p-5 mb-8 gap-4 select-text">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+            <Sliders className="w-5 h-5 animate-pulse" />
+          </div>
+          <div>
+            <h4 className="text-sm font-black text-white flex items-center gap-2">
+              {isEn ? "Master & Admin Interactive Console" : "마스터 및 관리자 미디어 통제 구도"}
+              {isAdminMode ? (
+                <span className="text-[9.5px] bg-red-500/20 border border-red-500/30 text-red-400 font-mono px-2 py-0.5 rounded font-black flex items-center gap-1 animate-pulse">
+                  <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
+                  MASTER CONTROL SYSTEM ON
+                </span>
+              ) : (
+                <span className="text-[9.5px] bg-slate-950 border border-white/5 text-slate-500 font-mono px-2 py-0.5 rounded font-black">
+                  STANDBY
+                </span>
+              )}
+            </h4>
+            <p className="text-[11px] text-slate-400 leading-normal mt-0.5">
+              {isEn 
+                ? "Manage images and photos for all key parts on this website (Excluding Generator)." 
+                : "HGE3D00 발전기를 제외한 모든 파트별 솔루션의 고품격 실물 전면 사진을 등록, 수정 및 삭제할 수 있습니다."}
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => {
+            const nextMode = !isAdminMode;
+            setIsAdminMode(nextMode);
+            localStorage.setItem('moasd_admin_manual_toggle', nextMode ? 'true' : 'false');
+          }}
+          className={`px-4 py-2 rounded-xl text-xs font-black transition-all border flex items-center gap-2 cursor-pointer w-full md:w-auto justify-center ${
+            isAdminMode
+              ? 'bg-red-500/15 border-red-500/50 text-red-400 shadow-[0_0_12px_rgba(239,68,68,0.25)] hover:bg-red-500/25'
+              : 'bg-slate-950/80 border-white/10 text-slate-300 hover:text-white hover:bg-slate-900/80'
+          }`}
+        >
+          <Sliders className="w-4 h-4" />
+          {isEn ? "Toggle Admin Mode" : "관리자 모드 전환"} ({isAdminMode ? "ON" : "OFF"})
+        </button>
+      </div>
+
       {/* Main High-Fidelity Combined Details Plate (Single Screen, Fully Responsive) */}
       <div className="w-full">
         <AnimatePresence mode="wait">
@@ -167,36 +292,70 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
             transition={{ duration: 0.35, ease: 'easeOut' }}
             className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch"
           >
-            {/* LEFT AREA: Spotlight specifications and product visualization */}
-            <div className="lg:col-span-7 flex flex-col justify-between border border-white/5 bg-slate-900/15 backdrop-blur-xl p-4 sm:p-6 md:p-10 rounded-3xl space-y-6 text-left">
-              <div className="space-y-4">
-                <div className="flex flex-wrap items-center gap-2.5 text-xs text-cyan-400 font-mono">
-                  <span className="font-bold uppercase tracking-wider bg-slate-900 border border-white/5 px-3 py-1.5 rounded-md">
-                    0{activeIndex + 1} / {isEn ? 'CORE PORTFOLIO' : '핵심 포트폴리오'}
-                  </span>
-                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/30 font-bold">
-                    <Sparkle className="w-3.5 h-3.5 text-cyan-400 animate-spin-slow" />
-                    IMPACT {service.impactScore}%
+            {activeIndex === 0 ? (
+              // Custom side-by-side layout for Hybrid Supercapacitor as requested by the user
+              <div className="col-span-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch w-full">
+                {/* LEFT COLUMN (lg:col-span-7): Custom styled description card */}
+                <div className="lg:col-span-7 flex flex-col justify-between border border-white/5 bg-slate-900/15 backdrop-blur-xl p-6 sm:p-8 md:p-10 rounded-3xl space-y-6 text-left relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+                  
+                  <div className="space-y-6">
+                    <div className="flex flex-wrap items-center gap-2.5 text-xs text-cyan-400 font-mono">
+                      <span className="font-bold uppercase tracking-wider bg-slate-900 border border-white/5 px-3 py-1.5 rounded-md">
+                        01 / {isEn ? 'CORE PORTFOLIO' : '핵심 포트폴리오'}
+                      </span>
+                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/30 font-bold">
+                        <Sparkle className="w-3.5 h-3.5 text-cyan-400 animate-spin-slow" />
+                        IMPACT 98%
+                      </div>
+                    </div>
+
+                    <h3 className="text-xl sm:text-2xl md:text-3.5xl font-black text-white tracking-tight leading-tight">
+                      {isEn ? "Hybrid Supercapacitor" : "하이브리드 슈퍼커패시터"}
+                    </h3>
+
+                    <p className="text-xs sm:text-sm md:text-[15px] font-bold text-cyan-400 leading-relaxed max-w-2xl border-b border-white/5 pb-4">
+                      {isEn ? "Ultra-Fast Cycle & High-Density Cell Design" : "초고속 충반전 및 고밀도 정밀 축전 셀 설계"}
+                    </p>
+
+                    <div className="space-y-5 pt-2 select-text">
+                      <p className="text-sm md:text-[15px] text-slate-200 font-semibold leading-relaxed font-sans border-l-2 border-cyan-500/40 pl-4 py-0.5">
+                        {isEn 
+                          ? "An ultra-capacitor is a high-efficiency power device." 
+                          : "울트라 커패시터는 고효율 디바이스이다."}
+                      </p>
+
+                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+                        {isEn 
+                          ? "Because its Coulombic Efficiency (the ratio of discharged charge to the total charge added to replenish the discharge) exceeds 99% even under high currents, virtually no charge is lost during charge/discharge."
+                          : "쿨롱 효율(방전된 충전량을 채우기 위해 추가된 총 충전량으로 방전된 총 충전량을 나눈 값)이 고전류에서도 99%를 초과하기 때문에 울트라커패시터를 충·방전할 때 소실되는 충전량이 거의 없다."}
+                      </p>
+
+                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+                        {isEn
+                          ? "Thanks to its extremely low Equivalent Series Resistance (ESR), its Round-Trip Efficiency (RTE) is exceptionally high: exceeding 70% within 5 seconds and 80% within 10 seconds."
+                          : "또한 낮은 ESR(Equivalent Series Resistance) 덕분에 RTE(Round-Trip Efficiency)도 매우 높다. 5초 내에 RTE 가 70%를 넘는다. 10초 내에 RTE가 80%를 넘는다."}
+                      </p>
+
+                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+                        {isEn
+                          ? "This not only enables more efficient energy utilization but also prevents overheating. Consequently, the cooling overhead required to actively cool the energy storage device is significantly reduced."
+                          : "이는 에너지를 더욱 효율적으로 사용할 수 있을 뿐만 아니라 과열을 방지한다. 따라서 에너지 저장 디바이스를 냉각해야 하는 오버헤드가 줄어들 가능성이 높다."}
+                      </p>
+
+                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+                        {isEn
+                          ? "Discharges to 1/2 voltage within 5 seconds and charges concurrently at the exact same high rate until the ultra-capacitor is fully charged."
+                          : "5초 내에 1/2 전압으로 방전하고 울트라커패시터가 완전히 충전될 때까지 같은 속도로 충전."}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                <h3 className="text-xl sm:text-2xl md:text-3.5xl font-black text-white tracking-tight leading-tight">
-                  {serviceTitle}
-                </h3>
-
-                <p className="text-xs sm:text-sm md:text-[15px] font-bold text-cyan-400 leading-relaxed max-w-2xl">
-                  {serviceSubtitle}
-                </p>
-
-                <p className="text-[11px] sm:text-xs md:text-sm text-slate-300 leading-relaxed font-sans max-w-3xl pt-1">
-                  {serviceDesc}
-                </p>
-              </div>
-
-              {/* High-Fidelity Image Container / Interactive System Diagram (for HGE3D00 Generator or other beautiful technology assets) */}
-              <div className="pt-4 flex flex-col">
-                {activeIndex === 5 && (
-                  <div className="flex items-center justify-between p-1 bg-slate-950/80 border border-white/5 rounded-xl mb-3.5 w-full">
+                {/* RIGHT COLUMN (lg:col-span-5): Beautiful 4-panel vector diagrams or custom uploaded photo */}
+                <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
+                  {/* View Mode Toggle for Supercapacitor */}
+                  <div className="flex items-center justify-between p-1 bg-slate-950/80 border border-white/5 rounded-xl w-full">
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => setViewMode('diagram')}
@@ -206,7 +365,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                             : 'text-slate-400 hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        ⚡ {isEn ? 'CLOSED-LOOP RECYCLE SYSTEM' : '자가발전 무충전 순환계통'}
+                        ⚡ {isEn ? 'TECHNICAL DIAGRAM' : '기술 도해 / 설계도'}
                       </button>
                       <button
                         onClick={() => setViewMode('image')}
@@ -216,433 +375,809 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                             : 'text-slate-400 hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        ⚙️ {isEn ? 'DURABLE DEVICE DESIGN' : '실물 전면 외형'}
+                        🖼️ {isEn ? 'REAL-LIFE PHOTO' : '실물 전면 사진'}
                       </button>
                     </div>
 
-                    <div className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded bg-cyan-950/40 border border-cyan-500/20 text-[9px] font-mono font-bold text-cyan-400">
-                      <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping" />
-                      SIM_MODE: ACTIVE
-                    </div>
-                  </div>
-                )}
-
-                {service.imageUrl && (viewMode === 'image' || activeIndex !== 5) ? (
-                  <div className="space-y-4">
-                    <h5 className="text-[11px] font-mono tracking-widest text-slate-500 uppercase font-bold flex items-center gap-2">
-                      <Award className="w-4 h-4 text-amber-500" />
-                      {t('carousel.productView', 'PRODUCTION HIGH-FIDELITY VIEW', '실물 고정밀 모델 렌더링')}
-                    </h5>
-                    <div className="relative w-full h-[220px] md:h-[290px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-gradient-to-b from-slate-950/80 to-slate-900 flex items-center justify-center p-4">
-                      {/* Sub-atmospheric subtle glow */}
-                      <div className="absolute inset-0 bg-radial-at-c from-cyan-500/5 via-transparent to-transparent pointer-events-none" />
-                      
-                      <img 
-                        src={service.imageUrl} 
-                        alt={serviceTitle}
-                        className="w-full h-full object-contain filter brightness-105 contrast-105 hover:scale-[1.03] transition-transform duration-750"
-                        style={{ imageRendering: '-webkit-optimize-contrast' }}
-                        referrerPolicy="no-referrer"
-                      />
-                      
-                      {/* Specs Badge */}
-                      <div className="absolute top-3.5 right-3.5 px-3 py-1 rounded-lg bg-slate-950/90 border border-cyan-500/30 text-[9px] font-mono font-bold text-cyan-400 tracking-wider">
-                        DOOHYUN HGE3D00 ESS/GEN ACTIVE
+                    {isAdminMode && (
+                      <div className="flex items-center gap-1 px-2 py-0.5 rounded bg-red-950/40 border border-red-500/20 text-[9px] font-mono font-bold text-red-400">
+                        <span className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse" />
+                        ADMIN EDITING
                       </div>
-                    </div>
+                    )}
                   </div>
-                ) : activeIndex === 5 && viewMode === 'diagram' ? (
-                  /* 🌟 CYBERPUNK DYNAMIC CLOSED LOOP CIRCULATION SYSTEM DIAGRAM */
-                  <div className="relative w-full rounded-2xl border border-cyan-500/35 bg-gradient-to-b from-slate-950 via-slate-950/85 to-slate-900/40 p-4 shadow-2xl shadow-cyan-950/40 space-y-4">
-                    {/* Header Box inside diagram */}
-                    <div className="p-3 rounded-xl border border-amber-500/30 bg-amber-950/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-left">
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[9px] font-mono font-bold text-amber-300 bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 rounded">
-                            ESS CIRCULATION SYSTEM
-                          </span>
-                          <span className="text-[9px] font-mono font-bold text-cyan-300 bg-cyan-500/20 border border-cyan-400/40 px-2 py-0.5 rounded">
-                            20,000+ CYCLES
-                          </span>
+
+                  {viewMode === 'image' ? (
+                    service.imageUrl ? (
+                      <div className="space-y-4 flex-1 flex flex-col justify-between">
+                        <div className="relative w-full h-[380px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-gradient-to-b from-slate-950/80 to-slate-900 flex items-center justify-center p-4">
+                          <div className="absolute inset-0 bg-radial-at-c from-cyan-500/5 via-transparent to-transparent pointer-events-none" />
+                          <img 
+                            src={service.imageUrl} 
+                            alt={serviceTitle}
+                            className="w-full h-full object-contain filter brightness-105 contrast-105 hover:scale-[1.03] transition-transform duration-750"
+                            style={{ imageRendering: '-webkit-optimize-contrast' }}
+                            referrerPolicy="no-referrer"
+                          />
+                          <div className="absolute top-3.5 right-3.5 px-3 py-1 rounded-lg bg-slate-950/90 border border-cyan-500/30 text-[9px] font-mono font-bold text-cyan-400 tracking-wider">
+                            HYBRID SUPERCAPACITOR PHOTO ACTIVE
+                          </div>
                         </div>
-                        <h4 className="text-xs font-black text-amber-200 tracking-tight">
-                          {isEn ? "Chargeless Self-Generator ESS Device Loop" : "무충전 자가발전기 ESS장치 순환시스템"}
-                        </h4>
-                      </div>
-                      <p className="text-[10px] text-slate-300 leading-normal max-w-sm md:text-right font-medium">
-                        {isEn 
-                          ? "Fires up charge-discharge cycles over 20,000 times based on initial energy. Produces stable electricity for over 10+ years without any external charge feeds."
-                          : "배터리 생산 시 최초 충전된 전기 용량만을 바탕으로 20,000회 이상 무방전 충·방전 리사이클 원리 가동. 10년 이상 충전 없이 전기를 지속 환류 생산합니다."
-                        }
-                      </p>
-                    </div>
 
-                    {/* Central Schematic Flow Map */}
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-stretch relative">
-                      
-                      {/* Vertical line indicator left (represents Chargerates in image) */}
-                      <div className="col-span-full md:col-span-3 flex flex-row md:flex-col items-center justify-between p-3 md:p-2 rounded-xl bg-slate-950/60 border border-white/5 gap-3 md:space-y-2">
-                        <span className="text-[8px] font-mono font-bold text-slate-500 block leading-none">Chargerate</span>
-                        
-                        <div className="flex flex-row md:flex-col gap-1 w-full md:w-auto items-center justify-center flex-wrap">
-                          {[100, 80, 60, 40, 20].map((rate) => {
-                            const isCurrentRate = (rate === 100 && activeStep === 0) || 
-                                                 (rate === 80 && activeStep === 3) ||
-                                                 (rate === 60 && activeStep === 1) ||
-                                                 (rate === 40 && activeStep === 2) ||
-                                                 (rate === 20);
-                            
-                            const col = rate === 100 ? 'text-emerald-400 bg-emerald-950/40 border-emerald-500/30 font-black' : 
-                                        rate === 80 ? 'text-cyan-400 bg-cyan-950/40 border-cyan-500/30' : 
-                                        rate === 60 ? 'text-amber-400 bg-amber-950/40 border-amber-500/30' : 
-                                        rate === 40 ? 'text-orange-400 bg-orange-950/40 border-orange-500/30' : 
-                                        'text-red-400 bg-red-950/40 border-red-500/30';
-                            return (
-                              <div 
-                                key={rate} 
-                                className={`text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border transition-all duration-300 flex items-center gap-1 w-auto md:w-full justify-center ${
-                                  isCurrentRate ? `${col} scale-105 shadow-md` : 'text-slate-600 bg-transparent border-transparent'
-                                }`}
-                              >
-                                {isCurrentRate && <span className="w-1 h-1 rounded-full bg-current animate-pulse flex-shrink-0" />}
-                                {rate}%
-                              </div>
-                            );
-                          })}
+                        {isAdminMode && (
+                          <div className="flex items-center justify-end gap-2 p-2 rounded-xl bg-slate-950/50 border border-white/5">
+                            <span className="text-[10px] font-mono text-slate-400 mr-auto pl-2 font-bold uppercase">
+                              {isEn ? "Admin Actions:" : "관리자 기능:"}
+                            </span>
+                            <label className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/15 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-white/10 transition-colors">
+                              <Upload className="w-3.5 h-3.5 text-cyan-400" />
+                              {isEn ? "Change Photo" : "사진 변경 및 수정"}
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                onChange={(e) => handleImageUpload(0, e)} 
+                              />
+                            </label>
+                            <button
+                              onClick={() => handleImageDelete(0)}
+                              className="px-3 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/40 text-red-400 hover:text-red-300 text-xs font-bold flex items-center gap-1.5 cursor-pointer border border-red-500/25 transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              {isEn ? "Delete Photo" : "사진 삭제"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="relative w-full h-[380px] rounded-2xl border-2 border-dashed border-slate-700 hover:border-cyan-500/50 bg-slate-950/40 flex flex-col items-center justify-center p-6 text-center transition-all flex-1">
+                        <div className="p-3 rounded-full bg-slate-900 border border-white/5 text-slate-400 mb-3.5">
+                          <Upload className="w-6 h-6" />
+                        </div>
+                        <p className="text-xs font-bold text-white mb-1">
+                          {isEn ? "No Image Uploaded" : "업로드된 실물 사진이 없습니다"}
+                        </p>
+                        <p className="text-[10.5px] text-slate-500 leading-normal max-w-xs mb-4">
+                          {isEn 
+                            ? "As a Master/Admin, you can upload, replace or delete high-resolution product photos." 
+                            : "최고 관리자 및 마스터 직권으로 본 제품군의 실물 전면 사진을 등록할 수 있습니다."}
+                        </p>
+                        <label className="px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-350 text-slate-950 text-xs font-black transition-all cursor-pointer shadow-md shadow-cyan-400/15 active:scale-95">
+                          {isEn ? "Select Photo" : "사진 선택 및 업로드"}
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            onChange={(e) => handleImageUpload(0, e)} 
+                          />
+                        </label>
+                      </div>
+                    )
+                  ) : (
+                    /* Elegant 4-Panel vector diagrams */
+                    <div className="grid grid-cols-2 gap-4 h-full">
+                      {/* Panel 1 (Top Left): Pouch Layered Cell Structure */}
+                      <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-3.5 flex flex-col justify-between relative overflow-hidden">
+                        <div className="absolute top-1.5 right-1.5 text-[7px] font-mono px-1 py-0.5 rounded bg-cyan-950 border border-cyan-500/20 text-cyan-400 font-bold">
+                          PANEL_01
+                        </div>
+                        <div className="space-y-1">
+                          <span className="text-[8px] font-mono text-slate-500 block font-bold">POUCH_STRUCTURE</span>
+                          <h4 className="text-[10px] md:text-xs font-extrabold text-white leading-tight">
+                            {isEn ? "Pouch Layered Cell Structure" : "파우치형 적층 셀 구조"}
+                          </h4>
                         </div>
                         
-                        <span className="text-[8px] font-mono text-cyan-400 font-extrabold uppercase leading-none block">RECYCLE</span>
-                      </div>
+                        <div className="my-2 flex items-center justify-center">
+                          <svg viewBox="0 0 160 120" className="w-full h-24 drop-shadow-[0_0_8px_rgba(34,211,238,0.12)]">
+                            <g transform="translate(10, 10)">
+                              <rect x="15" y="0" width="8" height="15" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="0.5" />
+                              <text x="17.5" y="8" fontSize="6" fontWeight="extrabold" fill="#475569" fontFamily="monospace">+</text>
+                              
+                              <rect x="5" y="15" width="28" height="40" rx="1.5" fill="#334155" stroke="#1e293b" strokeWidth="0.5" />
+                              <rect x="9" y="15" width="20" height="40" fill="#0284c7" fillOpacity="0.8" />
+                              <rect x="13" y="15" width="12" height="40" fill="#0c4a6e" />
+                              
+                              <line x1="3" y1="35" x2="9" y2="35" stroke="#22d3ee" strokeWidth="0.5" />
+                              <circle cx="9" cy="35" r="1" fill="#22d3ee" />
+                              <text x="0" y="37" fontSize="5" fill="#22d3ee" fontFamily="monospace" fontWeight="bold">1</text>
 
-                      {/* Main Node Diagram Block */}
-                      <div className="col-span-full md:col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-3 relative">
-                        {/* Live active flowchart connections SVGs underlaid */}
-                        <div className="absolute inset-0 pointer-events-none z-0">
-                          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                            {/* Loop clockwise paths */}
-                            <path d="M 25,25 L 75,25 L 75,75 L 25,75 Z" fill="none" stroke="rgba(34, 211, 238, 0.15)" strokeWidth="1.5" />
-                            {/* Moving active electrons depending on active step */}
-                            <circle cx={activeStep === 0 ? 25 : activeStep === 1 ? 75 : activeStep === 2 ? 75 : 25} 
-                                    cy={activeStep === 0 ? 25 : activeStep === 1 ? 25 : activeStep === 2 ? 75 : 75} 
-                                    r="3" fill="#22d3ee" className="animate-pulse shadow-md shadow-cyan-400" />
+                              <line x1="14" y1="45" x2="14" y2="60" stroke="#22d3ee" strokeWidth="0.5" />
+                              <circle cx="14" cy="45" r="1" fill="#22d3ee" />
+                              <text x="12" y="66" fontSize="5" fill="#22d3ee" fontFamily="monospace" fontWeight="bold">2</text>
+
+                              <line x1="25" y1="38" x2="31" y2="38" stroke="#22d3ee" strokeWidth="0.5" />
+                              <circle cx="25" cy="38" r="1" fill="#22d3ee" />
+                              <text x="33" y="40" fontSize="5" fill="#22d3ee" fontFamily="monospace" fontWeight="bold">3</text>
+                            </g>
+
+                            <g transform="translate(75, 10)">
+                              <path d="M 30 0 L 40 5 L 45 15 L 35 15 Z" fill="#94a3b8" />
+                              <text x="37" y="12" fontSize="6" fontWeight="extrabold" fill="#0f172a" fontFamily="monospace">-</text>
+
+                              <path d="M 15 15 L 60 15 L 60 55 A 5 5 0 0 1 55 60 L 10 60 L 10 20 Z" fill="#1d4ed8" fillOpacity="0.4" stroke="#3b82f6" strokeWidth="1" />
+                              <g opacity="0.9">
+                                <line x1="20" y1="20" x2="20" y2="55" stroke="#e2e8f0" strokeWidth="1" />
+                                <line x1="24" y1="20" x2="24" y2="55" stroke="#0284c7" strokeWidth="1.5" />
+                                <line x1="28" y1="20" x2="28" y2="55" stroke="#f1f5f9" strokeWidth="1" />
+                                <line x1="32" y1="20" x2="32" y2="55" stroke="#0c4a6e" strokeWidth="1.5" />
+                                <line x1="36" y1="20" x2="36" y2="55" stroke="#e2e8f0" strokeWidth="1" />
+                                <line x1="40" y1="20" x2="40" y2="55" stroke="#0284c7" strokeWidth="1.5" />
+                                <line x1="44" y1="20" x2="44" y2="55" stroke="#f1f5f9" strokeWidth="1" />
+                              </g>
+                            </g>
                           </svg>
                         </div>
 
-                        {/* Node 1: Top-Left - ESS Storage Device */}
-                        <button 
-                          onClick={() => { setActiveStep(0); setIsAutoplay(false); }}
-                          className={`p-2 rounded-xl border transition-all text-left z-10 relative cursor-pointer ${
-                            activeStep === 0 
-                              ? 'bg-cyan-950/30 border-cyan-400 shadow-lg shadow-cyan-400/15' 
-                              : 'bg-slate-950/70 border-white/5 hover:border-white/15'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-0.5">
-                            <span className="text-[8px] font-mono font-bold text-cyan-300">STEP 01</span>
-                            <span className="text-[7px] uppercase font-mono px-1 py-0.5 rounded bg-cyan-950/80 border border-cyan-400/20 text-cyan-400 font-bold">ESS STORAGE</span>
-                          </div>
-                          <h5 className="text-[10px] font-black text-white leading-tight">ESS Storage Device</h5>
-                          <div className="flex items-baseline gap-1 mt-0.5">
-                            <span className="text-base font-extrabold text-cyan-400 font-mono tracking-tight">1 kW</span>
-                            <span className="text-[8px] font-mono text-slate-500">INIT</span>
-                          </div>
-                        </button>
-
-                        {/* Node 2: Top-Right - X3 Amplification */}
-                        <button 
-                          onClick={() => { setActiveStep(1); setIsAutoplay(false); }}
-                          className={`p-2 rounded-xl border transition-all text-left z-10 relative cursor-pointer ${
-                            activeStep === 1 
-                              ? 'bg-blue-950/30 border-blue-400 shadow-lg shadow-blue-400/15' 
-                              : 'bg-slate-950/70 border-white/5 hover:border-white/15'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-0.5">
-                            <span className="text-[8px] font-mono font-bold text-blue-300">STEP 02</span>
-                            <span className="text-[7px] uppercase font-mono px-1 py-0.5 rounded bg-blue-950/80 border border-blue-400/20 text-blue-400 font-bold">X3 AMP</span>
-                          </div>
-                          <h5 className="text-[10px] font-black text-white leading-tight">{isEn ? "3x Power Amplifier" : "X3배 증폭기"}</h5>
-                          <div className="flex items-baseline gap-1 mt-0.5">
-                            <span className="text-base font-extrabold text-blue-400 font-mono tracking-tight">3 kW</span>
-                            <span className="text-[8px] font-mono text-amber-400 font-bold">300% Boost!</span>
-                          </div>
-                        </button>
-
-                        {/* Node 3: Bottom-Right - Splitted Output Load */}
-                        <button 
-                          onClick={() => { setActiveStep(2); setIsAutoplay(false); }}
-                          className={`p-2 rounded-xl border transition-all text-left z-10 relative cursor-pointer ${
-                            activeStep === 2 
-                              ? 'bg-emerald-950/30 border-emerald-400 shadow-lg shadow-emerald-400/15' 
-                              : 'bg-slate-950/70 border-white/5 hover:border-white/15'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-0.5">
-                            <span className="text-[8px] font-mono font-bold text-emerald-300">STEP 03</span>
-                            <span className="text-[7px] uppercase font-mono px-1 py-0.5 rounded bg-emerald-950/80 border border-emerald-400/20 text-emerald-400 font-bold">OUTPUT SPLIT</span>
-                          </div>
-                          <h5 className="text-[10px] font-black text-white leading-tight">{isEn ? "Output Load & Rec." : "출력 분산 (사용/충전)"}</h5>
-                          <div className="flex flex-col mt-0.5 space-y-0.5 text-[8px] sm:text-[9px]">
-                            <div className="flex justify-between text-slate-200">
-                              <span>{isEn ? "Load (Use):" : "사용:"}</span>
-                              <span className="font-bold text-white font-mono">2 kW</span>
-                            </div>
-                            <div className="flex justify-between text-cyan-400 font-medium">
-                              <span>{isEn ? "Recovery (Charge):" : "충전:"}</span>
-                              <span className="font-bold font-mono text-cyan-300">1 kW</span>
-                            </div>
-                          </div>
-                        </button>
-
-                        {/* Node 4: Bottom-Left - Self-Generating Return Loop */}
-                        <button 
-                          onClick={() => { setActiveStep(3); setIsAutoplay(false); }}
-                          className={`p-2 rounded-xl border transition-all text-left z-10 relative cursor-pointer ${
-                            activeStep === 3 
-                              ? 'bg-amber-950/30 border-amber-400 shadow-lg shadow-amber-400/15' 
-                              : 'bg-slate-950/70 border-white/5 hover:border-white/15'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-0.5">
-                            <span className="text-[8px] font-mono font-bold text-amber-300">STEP 04</span>
-                            <span className="text-[7px] uppercase font-mono px-1 py-0.5 rounded bg-amber-950/80 border border-amber-400/20 text-amber-400 font-bold">FEEDBACK</span>
-                          </div>
-                          <h5 className="text-[10px] font-black text-white leading-tight">{isEn ? "Self-Generating Device" : "자가발전 환류 원용"}</h5>
-                          <div className="flex items-baseline gap-1 mt-0.5">
-                            <span className="text-base font-extrabold text-amber-400 font-mono tracking-tight">1 kW</span>
-                            <span className="text-[8px] font-mono text-emerald-400 font-bold">+80% Return!</span>
-                          </div>
-                        </button>
+                        <span className="text-[8.5px] text-slate-500 leading-relaxed text-left block">
+                          {isEn ? "Stacked flat cells maximize physical ion double-layer adsorption." : "적층 및 고온 압밀 밀봉 구조로 내부 이온 접촉 공간을 획기적으로 연장함."}
+                        </span>
                       </div>
 
-                    </div>
-
-                    {/* Step Specific Explanation Box */}
-                    <div className="p-3.5 rounded-xl border border-white/5 bg-slate-950/90 text-left relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-16 h-16 bg-cyan-400/5 rounded-full blur-xl pointer-events-none" />
-                      
-                      <div className="flex items-center justify-between border-b border-white/5 pb-1.5 mb-2">
-                        <div className="flex items-center gap-1.5">
-                          <div className="p-1 rounded bg-cyan-500/10 border border-cyan-400/20 text-cyan-400">
-                            <Activity className="w-3 h-3" />
-                          </div>
-                          <span className="text-[9px] font-mono font-extrabold tracking-widest text-slate-400 uppercase">
-                            {activeStep === 0 ? "01 / BASE ENERGY ACCUMULATION" : 
-                             activeStep === 1 ? "02 / FLUID VOLTAGE AMPLICATION" :
-                             activeStep === 2 ? "03 / LOAD SPLIT & VOLTAIC DEMARCATION" :
-                             "04 / SELF-GENERATION CYCLE RETURNING"}
-                          </span>
+                      {/* Panel 2 (Top Right): Smart Grid Connection Map */}
+                      <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-3.5 flex flex-col justify-between relative overflow-hidden">
+                        <div className="absolute top-1.5 right-1.5 text-[7px] font-mono px-1 py-0.5 rounded bg-cyan-950 border border-cyan-500/20 text-cyan-400 font-bold">
+                          PANEL_02
+                        </div>
+                        <div className="space-y-1">
+                          <span className="text-[8px] font-mono text-slate-500 block font-bold">SMART_GRID_SYSTEM</span>
+                          <h4 className="text-[10px] md:text-xs font-extrabold text-white leading-tight">
+                            {isEn ? "Smart Grid Integration Map" : "스마트 그리드 연동 시스템"}
+                          </h4>
                         </div>
 
-                        {/* Autoplay toggler button */}
-                        <button 
-                          onClick={() => setIsAutoplay(!isAutoplay)}
-                          className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/15 text-[8px] font-mono font-bold text-slate-400 hover:text-white cursor-pointer transition-colors border-0"
-                        >
-                          {isAutoplay ? <Pause className="w-2 h-2 text-cyan-400 animate-pulse" /> : <Play className="w-2 h-2 text-slate-500" />}
-                          {isAutoplay ? 'AUTO' : 'MANUAL'}
-                        </button>
+                        <div className="my-2 flex items-center justify-center">
+                          <svg viewBox="0 0 160 120" className="w-full h-24">
+                            <g transform="translate(80, 60)">
+                              <rect x="-12" y="-12" width="24" height="24" rx="3" fill="#0f172a" stroke="#22d3ee" strokeWidth="1.5" />
+                              <rect x="-8" y="-8" width="16" height="16" rx="1.5" fill="#0c4a6e" />
+                              <path d="M-3 -4 L3 -4 L0 -1 L3 -1 L-3 4 L-1 1 L-3 1 Z" fill="#22d3ee" className="animate-pulse" />
+                              <text x="-9" y="19" fontSize="5.5" fontWeight="bold" fill="#22d3ee" fontFamily="sans-serif">HSC</text>
+                            </g>
+
+                            <g transform="translate(25, 25)">
+                              <circle cx="0" cy="0" r="10" fill="#0f172a" stroke="#ffffff" strokeOpacity="0.15" strokeWidth="1" />
+                              <path d="M-4 0 A4 4 0 1 1 4 0 A4 4 0 1 1 -4 0 M0 -5 L0 5 M-5 0 L5 0" stroke="#f59e0b" strokeWidth="0.75" />
+                            </g>
+                            <g transform="translate(80, 20)">
+                              <circle cx="0" cy="0" r="10" fill="#0f172a" stroke="#ffffff" strokeOpacity="0.15" strokeWidth="1" />
+                              <rect x="-4" y="-5" width="8" height="10" rx="1" fill="#a855f7" />
+                            </g>
+                            <g transform="translate(135, 25)">
+                              <circle cx="0" cy="0" r="10" fill="#0f172a" stroke="#ffffff" strokeOpacity="0.15" strokeWidth="1" />
+                              <path d="M0 -5 L0 5 M-4 -2 L4 2" stroke="#38bdf8" strokeWidth="0.75" />
+                            </g>
+                            <g transform="translate(30, 95)">
+                              <circle cx="0" cy="0" r="10" fill="#0f172a" stroke="#ffffff" strokeOpacity="0.15" strokeWidth="1" />
+                              <polygon points="0,-4 5,1 -5,1" fill="#818cf8" />
+                            </g>
+                            <g transform="translate(130, 95)">
+                              <circle cx="0" cy="0" r="10" fill="#0f172a" stroke="#ffffff" strokeOpacity="0.15" strokeWidth="1" />
+                              <rect x="-5" y="-3" width="10" height="6" rx="1" fill="#10b981" />
+                            </g>
+
+                            <path d="M 25 25 L 68 48" stroke="#ffffff" strokeWidth="0.5" strokeOpacity="0.3" strokeDasharray="2 2" />
+                            <path d="M 80 20 L 80 48" stroke="#ffffff" strokeWidth="0.5" strokeOpacity="0.3" strokeDasharray="2 2" />
+                            <path d="M 135 25 L 92 48" stroke="#ffffff" strokeWidth="0.5" strokeOpacity="0.3" strokeDasharray="2 2" />
+                            <path d="M 30 95 L 68 72" stroke="#ffffff" strokeWidth="0.5" strokeOpacity="0.3" strokeDasharray="2 2" />
+                            <path d="M 130 95 L 92 72" stroke="#ffffff" strokeWidth="0.5" strokeOpacity="0.3" strokeDasharray="2 2" />
+                          </svg>
+                        </div>
+
+                        <span className="text-[8.5px] text-slate-500 leading-relaxed text-left block">
+                          {isEn ? "Interlinks solar, wind generators, EV cars, and domestic loads securely." : "신재생 태양광·풍력, 전기동력 스마트 모빌리티 및 주택 그리드에 평형 충방전 결합."}
+                        </span>
                       </div>
 
-                      <div className="space-y-1">
-                        <h5 className="text-[10px] font-extrabold text-white text-left">
-                          {activeStep === 0 ? (isEn ? "ESS STORAGE RESOURCE (1kW)" : "기초 ESS 전력 적치 계보 (1kW)") :
-                           activeStep === 1 ? (isEn ? "3X MAGNETO-AMP SYSTEM (3kW Boost)" : "3배 전자기식 증폭 가속 모듈 (3kW 증폭)") :
-                           activeStep === 2 ? (isEn ? "INTELLIGENT SPLIT & LOGISTICS (2kW / 1kW)" : "실용 전력 분배 및 회수 기작 (사용 2kW / 충전 1kW)") :
-                           (isEn ? "SELF-GENERATION STABILITY CORE (+80% Return)" : "자가 발전 기어 및 ESS 환원 피드백 (+80% 충전)")}
+                      {/* Panel 3 (Bottom Left): Cylindrical Cell Structure */}
+                      <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-3.5 flex flex-col justify-between relative overflow-hidden">
+                        <div className="absolute top-1.5 right-1.5 text-[7px] font-mono px-1 py-0.5 rounded bg-cyan-950 border border-cyan-500/20 text-cyan-400 font-bold">
+                          PANEL_03
+                        </div>
+                        <div className="space-y-1">
+                          <span className="text-[8px] font-mono text-slate-500 block font-bold">CYLINDER_ANATOMY</span>
+                          <h4 className="text-[10px] md:text-xs font-extrabold text-white leading-tight">
+                            {isEn ? "Cylindrical Cell Structure" : "실린더형 셀 구조"}
+                          </h4>
+                        </div>
+
+                        <div className="my-2 flex items-center justify-center">
+                          <svg viewBox="0 0 160 125" className="w-full h-26">
+                            <g transform="translate(38, 25)">
+                              <path d="M 10 20 L 10 70 A 15 5 0 0 0 40 70 L 40 20 Z" fill="url(#metal-wall-carousel)" stroke="#475569" strokeWidth="0.5" />
+                              <path d="M 15 15 L 35 15 L 35 20 L 15 20 Z" fill="#64748b" />
+                              <rect x="22" y="7" width="6" height="8" rx="1" fill="#cbd5e1" stroke="#334155" strokeWidth="0.5" />
+                              <ellipse cx="25" cy="7" rx="3" ry="1.5" fill="#e2e8f0" />
+
+                              <path d="M 13 25 L 13 65 A 12 4 0 0 0 37 65 L 37 25 Z" fill="url(#wound-core-carousel)" />
+                              <line x1="16" y1="28" x2="16" y2="65" stroke="#000000" strokeWidth="0.75" />
+                              <line x1="20" y1="28" x2="20" y2="65" stroke="#22d3ee" strokeWidth="0.75" />
+                              <line x1="24" y1="28" x2="24" y2="65" stroke="#f8fafc" strokeWidth="0.75" />
+                              <line x1="28" y1="28" x2="28" y2="65" stroke="#0284c7" strokeWidth="0.75" />
+                              <line x1="32" y1="28" x2="32" y2="65" stroke="#000000" strokeWidth="0.75" />
+                            </g>
+
+                            <g fontSize="5.5" fontFamily="monospace" fontWeight="bold" fill="#22d3ee">
+                              <line x1="63" y1="32" x2="88" y2="32" stroke="#22d3ee" strokeWidth="0.5" strokeOpacity="0.5" />
+                              <text x="91" y="34">Terminal</text>
+
+                              <line x1="75" y1="75" x2="88" y2="75" stroke="#22d3ee" strokeWidth="0.5" strokeOpacity="0.5" />
+                              <circle cx="75" cy="75" r="0.75" fill="#22d3ee" />
+                              <text x="91" y="77">Aluminum can</text>
+
+                              <line x1="56" y1="50" x2="88" y2="50" stroke="#22d3ee" strokeWidth="0.5" strokeOpacity="0.5" />
+                              <circle cx="56" cy="50" r="0.75" fill="#22d3ee" />
+                              <text x="91" y="49" fill="#22d3ee" fontSize="5" fontWeight="black">Positive electrode</text>
+                              <text x="91" y="54" fill="#cbd5e1" fontSize="4.5">- Carbon material</text>
+                              <text x="91" y="58" fill="#cbd5e1" fontSize="4.5">- Aluminum collector</text>
+
+                              <line x1="51" y1="92" x2="88" y2="92" stroke="#22d3ee" strokeWidth="0.5" strokeOpacity="0.5" />
+                              <circle cx="51" cy="92" r="0.75" fill="#22d3ee" />
+                              <text x="91" y="91" fill="#22d3ee" fontSize="5" fontWeight="black">Negative electrode</text>
+                              <text x="91" y="96" fill="#cbd5e1" fontSize="4.5">- Carbon material</text>
+                              <text x="91" y="100" fill="#cbd5e1" fontSize="4.5">- Aluminum collector</text>
+
+                              <line x1="62" y1="112" x2="88" y2="112" stroke="#22d3ee" strokeWidth="0.5" strokeOpacity="0.5" />
+                              <circle cx="62" cy="112" r="0.75" fill="#22d3ee" />
+                              <text x="91" y="114">Separator</text>
+                            </g>
+
+                            <defs>
+                              <linearGradient id="metal-wall-carousel" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stopColor="#1e293b" />
+                                <stop offset="30%" stopColor="#475569" />
+                                <stop offset="70%" stopColor="#334155" />
+                                <stop offset="100%" stopColor="#0f172a" />
+                              </linearGradient>
+                              <linearGradient id="wound-core-carousel" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stopColor="#0f172a" />
+                                <stop offset="50%" stopColor="#1e293b" />
+                                <stop offset="100%" stopColor="#0f172a" />
+                              </linearGradient>
+                            </defs>
+                          </svg>
+                        </div>
+
+                        <span className="text-[8.5px] text-slate-500 leading-relaxed text-left block">
+                          {isEn ? "Internal roll anatomy of positive/negative carbon terminals & separator." : "단자, 알루미늄 외장 캔, 카본 활성물질 및 집전체 양음극 극판, 분리막의 내부 조권."}
+                        </span>
+                      </div>
+
+                      {/* Panel 4 (Bottom Right): Advanced Carbon/Graphene Material */}
+                      <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-3.5 flex flex-col justify-between relative overflow-hidden">
+                        <div className="absolute top-1.5 right-1.5 text-[7px] font-mono px-1 py-0.5 rounded bg-cyan-950 border border-cyan-500/20 text-cyan-400 font-bold">
+                          PANEL_04
+                        </div>
+                        <div className="space-y-1">
+                          <span className="text-[8px] font-mono text-slate-500 block font-bold">ACTIVE_CARBON_MATERIAL</span>
+                          <h4 className="text-[10px] md:text-xs font-extrabold text-white leading-tight">
+                            {isEn ? "Advanced Carbon Powder" : "탄소 신소재 활성 물질 분말"}
+                          </h4>
+                        </div>
+
+                        <div className="my-2 flex items-center justify-center relative h-24">
+                          <div className="absolute inset-0 bg-radial-gradient from-cyan-500/5 to-transparent pointer-events-none" />
+                          <div className="relative w-32 h-20 flex items-end justify-center">
+                            <div className="absolute bottom-0 w-28 h-3.5 bg-black/50 blur-md rounded-full" />
+                            <svg viewBox="0 0 100 60" className="w-full h-full drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]">
+                              <path d="M 5 55 Q 35 45 50 10 Q 65 45 95 55 Z" fill="url(#powder-gradient-carousel)" />
+                              <g fill="#475569" opacity="0.45">
+                                <circle cx="50" cy="12" r="0.6" />
+                                <circle cx="45" cy="22" r="0.7" />
+                                <circle cx="55" cy="28" r="0.5" />
+                                <circle cx="35" cy="38" r="0.8" />
+                                <circle cx="65" cy="35" r="0.6" />
+                                <circle cx="28" cy="45" r="0.7" />
+                                <circle cx="72" cy="48" r="0.5" />
+                                <circle cx="50" cy="35" r="0.7" fill="#94a3b8" />
+                                <circle cx="48" cy="48" r="0.8" fill="#cbd5e1" />
+                              </g>
+                              <circle cx="50" cy="15" r="1.2" fill="#22d3ee" className="animate-ping" style={{ animationDuration: '3s' }} />
+                              <circle cx="38" cy="33" r="1" fill="#22d3ee" className="animate-ping" style={{ animationDuration: '4.5s' }} />
+                              <circle cx="62" cy="41" r="1" fill="#22d3ee" className="animate-ping" style={{ animationDuration: '2.5s' }} />
+
+                              <defs>
+                                <linearGradient id="powder-gradient-carousel" x1="0" y1="1" x2="0" y2="0">
+                                  <stop offset="0%" stopColor="#020617" />
+                                  <stop offset="35%" stopColor="#0f172a" />
+                                  <stop offset="70%" stopColor="#1e293b" />
+                                  <stop offset="90%" stopColor="#334155" />
+                                  <stop offset="100%" stopColor="#1e293b" />
+                                </linearGradient>
+                              </defs>
+                            </svg>
+                          </div>
+                        </div>
+
+                        <span className="text-[8.5px] text-slate-500 leading-relaxed text-left block">
+                          {isEn ? "Ultra-pure graphite/graphene base particles optimized for electrostatic adsorption." : "정밀 분자 크기로 조제되어 물리적 전하 이온을 극대 흡착하는 고유성 그래핀 탄소 분말."}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              // Standard layout for other active indexes
+              <>
+                {/* LEFT AREA: Spotlight specifications and product visualization */}
+                <div className="lg:col-span-7 flex flex-col justify-between border border-white/5 bg-slate-900/15 backdrop-blur-xl p-4 sm:p-6 md:p-10 rounded-3xl space-y-6 text-left">
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap items-center gap-2.5 text-xs text-cyan-400 font-mono">
+                      <span className="font-bold uppercase tracking-wider bg-slate-900 border border-white/5 px-3 py-1.5 rounded-md">
+                        0{activeIndex + 1} / {isEn ? 'CORE PORTFOLIO' : '핵심 포트폴리오'}
+                      </span>
+                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/30 font-bold">
+                        <Sparkle className="w-3.5 h-3.5 text-cyan-400 animate-spin-slow" />
+                        IMPACT {service.impactScore}%
+                      </div>
+                    </div>
+
+                    <h3 className="text-xl sm:text-2xl md:text-3.5xl font-black text-white tracking-tight leading-tight">
+                      {serviceTitle}
+                    </h3>
+
+                    <p className="text-xs sm:text-sm md:text-[15px] font-bold text-cyan-400 leading-relaxed max-w-2xl">
+                      {serviceSubtitle}
+                    </p>
+
+                    <p className="text-[11px] sm:text-xs md:text-sm text-slate-300 leading-relaxed font-sans max-w-3xl pt-1">
+                      {serviceDesc}
+                    </p>
+                  </div>
+
+                  {/* High-Fidelity Image Container / Interactive System Diagram (for HGE3D00 Generator or other beautiful technology assets) */}
+                  <div className="pt-4 flex flex-col">
+                    {activeIndex === 5 && (
+                      <div className="flex items-center justify-between p-1 bg-slate-950/80 border border-white/5 rounded-xl mb-3.5 w-full">
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => setViewMode('diagram')}
+                            className={`px-3 py-1.5 text-[10.5px] font-mono font-bold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                              viewMode === 'diagram'
+                                ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/15'
+                                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            }`}
+                          >
+                            ⚡ {isEn ? 'CLOSED-LOOP RECYCLE SYSTEM' : '자가발전 무충전 순환계통'}
+                          </button>
+                          <button
+                            onClick={() => setViewMode('image')}
+                            className={`px-3 py-1.5 text-[10.5px] font-mono font-bold rounded-lg transition-all cursor-pointer ${
+                              viewMode === 'image'
+                                ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/15'
+                                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            }`}
+                          >
+                            ⚙️ {isEn ? 'DURABLE DEVICE DESIGN' : '실물 전면 외형'}
+                          </button>
+                        </div>
+
+                        <div className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded bg-cyan-950/40 border border-cyan-500/20 text-[9px] font-mono font-bold text-cyan-400">
+                          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping" />
+                          SIM_MODE: ACTIVE
+                        </div>
+                      </div>
+                    )}
+
+                    {service.imageUrl && (viewMode === 'image' || activeIndex !== 5) ? (
+                      <div className="space-y-4">
+                        <h5 className="text-[11px] font-mono tracking-widest text-slate-500 uppercase font-bold flex items-center gap-2">
+                          <Award className="w-4 h-4 text-amber-500" />
+                          {t('carousel.productView', 'PRODUCTION HIGH-FIDELITY VIEW', '실물 고정밀 모델 렌더링')}
                         </h5>
-                        <p className="text-[10px] text-slate-300 leading-relaxed text-left font-normal">
-                          {activeStep === 0 ? (
-                            isEn ? "Stores initial 1kW default pre-loaded energy from battery manufacture. Receives circular feedback charges in a closed-loop system to run over 20,000 times." :
-                            "배터리 생산 시 최초 충전된 1kW 전하량만을 가지고 기동의 방아쇠를 당깁니다. 하선 순환계통에서 피드백 리턴되는 1kW 전해질 전하를 계속 수용하여 20,000회 오퍼레이션 충방전을 일관 수렴합니다."
-                          ) : activeStep === 1 ? (
-                            isEn ? "Amplifies the 1kW source input from ESS Storage by 300% via structural series windings, elevating load power output to a steady 3kW." :
-                            "ESS 저장 장치에서 도출된 1kW 입력전력을 X3배 전압 기어 증폭 구조를 통과시켜 동기 300%인 3kW 부하 전력량을 영속적으로 형성 및 출력해 냅니다."
-                          ) : activeStep === 2 ? (
-                            isEn ? "Safely routes 2kW to 상용 loads (e.g. electric vehicles, building grids) while diverting remaining 1kW cleanly to the Recovery Storage node." :
-                            "가동된 3kW 중 실제 2kW의 전력량은 스마트 빌딩이나 전기차 급속 인프라 사용 부하로 완전 전송 소비하며, 잔류 1kW는 회수 저장 장치(Recovery Device) 환류로 정렬 제어해 공급합니다."
-                          ) : (
-                            isEn ? "Utilizes 1kW recovery feed to trigger the closed self-generating device, pushing +80% state of charge back to the top ESS Storage node to sustain the cycle." :
-                            "회수된 1kW 복구 소스를 자가발전 장치(Self-generating device) 기작에 투입, +80% 효율 상승 충전 피드백을 발생시켜 상부 ESS 저장 장치를 실시간 연속 충전 복원함으로 영구 순환합니다."
-                          )}
+                        <div className="relative w-full h-[220px] md:h-[290px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-gradient-to-b from-slate-950/80 to-slate-900 flex items-center justify-center p-4">
+                          {/* Sub-atmospheric subtle glow */}
+                          <div className="absolute inset-0 bg-radial-at-c from-cyan-500/5 via-transparent to-transparent pointer-events-none" />
+                          
+                          <img 
+                            src={service.imageUrl} 
+                            alt={serviceTitle}
+                            className="w-full h-full object-contain filter brightness-105 contrast-105 hover:scale-[1.03] transition-transform duration-750"
+                            style={{ imageRendering: '-webkit-optimize-contrast' }}
+                            referrerPolicy="no-referrer"
+                          />
+                          
+                          {/* Specs Badge */}
+                          <div className="absolute top-3.5 right-3.5 px-3 py-1 rounded-lg bg-slate-950/90 border border-cyan-500/30 text-[9px] font-mono font-bold text-cyan-400 tracking-wider">
+                            DOOHYUN HGE3D00 ESS/GEN ACTIVE
+                          </div>
+                        </div>
+                      </div>
+                    ) : activeIndex === 5 && viewMode === 'diagram' ? (
+                      /* 🌟 CYBERPUNK DYNAMIC CLOSED LOOP CIRCULATION SYSTEM DIAGRAM */
+                      <div className="relative w-full rounded-2xl border border-cyan-500/35 bg-gradient-to-b from-slate-950 via-slate-950/85 to-slate-900/40 p-4 shadow-2xl shadow-cyan-950/40 space-y-4">
+                        {/* Header Box inside diagram */}
+                        <div className="p-3 rounded-xl border border-amber-500/30 bg-amber-950/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-left">
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] font-mono font-bold text-amber-300 bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 rounded">
+                                ESS CIRCULATION SYSTEM
+                              </span>
+                              <span className="text-[9px] font-mono font-bold text-cyan-300 bg-cyan-500/20 border border-cyan-400/40 px-2 py-0.5 rounded">
+                                20,000+ CYCLES
+                              </span>
+                            </div>
+                            <h4 className="text-xs font-black text-amber-200 tracking-tight">
+                              {isEn ? "Chargeless Self-Generator ESS Device Loop" : "무충전 자가발전기 ESS장치 순환시스템"}
+                            </h4>
+                          </div>
+                          <p className="text-[10px] text-slate-300 leading-normal max-w-sm md:text-right font-medium">
+                            {isEn 
+                              ? "Fires up charge-discharge cycles over 20,000 times based on initial energy. Produces stable electricity for over 10+ years without any external charge feeds."
+                              : "배터리 생산 시 최초 충전된 전기 용량만을 바탕으로 20,000회 이상 무방전 충·방전 리사이클 원리 가동. 10년 이상 충전 없이 전기를 지속 환류 생산합니다."
+                            }
+                          </p>
+                        </div>
+
+                        {/* Central Schematic Flow Map */}
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-stretch relative">
+                          
+                          {/* Vertical line indicator left (represents Chargerates in image) */}
+                          <div className="col-span-full md:col-span-3 flex flex-row md:flex-col items-center justify-between p-3 md:p-2 rounded-xl bg-slate-950/60 border border-white/5 gap-3 md:space-y-2">
+                            <span className="text-[8px] font-mono font-bold text-slate-500 block leading-none">Chargerate</span>
+                            
+                            <div className="flex flex-row md:flex-col gap-1 w-full md:w-auto items-center justify-center flex-wrap">
+                              {[100, 80, 60, 40, 20].map((rate) => {
+                                const isCurrentRate = (rate === 100 && activeStep === 0) || 
+                                                     (rate === 80 && activeStep === 3) ||
+                                                     (rate === 60 && activeStep === 1) ||
+                                                     (rate === 40 && activeStep === 2) ||
+                                                     (rate === 20);
+                                
+                                const col = rate === 100 ? 'text-emerald-400 bg-emerald-950/40 border-emerald-500/30 font-black' : 
+                                            rate === 80 ? 'text-cyan-400 bg-cyan-950/40 border-cyan-500/30' : 
+                                            rate === 60 ? 'text-amber-400 bg-amber-950/40 border-amber-500/30' : 
+                                            rate === 40 ? 'text-orange-400 bg-orange-950/40 border-orange-500/30' : 
+                                            'text-red-400 bg-red-950/40 border-red-500/30';
+                                return (
+                                  <div 
+                                    key={rate} 
+                                    className={`text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border transition-all duration-300 flex items-center gap-1 w-auto md:w-full justify-center ${
+                                      isCurrentRate ? `${col} scale-105 shadow-md` : 'text-slate-600 bg-transparent border-transparent'
+                                    }`}
+                                  >
+                                    {isCurrentRate && <span className="w-1 h-1 rounded-full bg-current animate-pulse flex-shrink-0" />}
+                                    {rate}%
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            
+                            <span className="text-[8px] font-mono text-cyan-400 font-extrabold uppercase leading-none block">RECYCLE</span>
+                          </div>
+
+                          {/* Main Node Diagram Block */}
+                          <div className="col-span-full md:col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-3 relative">
+                            {/* Live active flowchart connections SVGs underlaid */}
+                            <div className="absolute inset-0 pointer-events-none z-0">
+                              <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                {/* Loop clockwise paths */}
+                                <path d="M 25,25 L 75,25 L 75,75 L 25,75 Z" fill="none" stroke="rgba(34, 211, 238, 0.15)" strokeWidth="1.5" />
+                                {/* Moving active electrons depending on active step */}
+                                <circle cx={activeStep === 0 ? 25 : activeStep === 1 ? 75 : activeStep === 2 ? 75 : 25} 
+                                        cy={activeStep === 0 ? 25 : activeStep === 1 ? 25 : activeStep === 2 ? 75 : 75} 
+                                        r="3" fill="#22d3ee" className="animate-pulse shadow-md shadow-cyan-400" />
+                              </svg>
+                            </div>
+
+                            {/* Node 1: Top-Left - ESS Storage Device */}
+                            <button 
+                              onClick={() => { setActiveStep(0); setIsAutoplay(false); }}
+                              className={`p-2 rounded-xl border transition-all text-left z-10 relative cursor-pointer ${
+                                activeStep === 0 
+                                  ? 'bg-cyan-950/30 border-cyan-400 shadow-lg shadow-cyan-400/15' 
+                                  : 'bg-slate-950/70 border-white/5 hover:border-white/15'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-0.5">
+                                <span className="text-[8px] font-mono font-bold text-cyan-300">STEP 01</span>
+                                <span className="text-[7px] uppercase font-mono px-1 py-0.5 rounded bg-cyan-950/80 border border-cyan-400/20 text-cyan-400 font-bold">ESS STORAGE</span>
+                              </div>
+                              <h5 className="text-[10px] font-black text-white leading-tight">ESS Storage Device</h5>
+                              <div className="flex items-baseline gap-1 mt-0.5">
+                                <span className="text-base font-extrabold text-cyan-400 font-mono tracking-tight">1 kW</span>
+                                <span className="text-[8px] font-mono text-slate-500">INIT</span>
+                              </div>
+                            </button>
+
+                            {/* Node 2: Top-Right - X3 Amplification */}
+                            <button 
+                              onClick={() => { setActiveStep(1); setIsAutoplay(false); }}
+                              className={`p-2 rounded-xl border transition-all text-left z-10 relative cursor-pointer ${
+                                activeStep === 1 
+                                  ? 'bg-blue-950/30 border-blue-400 shadow-lg shadow-blue-400/15' 
+                                  : 'bg-slate-950/70 border-white/5 hover:border-white/15'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-0.5">
+                                <span className="text-[8px] font-mono font-bold text-blue-300">STEP 02</span>
+                                <span className="text-[7px] uppercase font-mono px-1 py-0.5 rounded bg-blue-950/80 border border-blue-400/20 text-blue-400 font-bold">X3 AMP</span>
+                              </div>
+                              <h5 className="text-[10px] font-black text-white leading-tight">{isEn ? "3x Power Amplifier" : "X3배 증폭기"}</h5>
+                              <div className="flex items-baseline gap-1 mt-0.5">
+                                <span className="text-base font-extrabold text-blue-400 font-mono tracking-tight">3 kW</span>
+                                <span className="text-[8px] font-mono text-amber-400 font-bold">300% Boost!</span>
+                              </div>
+                            </button>
+
+                            {/* Node 3: Bottom-Right - Splitted Output Load */}
+                            <button 
+                              onClick={() => { setActiveStep(2); setIsAutoplay(false); }}
+                              className={`p-2 rounded-xl border transition-all text-left z-10 relative cursor-pointer ${
+                                activeStep === 2 
+                                  ? 'bg-emerald-950/30 border-emerald-400 shadow-lg shadow-emerald-400/15' 
+                                  : 'bg-slate-950/70 border-white/5 hover:border-white/15'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-0.5">
+                                <span className="text-[8px] font-mono font-bold text-emerald-300">STEP 03</span>
+                                <span className="text-[7px] uppercase font-mono px-1 py-0.5 rounded bg-emerald-950/80 border border-emerald-400/20 text-emerald-400 font-bold">OUTPUT SPLIT</span>
+                              </div>
+                              <h5 className="text-[10px] font-black text-white leading-tight">{isEn ? "Output Load & Rec." : "출력 분산 (사용/충전)"}</h5>
+                              <div className="flex flex-col mt-0.5 space-y-0.5 text-[8px] sm:text-[9px]">
+                                <div className="flex justify-between text-slate-200">
+                                  <span>{isEn ? "Load (Use):" : "사용:"}</span>
+                                  <span className="font-bold text-white font-mono">2 kW</span>
+                                </div>
+                                <div className="flex justify-between text-cyan-400 font-medium">
+                                  <span>{isEn ? "Recovery (Charge):" : "충전:"}</span>
+                                  <span className="font-bold font-mono text-cyan-300">1 kW</span>
+                                </div>
+                              </div>
+                            </button>
+
+                            {/* Node 4: Bottom-Left - Self-Generating Return Loop */}
+                            <button 
+                              onClick={() => { setActiveStep(3); setIsAutoplay(false); }}
+                              className={`p-2 rounded-xl border transition-all text-left z-10 relative cursor-pointer ${
+                                activeStep === 3 
+                                  ? 'bg-amber-950/30 border-amber-400 shadow-lg shadow-amber-400/15' 
+                                  : 'bg-slate-950/70 border-white/5 hover:border-white/15'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-0.5">
+                                <span className="text-[8px] font-mono font-bold text-amber-300">STEP 04</span>
+                                <span className="text-[7px] uppercase font-mono px-1 py-0.5 rounded bg-amber-950/80 border border-amber-400/20 text-amber-400 font-bold">FEEDBACK</span>
+                              </div>
+                              <h5 className="text-[10px] font-black text-white leading-tight">{isEn ? "Self-Generating Device" : "자가발전 환류 원용"}</h5>
+                              <div className="flex items-baseline gap-1 mt-0.5">
+                                <span className="text-base font-extrabold text-amber-400 font-mono tracking-tight">1 kW</span>
+                                <span className="text-[8px] font-mono text-emerald-400 font-bold">+80% Return!</span>
+                              </div>
+                            </button>
+                          </div>
+
+                        </div>
+
+                        {/* Step Specific Explanation Box */}
+                        <div className="p-3.5 rounded-xl border border-white/5 bg-slate-950/90 text-left relative overflow-hidden">
+                          <div className="absolute top-0 right-0 w-16 h-16 bg-cyan-400/5 rounded-full blur-xl pointer-events-none" />
+                          
+                          <div className="flex items-center justify-between border-b border-white/5 pb-1.5 mb-2">
+                            <div className="flex items-center gap-1.5">
+                              <div className="p-1 rounded bg-cyan-500/10 border border-cyan-400/20 text-cyan-400">
+                                <Activity className="w-3 h-3" />
+                              </div>
+                              <span className="text-[9px] font-mono font-extrabold tracking-widest text-slate-400 uppercase">
+                                {activeStep === 0 ? "01 / BASE ENERGY ACCUMULATION" : 
+                                 activeStep === 1 ? "02 / FLUID VOLTAGE AMPLICATION" :
+                                 activeStep === 2 ? "03 / LOAD SPLIT & VOLTAIC DEMARCATION" :
+                                 "04 / SELF-GENERATION CYCLE RETURNING"}
+                              </span>
+                            </div>
+
+                            {/* Autoplay toggler button */}
+                            <button 
+                              onClick={() => setIsAutoplay(!isAutoplay)}
+                              className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 hover:bg-white/15 text-[8px] font-mono font-bold text-slate-400 hover:text-white cursor-pointer transition-colors border-0"
+                            >
+                              {isAutoplay ? <Pause className="w-2 h-2 text-cyan-400 animate-pulse" /> : <Play className="w-2 h-2 text-slate-500" />}
+                              {isAutoplay ? 'AUTO' : 'MANUAL'}
+                            </button>
+                          </div>
+
+                          <div className="space-y-1">
+                            <h5 className="text-[10px] font-extrabold text-white text-left">
+                              {activeStep === 0 ? (isEn ? "ESS STORAGE RESOURCE (1kW)" : "기초 ESS 전력 적치 계보 (1kW)") :
+                               activeStep === 1 ? (isEn ? "3X MAGNETO-AMP SYSTEM (3kW Boost)" : "3배 전자기식 증폭 가속 모듈 (3kW 증폭)") :
+                               activeStep === 2 ? (isEn ? "INTELLIGENT SPLIT & LOGISTICS (2kW / 1kW)" : "실용 전력 분배 및 회수 기작 (사용 2kW / 충전 1kW)") :
+                               (isEn ? "SELF-GENERATION STABILITY CORE (+80% Return)" : "자가 발전 기어 및 ESS 환원 피드백 (+80% 충전)")}
+                            </h5>
+                            <p className="text-[10px] text-slate-300 leading-relaxed text-left font-normal">
+                              {activeStep === 0 ? (
+                                isEn ? "Stores initial 1kW default pre-loaded energy from battery manufacture. Receives circular feedback charges in a closed-loop system to run over 20,000 times." :
+                                "배터리 생산 시 최초 충전된 1kW 전하량만을 가지고 기동의 방아쇠를 당깁니다. 하선 순환계통에서 피드백 리턴되는 1kW 전해질 전하를 계속 수용하여 20,000회 오퍼레이션 충방전을 일관 수렴합니다."
+                              ) : activeStep === 1 ? (
+                                isEn ? "Amplifies the 1kW source input from ESS Storage by 300% via structural series windings, elevating load power output to a steady 3kW." :
+                                "ESS 저장 장치에서 도출된 1kW 입력전력을 X3배 전압 기어 증폭 구조를 통과시켜 동기 300%인 3kW 부하 전력량을 영속적으로 형성 및 출력해 냅니다."
+                              ) : activeStep === 2 ? (
+                                isEn ? "Safely routes 2kW to 상용 loads (e.g. electric vehicles, building grids) while diverting remaining 1kW cleanly to the Recovery Storage node." :
+                                "가동된 3kW 중 실제 2kW의 전력량은 스마트 빌딩이나 전기차 급속 인프라 사용 부하로 완전 전송 소비하며, 잔류 1kW는 회수 저장 장치(Recovery Device) 환류로 정렬 제어해 공급합니다."
+                              ) : (
+                                isEn ? "Utilizes 1kW recovery feed to trigger the closed self-generating device, pushing +80% state of charge back to the top ESS Storage node to sustain the cycle." :
+                                "회수된 1kW 복구 소스를 자가발전 장치(Self-generating device) 기작에 투입, +80% 효율 상승 충전 피드백을 발생시켜 상부 ESS 저장 장치를 실시간 연속 충전 복원함으로 영구 순환합니다."
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : activeIndex === 6 ? (
+                      /* Gorgeous mini eco blueprint specifically for Biochar System */
+                      <div className="relative w-full p-4 sm:p-6 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/25 to-slate-950/60 overflow-hidden flex flex-col justify-center min-h-[170px] shadow-lg shadow-amber-950/30">
+                        <div className="absolute -right-16 -bottom-16 w-48 h-48 bg-amber-400/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+                        <div className="flex items-center gap-3.5 mb-2.5">
+                          <div className="p-2.5 rounded-xl bg-amber-500/25 border border-amber-400/30 text-amber-300">
+                            <Trees className="w-5 h-5 text-amber-400 animate-pulse" />
+                          </div>
+                          <div className="text-left">
+                            <span className="text-[10px] font-mono text-amber-400 font-extrabold uppercase tracking-widest block">DECENTRALIZED ECO GREEN LOOP</span>
+                            <span className="text-xs font-bold text-slate-200">{isEn ? 'Off-Grid Zero-Emissions Bio-Reactor' : '친환경 100% 무배출 온전한 자율 계통'}</span>
+                          </div>
+                        </div>
+                        <p className="text-[11.5px] text-slate-300 font-sans leading-relaxed text-left font-normal border-l-2 border-amber-400/50 pl-3.5 my-2.5 bg-slate-950/40 p-2.5 rounded-r">
+                          {isEn 
+                            ? '※ Fully compatible with HGE3D00 2kW auxiliary power loops. Combines sub-atmospheric steam boilers and dual spherical reactor tanks to neutralize pathogens under 210°C hydrolytic heat.' 
+                            : '※ 본 농공 상생 시스템은 HGE3D00의 2kW 정격 기어 모듈을 부착하여 210°C 가압 가수분해공정 및 자동 드라이어를 오프그리드로 작동, 멸균 바이오차 포대를 당일 양산 포장 배송합니다.'
+                          }
+                        </p>
+                        <div className="mt-2 text-[9px] font-mono text-amber-400 font-bold flex items-center gap-2">
+                           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                           {isEn ? "SCROLL DOWN FOR INTERACTIVE 8-STAGE WORKFLOW" : "아래로 스크롤하여 8단계 상호작용 흐름도를 체험하세요"}
+                        </div>
+                      </div>
+                    ) : activeIndex === 2 ? (
+                      /* Custom blueprint with scroll hint for E-Bicycle (Supercapacitor & Self-Charging) */
+                      <div className="relative w-full p-4 sm:p-6 rounded-2xl border border-purple-500/35 bg-gradient-to-r from-purple-950/25 to-slate-950/60 overflow-hidden flex flex-col justify-center min-h-[140px] shadow-lg shadow-purple-950/30">
+                        <div className="absolute -right-16 -bottom-16 w-48 h-48 bg-purple-400/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+                        <div className="flex items-center gap-3.5 mb-2.5">
+                          <div className="p-2.5 rounded-xl bg-purple-500/25 border border-purple-400/30 text-purple-300">
+                            <Activity className="w-5 h-5 animate-pulse" />
+                          </div>
+                          <div className="text-left">
+                            <span className="text-[10px] font-mono text-purple-400 font-extrabold uppercase tracking-widest block">E-BICYCLE SUPER_CAPACITOR BRIEFING</span>
+                            <span className="text-xs font-bold text-slate-200">{isEn ? 'Supercapacitor & Self-Charging E-Bike Showcase Ready' : '자체충전 전기자전거 및 슈퍼커패시터 분석자료 탑재'}</span>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-purple-200/90 font-sans leading-relaxed text-left font-medium mb-3">
+                          {isEn 
+                            ? '※ Includes Graphene physical core mechanism, 5 key performance comparisons, and the live 1:1 self-charging e-bike loop simulator.' 
+                            : '※ 그래핀 기반 극전하 물리 흡착 원리, 리튬 대비 5대 비교 지표, 실시간 1:1 자체충전 전기자전거 시뮬레이터와 모듈 스펙이 제공됩니다.'
+                          }
+                        </p>
+                        <div className="text-[9px] font-mono text-purple-400 font-bold flex items-center gap-2">
+                           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                           {isEn ? "SCROLL DOWN TO VIEW THE DETAILED SCROLLABLE REPORT" : "아래로 스크롤하여 상세 스크롤 보고서 및 시뮬레이션을 확인하세요"}
+                        </div>
+                      </div>
+                    ) : activeIndex === 3 ? (
+                      /* Custom blueprint with scroll hint for E-Motorcycle */
+                      <div className="relative w-full p-4 sm:p-6 rounded-2xl border border-cyan-500/35 bg-gradient-to-r from-cyan-950/25 to-slate-950/60 overflow-hidden flex flex-col justify-center min-h-[140px] shadow-lg shadow-cyan-950/30">
+                        <div className="absolute -right-16 -bottom-16 w-48 h-48 bg-cyan-400/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+                        <div className="flex items-center gap-3.5 mb-2.5">
+                          <div className="p-2.5 rounded-xl bg-cyan-500/25 border border-cyan-400/30 text-cyan-300">
+                            <Activity className="w-5 h-5 animate-pulse" />
+                          </div>
+                          <div className="text-left">
+                            <span className="text-[10px] font-mono text-cyan-400 font-extrabold uppercase tracking-widest block">HYBRID MOTO TECHNICAL BRIEFING</span>
+                            <span className="text-xs font-bold text-slate-200">{isEn ? 'Hybrid Motorcycle Advanced Showcase Ready' : '하이브리드 오토바이 정밀 구동 분석자료 탑재'}</span>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-cyan-200/90 font-sans leading-relaxed text-left font-medium mb-3">
+                          {isEn 
+                            ? '※ Includes driving simulation, cost savings calculator, technical spec comparisons, and the development timeline.' 
+                            : '※ 주행 연비 시뮬레이션, 유류비/전기요금 절감 계산기, 동급 가솔린/전기 대비 특성 비교표 및 연도별 개발 일정표가 완벽 구비되어 있습니다.'
+                          }
+                        </p>
+                        <div className="text-[9px] font-mono text-cyan-400 font-bold flex items-center gap-2">
+                           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                           {isEn ? "SCROLL DOWN TO VIEW THE DETAILED SCROLLABLE REPORT" : "아래로 스크롤하여 상세 스크롤 보고서 및 시뮬레이션을 확인하세요"}
+                        </div>
+                      </div>
+                    ) : (
+                      // Elegant scientific tech blueprint decoration for non-image services
+                      <div className="relative w-full p-4 sm:p-6 rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/25 to-slate-950/60 overflow-hidden flex flex-col justify-center min-h-[140px] shadow-lg shadow-cyan-950/30">
+                        <div className="absolute -right-16 -bottom-16 w-48 h-48 bg-cyan-400/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+                        <div className="flex items-center gap-3.5 mb-2.5">
+                          <div className="p-2.5 rounded-xl bg-cyan-500/25 border border-cyan-400/30 text-cyan-300">
+                            <Activity className="w-5 h-5" />
+                          </div>
+                          <div className="text-left">
+                            <span className="text-[10px] font-mono text-cyan-400 font-extrabold uppercase tracking-widest block">US CAS SAFETY COMPLIANCE</span>
+                            <span className="text-xs font-bold text-slate-200">{isEn ? 'US CAS Certified Materials Integrated' : '미국 CAS 공인 규격 신소재 정밀 검증필'}</span>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-cyan-200/90 font-sans leading-relaxed text-left font-medium">
+                          {isEn 
+                            ? '※ Certified under standard US CAS chemical registry system protocols and authorized under corporate intelligence sharing covenants. Guarantees 100% spark-free and terminal thermal stability.' 
+                            : '※ 본 솔루션은 최고 정합성의 미국 화학회 CAS 정식 등재 SAM 신소재를 수평 함침 탑재하여, 구동 중 물리 스파크 및 화재 기작 한계 도포 안전 등급을 완수 및 보증합니다.'
+                          }
                         </p>
                       </div>
-                    </div>
-                  </div>
-                ) : activeIndex === 6 ? (
-                  /* Gorgeous mini eco blueprint specifically for Biochar System */
-                  <div className="relative w-full p-4 sm:p-6 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/25 to-slate-950/60 overflow-hidden flex flex-col justify-center min-h-[170px] shadow-lg shadow-amber-950/30">
-                    <div className="absolute -right-16 -bottom-16 w-48 h-48 bg-amber-400/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
-                    <div className="flex items-center gap-3.5 mb-2.5">
-                      <div className="p-2.5 rounded-xl bg-amber-500/25 border border-amber-400/30 text-amber-300">
-                        <Trees className="w-5 h-5 text-amber-400 animate-pulse" />
-                      </div>
-                      <div className="text-left">
-                        <span className="text-[10px] font-mono text-amber-400 font-extrabold uppercase tracking-widest block">DECENTRALIZED ECO GREEN LOOP</span>
-                        <span className="text-xs font-bold text-slate-200">{isEn ? 'Off-Grid Zero-Emissions Bio-Reactor' : '친환경 100% 무배출 온전한 자율 계통'}</span>
-                      </div>
-                    </div>
-                    <p className="text-[11.5px] text-slate-300 font-sans leading-relaxed text-left font-normal border-l-2 border-amber-400/50 pl-3.5 my-2.5 bg-slate-950/40 p-2.5 rounded-r">
-                      {isEn 
-                        ? '※ Fully compatible with HGE3D00 2kW auxiliary power loops. Combines sub-atmospheric steam boilers and dual spherical reactor tanks to neutralize pathogens under 210°C hydrolytic heat.' 
-                        : '※ 본 농공 상생 시스템은 HGE3D00의 2kW 정격 기어 모듈을 부착하여 210°C 가압 가수분해공정 및 자동 드라이어를 오프그리드로 작동, 멸균 바이오차 포대를 당일 양산 포장 배송합니다.'
-                      }
-                    </p>
-                    <div className="mt-2 text-[9px] font-mono text-amber-400 font-bold flex items-center gap-2">
-                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                       {isEn ? "SCROLL DOWN FOR INTERACTIVE 8-STAGE WORKFLOW" : "아래로 스크롤하여 8단계 상호작용 흐름도를 체험하세요"}
-                    </div>
-                  </div>
-                ) : activeIndex === 2 ? (
-                  /* Custom blueprint with scroll hint for E-Bicycle (Supercapacitor & Self-Charging) */
-                  <div className="relative w-full p-4 sm:p-6 rounded-2xl border border-purple-500/35 bg-gradient-to-r from-purple-950/25 to-slate-950/60 overflow-hidden flex flex-col justify-center min-h-[140px] shadow-lg shadow-purple-950/30">
-                    <div className="absolute -right-16 -bottom-16 w-48 h-48 bg-purple-400/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
-                    <div className="flex items-center gap-3.5 mb-2.5">
-                      <div className="p-2.5 rounded-xl bg-purple-500/25 border border-purple-400/30 text-purple-300">
-                        <Activity className="w-5 h-5 animate-pulse" />
-                      </div>
-                      <div className="text-left">
-                        <span className="text-[10px] font-mono text-purple-400 font-extrabold uppercase tracking-widest block">E-BICYCLE SUPER_CAPACITOR BRIEFING</span>
-                        <span className="text-xs font-bold text-slate-200">{isEn ? 'Supercapacitor & Self-Charging E-Bike Showcase Ready' : '자체충전 전기자전거 및 슈퍼커패시터 분석자료 탑재'}</span>
-                      </div>
-                    </div>
-                    <p className="text-[11px] text-purple-200/90 font-sans leading-relaxed text-left font-medium mb-3">
-                      {isEn 
-                        ? '※ Includes Graphene physical core mechanism, 5 key performance comparisons, and the live 1:1 self-charging e-bike loop simulator.' 
-                        : '※ 그래핀 기반 극전하 물리 흡착 원리, 리튬 대비 5대 비교 지표, 실시간 1:1 자체충전 전기자전거 시뮬레이터와 모듈 스펙이 제공됩니다.'
-                      }
-                    </p>
-                    <div className="text-[9px] font-mono text-purple-400 font-bold flex items-center gap-2">
-                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                       {isEn ? "SCROLL DOWN TO VIEW THE DETAILED SCROLLABLE REPORT" : "아래로 스크롤하여 상세 스크롤 보고서 및 시뮬레이션을 확인하세요"}
-                    </div>
-                  </div>
-                ) : activeIndex === 3 ? (
-                  /* Custom blueprint with scroll hint for E-Motorcycle */
-                  <div className="relative w-full p-4 sm:p-6 rounded-2xl border border-cyan-500/35 bg-gradient-to-r from-cyan-950/25 to-slate-950/60 overflow-hidden flex flex-col justify-center min-h-[140px] shadow-lg shadow-cyan-950/30">
-                    <div className="absolute -right-16 -bottom-16 w-48 h-48 bg-cyan-400/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
-                    <div className="flex items-center gap-3.5 mb-2.5">
-                      <div className="p-2.5 rounded-xl bg-cyan-500/25 border border-cyan-400/30 text-cyan-300">
-                        <Activity className="w-5 h-5 animate-pulse" />
-                      </div>
-                      <div className="text-left">
-                        <span className="text-[10px] font-mono text-cyan-400 font-extrabold uppercase tracking-widest block">HYBRID MOTO TECHNICAL BRIEFING</span>
-                        <span className="text-xs font-bold text-slate-200">{isEn ? 'Hybrid Motorcycle Advanced Showcase Ready' : '하이브리드 오토바이 정밀 구동 분석자료 탑재'}</span>
-                      </div>
-                    </div>
-                    <p className="text-[11px] text-cyan-200/90 font-sans leading-relaxed text-left font-medium mb-3">
-                      {isEn 
-                        ? '※ Includes driving simulation, cost savings calculator, technical spec comparisons, and the development timeline.' 
-                        : '※ 주행 연비 시뮬레이션, 유류비/전기요금 절감 계산기, 동급 가솔린/전기 대비 특성 비교표 및 연도별 개발 일정표가 완벽 구비되어 있습니다.'
-                      }
-                    </p>
-                    <div className="text-[9px] font-mono text-cyan-400 font-bold flex items-center gap-2">
-                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                       {isEn ? "SCROLL DOWN TO VIEW THE DETAILED SCROLLABLE REPORT" : "아래로 스크롤하여 상세 스크롤 보고서 및 시뮬레이션을 확인하세요"}
-                    </div>
-                  </div>
-                ) : (
-                  // Elegant scientific tech blueprint decoration for non-image services
-                  <div className="relative w-full p-4 sm:p-6 rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/25 to-slate-950/60 overflow-hidden flex flex-col justify-center min-h-[140px] shadow-lg shadow-cyan-950/30">
-                    <div className="absolute -right-16 -bottom-16 w-48 h-48 bg-cyan-400/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
-                    <div className="flex items-center gap-3.5 mb-2.5">
-                      <div className="p-2.5 rounded-xl bg-cyan-500/25 border border-cyan-400/30 text-cyan-300">
-                        <Activity className="w-5 h-5" />
-                      </div>
-                      <div className="text-left">
-                        <span className="text-[10px] font-mono text-cyan-400 font-extrabold uppercase tracking-widest block">US CAS SAFETY COMPLIANCE</span>
-                        <span className="text-xs font-bold text-slate-200">{isEn ? 'US CAS Certified Materials Integrated' : '미국 CAS 공인 규격 신소재 정밀 검증필'}</span>
-                      </div>
-                    </div>
-                    <p className="text-[11px] text-cyan-200/90 font-sans leading-relaxed text-left font-medium">
-                      {isEn 
-                        ? '※ Certified under standard US CAS chemical registry system protocols and authorized under corporate intelligence sharing covenants. Guarantees 100% spark-free and terminal thermal stability.' 
-                        : '※ 본 솔루션은 최고 정합성의 미국 화학회 CAS 정식 등재 SAM 신소재를 수평 함침 탑재하여, 구동 중 물리 스파크 및 화재 기작 한계 도포 안전 등급을 완수 및 보증합니다.'
-                      }
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* RIGHT AREA: Expanded business benefits and specific initiatory parameters */}
-            <div className="lg:col-span-5 flex flex-col justify-between gap-6">
-              
-              {/* Expected benefits Box */}
-              <div className="p-6 md:p-8 rounded-3xl bg-slate-900/60 border border-white/5 text-left space-y-4.5 flex-1 select-text">
-                <h4 className="text-xs md:text-sm font-semibold text-white tracking-widest uppercase flex items-center gap-2.5 font-mono">
-                  <span className="w-1.5 h-3.5 bg-cyan-400 rounded-full" />
-                  {t('carousel.benefits', 'EXPECTED BUSINESS BENEFITS', '예상 핵심 경영 실리')}
-                </h4>
-                
-                <ul className="space-y-3.5">
-                  {service.benefits.map((benefit, bIdx) => {
-                    const benefitText = isEn && service.benefitsEn ? service.benefitsEn[bIdx] : benefit;
-                    return (
-                      <li key={bIdx} className="flex items-start gap-3.5 text-xs md:text-[13px] leading-relaxed text-slate-300">
-                        <div className="w-5 h-5 mt-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
-                          <Check className="w-3.5 h-3.5 text-emerald-400" />
-                        </div>
-                        <span className="font-medium">{benefitText}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-
-              {/* Core Feature specifications Box */}
-              <div className="p-6 md:p-8 rounded-3xl bg-slate-900/60 border border-white/5 text-left space-y-4.5 flex-1 select-text">
-                <h4 className="text-xs md:text-sm font-semibold text-white tracking-widest uppercase flex items-center gap-2.5 font-mono">
-                  <span className="w-1.5 h-3.5 bg-purple-500 rounded-full" />
-                  {isEn ? 'CORE SYSTEM INITIATIVES' : '원천 기술 기능 사양'}
-                </h4>
-                
-                <ul className="space-y-3.5">
-                  {service.features.map((feature, fIdx) => {
-                    const featureText = isEn && service.featuresEn ? service.featuresEn[fIdx] : feature;
-                    return (
-                      <li key={fIdx} className="flex items-start gap-3.5 text-xs md:text-[13px] leading-relaxed text-slate-300">
-                        <div className="w-5.5 h-5.5 mt-0.5 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center flex-shrink-0 text-[10px] font-mono font-bold text-cyan-400">
-                          0{fIdx + 1}
-                        </div>
-                        <span className="font-medium">{featureText}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-
-              {/* Integrated Call to Action Simulation Block */}
-              <div className="p-5 rounded-2xl bg-gradient-to-r from-cyan-950/20 to-slate-900 border border-cyan-500/15 flex flex-col md:flex-row items-center justify-between gap-4 text-left">
-                <div className="space-y-1">
-                  <p className="text-[11px] font-mono text-cyan-400 uppercase tracking-widest font-bold">
-                    SYSTEM ESTIMATION SIMULATOR
-                  </p>
-                  <p className="text-xs text-slate-400 leading-snug">
-                    {t(
-                      'carousel.suggest',
-                      'Run instant simulation matching and diagnosis.',
-                      '맞춤형 시뮬레이터를 통해 예상 전력 수율을 즉시 확인하세요.'
                     )}
-                  </p>
+                  </div>
                 </div>
-                <a
-                  href="#simulator-section"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const section = document.getElementById('simulator-section');
-                    if (section) {
-                      section.scrollIntoView({ behavior: 'smooth' });
-                    }
-                  }}
-                  className="px-4.5 py-2 text-xs font-extrabold text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition-colors duration-250 rounded-lg shadow-md shadow-cyan-400/20 active:scale-95 flex items-center gap-1 cursor-pointer whitespace-nowrap"
-                >
-                  <span>{t('carousel.suggestBtn', 'Match by Simulator', '시뮬레이터로 매칭')}</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
 
-            </div>
+                {/* RIGHT AREA: Expanded business benefits and specific initiatory parameters */}
+                <div className="lg:col-span-5 flex flex-col justify-between gap-6">
+                  
+                  {/* Expected benefits Box */}
+                  <div className="p-6 md:p-8 rounded-3xl bg-slate-900/60 border border-white/5 text-left space-y-4.5 flex-1 select-text">
+                    <h4 className="text-xs md:text-sm font-semibold text-white tracking-widest uppercase flex items-center gap-2.5 font-mono">
+                      <span className="w-1.5 h-3.5 bg-cyan-400 rounded-full" />
+                      {t('carousel.benefits', 'EXPECTED BUSINESS BENEFITS', '예상 핵심 경영 실리')}
+                    </h4>
+                    
+                    <ul className="space-y-3.5">
+                      {service.benefits.map((benefit, bIdx) => {
+                        const benefitText = isEn && service.benefitsEn ? service.benefitsEn[bIdx] : benefit;
+                        return (
+                          <li key={bIdx} className="flex items-start gap-3.5 text-xs md:text-[13px] leading-relaxed text-slate-300">
+                            <div className="w-5 h-5 mt-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            </div>
+                            <span className="font-medium">{benefitText}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+
+                  {/* Core Feature specifications Box */}
+                  <div className="p-6 md:p-8 rounded-3xl bg-slate-900/60 border border-white/5 text-left space-y-4.5 flex-1 select-text">
+                    <h4 className="text-xs md:text-sm font-semibold text-white tracking-widest uppercase flex items-center gap-2.5 font-mono">
+                      <span className="w-1.5 h-3.5 bg-purple-500 rounded-full" />
+                      {isEn ? 'CORE SYSTEM INITIATIVES' : '원천 기술 기능 사양'}
+                    </h4>
+                    
+                    <ul className="space-y-3.5">
+                      {service.features.map((feature, fIdx) => {
+                        const featureText = isEn && service.featuresEn ? service.featuresEn[fIdx] : feature;
+                        return (
+                          <li key={fIdx} className="flex items-start gap-3.5 text-xs md:text-[13px] leading-relaxed text-slate-300">
+                            <div className="w-5.5 h-5.5 mt-0.5 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center flex-shrink-0 text-[10px] font-mono font-bold text-cyan-400">
+                              0{fIdx + 1}
+                            </div>
+                            <span className="font-medium">{featureText}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+
+                  {/* Integrated Call to Action Simulation Block */}
+                  <div className="p-5 rounded-2xl bg-gradient-to-r from-cyan-950/20 to-slate-900 border border-cyan-500/15 flex flex-col md:flex-row items-center justify-between gap-4 text-left">
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-mono text-cyan-400 uppercase tracking-widest font-bold">
+                        SYSTEM ESTIMATION SIMULATOR
+                      </p>
+                      <p className="text-xs text-slate-400 leading-snug">
+                        {t(
+                          'carousel.suggest',
+                          'Run instant simulation matching and diagnosis.',
+                          '맞춤형 시뮬레이터를 통해 예상 전력 수율을 즉시 확인하세요.'
+                        )}
+                      </p>
+                    </div>
+                    <a
+                      href="#simulator-section"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const section = document.getElementById('simulator-section');
+                        if (section) {
+                          section.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }}
+                      className="px-4.5 py-2 text-xs font-extrabold text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition-colors duration-250 rounded-lg shadow-md shadow-cyan-400/20 active:scale-95 flex items-center gap-1 cursor-pointer whitespace-nowrap"
+                    >
+                      <span>{t('carousel.suggestBtn', 'Match by Simulator', '시뮬레이터로 매칭')}</span>
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+
+                </div>
+              </>
+            )}
 
             {/* 🌟 PREMIUM APPLICATION COVER POSTER SHOWCASE: "아담韓" ADAMHAN */}
             {activeIndex === 5 && (

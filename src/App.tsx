@@ -16,6 +16,7 @@ import { Factory3DWalkthrough } from './components/Factory3DWalkthrough';
 import { Admin } from './components/Admin';
 import { MediaCenter } from './components/MediaCenter';
 import { CustomerSupport } from './components/CustomerSupport';
+import { BusinessDomain } from './components/BusinessDomain';
 import { 
   Building2, 
   Sparkles, 
@@ -102,7 +103,7 @@ export default function App() {
     document.title = "(주)모아에스디";
   }, []);
 
-  const [currentTab, setCurrentTab] = useState<'home' | 'about' | 'solutions' | 'partners' | 'mediacenter' | 'support' | 'admin'>('home');
+  const [currentTab, setCurrentTab] = useState<'home' | 'about' | 'business' | 'solutions' | 'partners' | 'mediacenter' | 'support' | 'admin'>('home');
   const [purchaseSmsToast, setPurchaseSmsToast] = useState<{
     show: boolean;
     itemName: string;
@@ -595,6 +596,12 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const navigateToBusiness = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    setCurrentTab('business');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const navigateToSolutions = (index?: number, tab?: string, e?: React.MouseEvent) => {
     if (e) e.preventDefault();
     setCurrentTab('solutions');
@@ -726,7 +733,7 @@ export default function App() {
                         className="flex items-center gap-2.5 px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
-                        {language === 'en' ? 'ESS (Supercapacitor)' : 'ESS (에너지저장장치)'}
+                        {language === 'en' ? 'Hybrid Supercapacitor (HSC)' : '하이브리드 슈퍼 커패시터 (HSC)'}
                       </button>
 
                       {/* SAM with nested sub-flyout */}
@@ -927,9 +934,9 @@ export default function App() {
               {t('nav.partners', 'Partners', '협력기업')}
             </a>
             <a 
-              href="#simulator-section" 
-              onClick={(e) => navigateToSection('simulator-section', e)}
-              className="text-slate-300 hover:text-cyan-400 font-medium transition-colors"
+              href="#business-domain" 
+              onClick={(e) => navigateToBusiness(e)}
+              className={`font-semibold transition-colors ${currentTab === 'business' ? 'text-cyan-400 border-b-2 border-cyan-400 pb-0.5 animate-pulse' : 'text-slate-300 hover:text-cyan-400 font-medium'}`}
             >
               {t('nav.business', 'Business Domain', '사업영역')}
             </a>
@@ -1134,7 +1141,7 @@ export default function App() {
                           className="text-left text-xs font-bold text-slate-400 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-2 bg-transparent border-0"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
-                          {language === 'en' ? 'ESS (Supercapacitor)' : 'ESS (에너지저장장치)'}
+                          {language === 'en' ? 'Hybrid Supercapacitor (HSC)' : '하이브리드 슈퍼 커패시터 (HSC)'}
                         </button>
 
                         {/* SAM inner accordion */}
@@ -1302,12 +1309,12 @@ export default function App() {
                   {t('nav.partners', 'Partners', '협력기업')}
                 </a>
                 <a 
-                  href="#simulator-section" 
+                  href="#business-domain" 
                   onClick={(e) => {
                     setMobileMenuOpen(false);
-                    navigateToSection('simulator-section', e);
+                    navigateToBusiness(e);
                   }}
-                  className="py-2 text-slate-300 hover:text-cyan-400 block border-b border-white/5"
+                  className={`py-2 block border-b border-white/5 ${currentTab === 'business' ? 'text-cyan-400 font-bold' : 'text-slate-300 hover:text-cyan-400'}`}
                 >
                   {t('nav.business', 'Business Domain', '사업영역')}
                 </a>
@@ -1362,18 +1369,19 @@ export default function App() {
           {/* 2. Panoramic Enterprise Hero Screen Slider (KEPCO style) */}
           <MainHeroSlider />
 
-      {/* 5. Business Domain & Interactive Production Line Tour (사업영역) */}
-      <section id="simulator-section" className="py-24 max-w-7xl mx-auto px-6 relative space-y-12">
-        <Factory3DWalkthrough />
-        <ConsultingSimulator />
+      {/* 5. Business Domain (사업영역) */}
+      <section id="business-domain-main-section" className="max-w-7xl mx-auto px-6 relative py-12">
+        <div className="max-h-[900px] overflow-y-auto rounded-3xl border border-white/10 bg-slate-900/10 p-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-cyan-500/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-cyan-500/40">
+          <BusinessDomain isMainScreen={true} />
+        </div>
       </section>
 
       {/* 7. Strategic Consultation Estimate & Proposal Build Engine */}
       <section id="proposal-section" className="py-24 max-w-7xl mx-auto px-6 relative">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
-          {/* Form left (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
+          {/* Form left (7 cols) */}
+          <div className="lg:col-span-7 space-y-6">
             <div className="space-y-3">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-950/40 border border-cyan-400/20 text-xs text-cyan-400 font-mono tracking-wider">
                 <FileCheck2 className="w-4 h-4" /> SECURE PARTNER PORTAL
@@ -1381,13 +1389,6 @@ export default function App() {
               <h3 className="text-3xl font-extrabold text-white tracking-tight leading-tight">
                 {t('support.title', 'B2B Partner Sign Up', 'B2B 파트너 회원가입')}
               </h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                {t(
-                  'support.desc',
-                  'Register as an official partner to immediately unlock exclusive premium technical specifications, comprehensive CAD datasets, material chemistry reports, and live direct-consultation engineering access.',
-                  '자유로운 신재생 그리드 설계 모형, HGE3D00의 정밀 CAD 외형 치수 도면, 고전도 첨단 소재 SAM 자료실 즉시 다운로드를 위해 무료 B2B 대리점 파트너사 정보 등록을 완료해 주십시오.'
-                )}
-              </p>
             </div>
 
             {!isSignedUp ? (
@@ -1405,28 +1406,49 @@ export default function App() {
                       </div>
                     )}
 
-                    {/* Email Address */}
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 flex-row">
-                        <Mail className="w-3.5 h-3.5 text-cyan-400" />
-                        {language === 'en' ? 'Email Address (ID)' : '이메일 주소 (아이디)'}
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        id="signup-email"
-                        placeholder="partner@company.com"
-                        value={signUpEmail}
-                        onChange={(e) => {
-                          setSignUpEmail(e.target.value);
-                          setSignUpError('');
-                        }}
-                        className="w-full px-4 py-2.5 text-sm rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-cyan-400 transition-colors select-text"
-                      />
-                    </div>
-
-                    {/* Password Grid */}
+                    {/* Form Fields arranged in horizontal groups */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Email Address */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 flex-row">
+                          <Mail className="w-3.5 h-3.5 text-cyan-400" />
+                          {language === 'en' ? 'Email Address (ID)' : '이메일 주소 (아이디)'}
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          id="signup-email"
+                          placeholder="partner@company.com"
+                          value={signUpEmail}
+                          onChange={(e) => {
+                            setSignUpEmail(e.target.value);
+                            setSignUpError('');
+                          }}
+                          className="w-full px-4 py-2.5 text-sm rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-cyan-400 transition-colors select-text"
+                        />
+                      </div>
+
+                      {/* Contact phone */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 flex-row">
+                          <Smartphone className="w-3.5 h-3.5 text-cyan-400" />
+                          {language === 'en' ? 'Mobile Phone Number' : '연락처 번호'}
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          id="signup-phone"
+                          placeholder="010-0000-0000"
+                          value={signUpPhone}
+                          onChange={(e) => {
+                            setSignUpPhone(e.target.value);
+                            setSignUpError('');
+                          }}
+                          className="w-full px-4 py-2.5 text-sm rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-cyan-400 transition-colors"
+                        />
+                      </div>
+
+                      {/* Password */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 flex-row">
                           <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
@@ -1445,6 +1467,8 @@ export default function App() {
                           className="w-full px-4 py-2.5 text-sm rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-cyan-400 transition-colors"
                         />
                       </div>
+
+                      {/* Confirm Password */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 flex-row">
                           <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
@@ -1463,14 +1487,12 @@ export default function App() {
                           className="w-full px-4 py-2.5 text-sm rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-cyan-400 transition-colors"
                         />
                       </div>
-                    </div>
 
-                    {/* Representative Name & Corporate Name */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Representative Name */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 flex-row">
                           <User className="w-3.5 h-3.5 text-cyan-400" />
-                          {language === 'en' ? 'Full Name' : '담당자 성함합의'}
+                          {language === 'en' ? 'Full Name' : '담당자 성함'}
                         </label>
                         <input
                           type="text"
@@ -1485,6 +1507,8 @@ export default function App() {
                           className="w-full px-4 py-2.5 text-sm rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-cyan-400 transition-colors"
                         />
                       </div>
+
+                      {/* Corporate Name */}
                       <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 flex-row">
                           <Building2 className="w-3.5 h-3.5 text-cyan-400" />
@@ -1503,102 +1527,82 @@ export default function App() {
                           className="w-full px-4 py-2.5 text-sm rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-cyan-400 transition-colors"
                         />
                       </div>
-                    </div>
 
-                    {/* Member Classification Selection */}
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 flex-row">
-                        <UserCheck className="w-3.5 h-3.5 text-cyan-400" />
-                        {language === 'en' ? 'Membership Level' : '가입 회원 유형 분류'}
-                      </label>
-                      <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-950 border border-white/10 font-sans">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSignUpRole('general');
-                            setSignUpError('');
-                          }}
-                          className={`py-2 text-[11.5px] font-bold rounded-lg transition-all border-0 cursor-pointer ${
-                            signUpRole === 'general'
-                              ? 'bg-slate-800 text-cyan-400 shadow'
-                              : 'text-slate-400 hover:text-slate-200 bg-transparent'
-                          }`}
-                        >
-                          {language === 'en' ? 'General Member' : '일반회원 (코드없음)'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSignUpRole('partner');
-                            setSignUpError('');
-                          }}
-                          className={`py-2 text-[11.5px] font-bold rounded-lg transition-all border-0 cursor-pointer ${
-                            signUpRole === 'partner'
-                              ? 'bg-slate-800 border-0 text-purple-400 shadow'
-                              : 'text-slate-400 hover:text-slate-200 bg-transparent'
-                          }`}
-                        >
-                          {language === 'en' ? 'B2B Partner' : 'B2B 파트너 회원 (코드보유)'}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Conditional Partner Code Field: REQUIRED FOR B2B PARTNER */}
-                    {signUpRole === 'partner' && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="space-y-2 p-3.5 rounded-xl bg-cyan-950/20 border border-cyan-500/30"
-                      >
-                        <label className="text-xs font-bold text-cyan-400 flex items-center justify-between flex-row">
-                          <span className="flex items-center gap-1.5">
-                            <ShieldAlert className="w-3.5 h-3.5" />
-                            {language === 'en' ? 'B2B Partner Code Number' : 'B2B 파트너 회원가입 코드번호'}
-                          </span>
-                          <span className="text-[10px] text-slate-500 font-mono font-bold font-sans">REQUIRED (DIGITS ONLY)</span>
+                      {/* Member Classification Selection */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 flex-row">
+                          <UserCheck className="w-3.5 h-3.5 text-cyan-400" />
+                          {language === 'en' ? 'Membership Level' : '가입 회원 유형 분류'}
                         </label>
-                        <div className="relative flex items-center">
-                          <span className="absolute left-3 text-cyan-400 font-mono font-extrabold select-none">M-</span>
-                          <input
-                            type="text"
-                            required
-                            id="signup-code-num"
-                            placeholder="12345"
-                            value={signUpCodeNumber}
-                            onChange={(e) => {
-                              const val = e.target.value.replace(/[^0-9]/g, '');
-                              setSignUpCodeNumber(val);
-                              setSignUpPartnerCode('M-' + val);
+                        <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-950 border border-white/10 font-sans">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSignUpRole('general');
+                              setSignUpError('');
                             }}
-                            className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl bg-slate-950 border border-cyan-500/30 text-slate-100 focus:outline-none focus:border-cyan-400 font-mono transition-colors font-bold"
-                          />
+                            className={`py-2 text-[11.5px] font-bold rounded-lg transition-all border-0 cursor-pointer ${
+                              signUpRole === 'general'
+                                ? 'bg-slate-800 text-cyan-400 shadow'
+                                : 'text-slate-400 hover:text-slate-200 bg-transparent'
+                            }`}
+                          >
+                            {language === 'en' ? 'General Member' : '일반회원 (코드없음)'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSignUpRole('partner');
+                              setSignUpError('');
+                            }}
+                            className={`py-2 text-[11.5px] font-bold rounded-lg transition-all border-0 cursor-pointer ${
+                              signUpRole === 'partner'
+                                ? 'bg-slate-800 border-0 text-purple-400 shadow'
+                                : 'text-slate-400 hover:text-slate-200 bg-transparent'
+                            }`}
+                          >
+                            {language === 'en' ? 'B2B Partner' : 'B2B 파트너 회원 (코드보유)'}
+                          </button>
                         </div>
-                        <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
-                          {language === 'en'
-                            ? "※ The prefix 'M-' is fixed. Enter only numbers to register your partner code (e.g. M-12345)."
-                            : "※ 앞에 'M-' 문구는 고정으로 들어갑니다. 숫자만 입력하여 가입 코드를 등록해 주십시오 (예: M-12345)."}
-                        </p>
-                      </motion.div>
-                    )}
+                      </div>
 
-                    {/* Contact phone */}
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 flex-row">
-                        <Smartphone className="w-3.5 h-3.5 text-cyan-400" />
-                        {language === 'en' ? 'Mobile Phone Number' : '연락처 번호'}
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        id="signup-phone"
-                        placeholder="010-0000-0000"
-                        value={signUpPhone}
-                        onChange={(e) => {
-                          setSignUpPhone(e.target.value);
-                          setSignUpError('');
-                        }}
-                        className="w-full px-4 py-2.5 text-sm rounded-xl bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-cyan-400 transition-colors"
-                      />
+                      {/* Conditional Partner Code Field: REQUIRED FOR B2B PARTNER */}
+                      <div className="space-y-1.5">
+                        {signUpRole === 'partner' ? (
+                          <motion.div
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="space-y-2 p-3 rounded-xl bg-cyan-950/20 border border-cyan-500/30"
+                          >
+                            <label className="text-xs font-bold text-cyan-400 flex items-center justify-between flex-row">
+                              <span className="flex items-center gap-1.5">
+                                <ShieldAlert className="w-3.5 h-3.5" />
+                                {language === 'en' ? 'B2B Partner Code' : 'B2B 파트너 가입 코드'}
+                              </span>
+                            </label>
+                            <div className="relative flex items-center">
+                              <span className="absolute left-3 text-cyan-400 font-mono font-extrabold select-none text-xs">M-</span>
+                              <input
+                                type="text"
+                                required
+                                id="signup-code-num"
+                                placeholder="12345"
+                                value={signUpCodeNumber}
+                                onChange={(e) => {
+                                  const val = e.target.value.replace(/[^0-9]/g, '');
+                                  setSignUpCodeNumber(val);
+                                  setSignUpPartnerCode('M-' + val);
+                                }}
+                                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg bg-slate-950 border border-cyan-500/30 text-slate-100 focus:outline-none focus:border-cyan-400 font-mono transition-colors font-bold"
+                              />
+                            </div>
+                          </motion.div>
+                        ) : (
+                          <div className="hidden md:block text-xs text-slate-500 leading-normal p-3 rounded-xl border border-dashed border-white/5 bg-slate-950/30 h-[58px] flex items-center justify-center">
+                            {language === 'en' ? 'No code required for General members.' : '일반회원은 코드가 필요하지 않습니다.'}
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Direct agreement checkbox */}
@@ -1708,37 +1712,9 @@ export default function App() {
             )}
           </div>
 
-          {/* Right hand privileges portal (7 cols) */}
-          <div className="lg:col-span-7 flex flex-col h-full justify-between border border-cyan-500/20 bg-gradient-to-br from-slate-950 to-slate-900/60 p-6 md:p-8 rounded-3xl relative overflow-hidden min-h-[500px]">
+          {/* Right hand privileges portal (5 cols) */}
+          <div className="lg:col-span-5 flex flex-col h-full justify-between border border-cyan-500/20 bg-gradient-to-br from-slate-950 to-slate-900/60 p-6 md:p-8 rounded-3xl relative overflow-hidden min-h-[500px]">
             
-            {/* 1. Secure Lock Blur Overlay for Anonymous Non-Members */}
-            {!isSignedUp && (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="absolute inset-0 z-20 bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center text-center p-8 space-y-4"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 shadow-lg shadow-red-500/5">
-                  <Lock className="w-6 h-6" />
-                </div>
-                <div className="space-y-2 max-w-md">
-                  <h4 className="text-lg font-extrabold text-white tracking-tight">
-                    {language === 'en' ? 'Access Restricted (Non-Members)' : '비회원 정보 열람 및 다운로드 제한'}
-                  </h4>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    {language === 'en'
-                      ? 'In accordance with intellectual property directives, corporate CAD layouts, SAM nanocompound ratio sheets, and chemical research analysis datasets are strictly locked for unregistered guests.'
-                      : '본사 지식재산권 수집 보호 조항에 따라 하이브리드 발전 장치 도면 및 SAM 연구사 분석서 등 핵심 기밀 자료는 비회원의 세부 내용 열람 및 다운로드가 엄격히 제한됩니다.'}
-                  </p>
-                  <p className="text-xs text-cyan-400 font-bold p-2.5 rounded-lg bg-cyan-950/20 border border-cyan-500/20 inline-block">
-                    {language === 'en'
-                      ? '🔒 Please sign up or log in first to activate viewing & download credentials.'
-                      : '🔒 좌측 파트너 포탈을 통해 신속 가입 후 회원 자녀 등급 번호로 정식 로그인해 주십시오.'}
-                  </p>
-                </div>
-              </motion.div>
-            )}
-
             <div className="absolute top-4 right-4 text-[10px] font-mono tracking-widest text-slate-500 uppercase flex items-center gap-1">
               <Lock className="w-3.5 h-3.5" /> B2B_VIPMEMBERSHIP
             </div>
@@ -1835,6 +1811,10 @@ export default function App() {
         </div>
       </section>
     </>
+  ) : currentTab === 'business' ? (
+    <div className="pt-24 min-h-[85vh] bg-slate-950">
+      <BusinessDomain />
+    </div>
   ) : currentTab === 'about' ? (
     <div className="pt-24 min-h-[85vh] bg-slate-950">
       {/* 3. Company Introduction Section (Bento Grid of 3D Glassmorphic Cards) */}

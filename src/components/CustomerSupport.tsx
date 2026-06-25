@@ -48,19 +48,6 @@ interface Material {
 
 const DEFAULT_MATERIALS: Material[] = [
   {
-    id: 'mat-1',
-    title: '(주)MOASD HGE3D00 배선 어셈블리 시스템 CAD 상세 도면',
-    titleEn: '(주)MOASD HGE3D00 Wiring Assembly System CAD Blueprints',
-    source: '(주)MOASD 안전관제기술처 연구실',
-    sourceEn: '(주)MOASD Safety Control & Technology Division',
-    description: '고전압 하이브리드 배전 설비 HGE3D00의 섀시 및 커넥터 레이아웃 전체 도면 데이터입니다.',
-    descriptionEn: 'Complete chassis and connector layout diagram data for high-voltage hybrid power distributor HGE3D00.',
-    fileSize: '14.8 MB',
-    fileName: 'HGE3D00_System_Chassis_CAD_v2.4.dwg',
-    fileUrl: 'dwg_data_placeholder',
-    date: '2026.06.22'
-  },
-  {
     id: 'mat-2',
     title: '그래핀 슈퍼커패시터(ESS) 극전하 물리 흡착 성능 비교 분석 보고서',
     titleEn: 'Graphene Supercapacitor (ESS) Polar Adsorption Performance Comparison Report',
@@ -189,7 +176,8 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
   });
   const [materials, setMaterials] = useState<Material[]>(() => {
     const saved = localStorage.getItem('moasd_support_materials');
-    return saved ? JSON.parse(saved) : DEFAULT_MATERIALS;
+    const list = saved ? JSON.parse(saved) : DEFAULT_MATERIALS;
+    return list.filter((m: Material) => m.id !== 'mat-1');
   });
 
   // State for UI toggles
@@ -1418,92 +1406,185 @@ Copyright © (주)모아에스디 (MOASD Co., Ltd.) All Rights Reserved.
                   const displaySource = language === 'en' ? mat.sourceEn : mat.source;
                   const displayDesc = language === 'en' ? mat.descriptionEn : mat.description;
 
+                  const isHorizontal = mat.id === 'mat-2';
+
                   return (
                     <div 
                       key={mat.id}
-                      className="p-5 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-cyan-500/20 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
+                      className={`p-5 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-cyan-500/20 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden ${
+                        isHorizontal ? 'col-span-1 md:col-span-2 md:flex-row md:gap-6' : ''
+                      }`}
                     >
                       {/* Subtle accent highlight on top */}
                       <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-500/10 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="p-2.5 rounded-xl bg-slate-950 border border-white/5 text-cyan-400 group-hover:text-cyan-300 transition-colors">
-                            <FileText className="w-5 h-5" />
+                      {isHorizontal ? (
+                        <>
+                          <div className="flex-1 space-y-3">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2.5 rounded-xl bg-slate-950 border border-white/5 text-cyan-400 group-hover:text-cyan-300 transition-colors shrink-0">
+                                <FileText className="w-5 h-5" />
+                              </div>
+                              <div className="space-y-0.5 text-left min-w-0">
+                                <h4 className="text-sm font-bold text-white leading-snug group-hover:text-cyan-300 transition-colors truncate">
+                                  {displayTitle}
+                                </h4>
+                                <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
+                                  <span className="font-semibold text-slate-300">Source:</span>
+                                  <span className="truncate max-w-[300px]">{displaySource}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {displayDesc && (
+                              <p className="text-xs text-slate-400 leading-relaxed pt-1 text-left">
+                                {displayDesc}
+                              </p>
+                            )}
                           </div>
-                          
-                          {/* File info badge */}
-                          <div className="flex flex-col items-end text-right font-mono text-[10px]">
-                            <span className="text-emerald-400 font-extrabold">{mat.fileSize}</span>
-                            <span className="text-slate-500">{mat.date}</span>
-                          </div>
-                        </div>
 
-                        <div className="space-y-1 text-left">
-                          <h4 className="text-sm font-bold text-white leading-snug group-hover:text-cyan-300 transition-colors line-clamp-2">
-                            {displayTitle}
-                          </h4>
-                          <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
-                            <span className="font-semibold text-slate-300">Source:</span>
-                            <span className="truncate max-w-[200px]">{displaySource}</span>
-                          </div>
-                        </div>
+                          <div className="flex flex-col justify-between gap-3 md:w-80 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-5 text-left">
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-[11px] font-mono">
+                                <span className="text-slate-500">{language === 'en' ? 'Size:' : '크기:'}</span>
+                                <span className="text-emerald-400 font-extrabold">{mat.fileSize}</span>
+                              </div>
+                              <div className="flex items-center justify-between text-[11px] font-mono">
+                                <span className="text-slate-500">{language === 'en' ? 'Date:' : '날짜:'}</span>
+                                <span className="text-slate-400">{mat.date}</span>
+                              </div>
+                              <div className="font-mono text-[10px] text-slate-500 bg-slate-950/50 p-2 rounded-lg border border-white/5 flex items-center gap-1.5">
+                                <span className="text-cyan-400 font-semibold">FILE:</span>
+                                <span className="truncate select-all max-w-[200px]">{mat.fileName}</span>
+                              </div>
+                            </div>
 
-                        {displayDesc && (
-                          <p className="text-xs text-slate-400 leading-relaxed line-clamp-3 pt-1 text-left">
-                            {displayDesc}
-                          </p>
-                        )}
+                            <div className="flex items-center justify-between gap-3 border-t border-white/5 pt-3">
+                              <div className="flex gap-2">
+                                {isMasterOrAdmin && (
+                                  <>
+                                    <button
+                                      onClick={() => handleEditMaterialClick(mat)}
+                                      className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors rounded-lg bg-slate-950 hover:bg-slate-900 border border-white/5 text-xs font-mono font-bold flex items-center gap-1 cursor-pointer"
+                                      title={language === 'en' ? 'Edit' : '수정'}
+                                    >
+                                      <Edit className="w-3.5 h-3.5" />
+                                      <span className="hidden sm:inline">{language === 'en' ? 'Edit' : '수정'}</span>
+                                    </button>
+                                    <button
+                                      onClick={(e) => handleDeleteMaterial(mat.id, e)}
+                                      className="p-1.5 text-slate-400 hover:text-red-400 transition-colors rounded-lg bg-slate-950 hover:bg-slate-900 border border-white/5 text-xs font-mono font-bold flex items-center gap-1 cursor-pointer"
+                                      title={language === 'en' ? 'Delete' : '삭제'}
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                      <span className="hidden sm:inline">{language === 'en' ? 'Delete' : '삭제'}</span>
+                                    </button>
+                                  </>
+                                )}
+                              </div>
 
-                        <div className="font-mono text-[10px] text-slate-500 bg-slate-950/50 p-2 rounded-lg border border-white/5 flex items-center gap-1.5">
-                          <span className="text-cyan-400 font-semibold">FILE:</span>
-                          <span className="truncate select-all">{mat.fileName}</span>
-                        </div>
-                      </div>
-
-                      {/* Card Footer Actions */}
-                      <div className="flex items-center justify-between gap-3 pt-5 mt-4 border-t border-white/5">
-                        <div className="flex gap-2">
-                          {isMasterOrAdmin && (
-                            <>
                               <button
-                                onClick={() => handleEditMaterialClick(mat)}
-                                className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors rounded-lg bg-slate-950 hover:bg-slate-900 border border-white/5 text-xs font-mono font-bold flex items-center gap-1 cursor-pointer"
-                                title={language === 'en' ? 'Edit' : '수정'}
+                                onClick={() => {
+                                  if (!registeredUser) {
+                                    triggerToast(language === 'en' ? '❌ Guest users cannot download materials. Please register or log in first.' : '❌ 비회원은 기술 자료 다운로드가 불가능합니다. 회원가입 혹은 로그인을 먼저 진행해 주십시오.');
+                                    setTimeout(() => {
+                                      onOpenLoginModal();
+                                    }, 1500);
+                                    return;
+                                  }
+                                  setDownloadingMaterial(mat);
+                                  setHasAgreedToTerms(false);
+                                }}
+                                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-400/10 hover:bg-cyan-400 hover:text-slate-950 text-cyan-300 font-extrabold text-xs tracking-wide transition-all active:scale-95 cursor-pointer border border-cyan-400/20 group-hover:bg-cyan-400 group-hover:text-slate-950 font-mono"
                               >
-                                <Edit className="w-3.5 h-3.5" />
-                                <span className="hidden sm:inline">{language === 'en' ? 'Edit' : '수정'}</span>
+                                <Download className="w-3.5 h-3.5" />
+                                <span>{language === 'en' ? 'DOWNLOAD' : '다운로드'}</span>
                               </button>
-                              <button
-                                onClick={(e) => handleDeleteMaterial(mat.id, e)}
-                                className="p-1.5 text-slate-400 hover:text-red-400 transition-colors rounded-lg bg-slate-950 hover:bg-slate-900 border border-white/5 text-xs font-mono font-bold flex items-center gap-1 cursor-pointer"
-                                title={language === 'en' ? 'Delete' : '삭제'}
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                                <span className="hidden sm:inline">{language === 'en' ? 'Delete' : '삭제'}</span>
-                              </button>
-                            </>
-                          )}
-                        </div>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="space-y-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="p-2.5 rounded-xl bg-slate-950 border border-white/5 text-cyan-400 group-hover:text-cyan-300 transition-colors">
+                                <FileText className="w-5 h-5" />
+                              </div>
+                              
+                              {/* File info badge */}
+                              <div className="flex flex-col items-end text-right font-mono text-[10px]">
+                                <span className="text-emerald-400 font-extrabold">{mat.fileSize}</span>
+                                <span className="text-slate-500">{mat.date}</span>
+                              </div>
+                            </div>
 
-                        <button
-                          onClick={() => {
-                            if (!registeredUser) {
-                              triggerToast(language === 'en' ? '❌ Guest users cannot download materials. Please register or log in first.' : '❌ 비회원은 기술 자료 다운로드가 불가능합니다. 회원가입 혹은 로그인을 먼저 진행해 주십시오.');
-                              setTimeout(() => {
-                                onOpenLoginModal();
-                              }, 1500);
-                              return;
-                            }
-                            setDownloadingMaterial(mat);
-                            setHasAgreedToTerms(false);
-                          }}
-                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-400/10 hover:bg-cyan-400 hover:text-slate-950 text-cyan-300 font-extrabold text-xs tracking-wide transition-all active:scale-95 cursor-pointer border border-cyan-400/20 group-hover:bg-cyan-400 group-hover:text-slate-950 font-mono"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          <span>{language === 'en' ? 'DOWNLOAD' : '다운로드'}</span>
-                        </button>
-                      </div>
+                            <div className="space-y-1 text-left">
+                              <h4 className="text-sm font-bold text-white leading-snug group-hover:text-cyan-300 transition-colors line-clamp-2">
+                                {displayTitle}
+                              </h4>
+                              <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
+                                <span className="font-semibold text-slate-300">Source:</span>
+                                <span className="truncate max-w-[200px]">{displaySource}</span>
+                              </div>
+                            </div>
+
+                            {displayDesc && (
+                              <p className="text-xs text-slate-400 leading-relaxed line-clamp-3 pt-1 text-left">
+                                {displayDesc}
+                              </p>
+                            )}
+
+                            <div className="font-mono text-[10px] text-slate-500 bg-slate-950/50 p-2 rounded-lg border border-white/5 flex items-center gap-1.5">
+                              <span className="text-cyan-400 font-semibold">FILE:</span>
+                              <span className="truncate select-all">{mat.fileName}</span>
+                            </div>
+                          </div>
+
+                          {/* Card Footer Actions */}
+                          <div className="flex items-center justify-between gap-3 pt-5 mt-4 border-t border-white/5">
+                            <div className="flex gap-2">
+                              {isMasterOrAdmin && (
+                                <>
+                                  <button
+                                    onClick={() => handleEditMaterialClick(mat)}
+                                    className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors rounded-lg bg-slate-950 hover:bg-slate-900 border border-white/5 text-xs font-mono font-bold flex items-center gap-1 cursor-pointer"
+                                    title={language === 'en' ? 'Edit' : '수정'}
+                                  >
+                                    <Edit className="w-3.5 h-3.5" />
+                                    <span className="hidden sm:inline">{language === 'en' ? 'Edit' : '수정'}</span>
+                                  </button>
+                                  <button
+                                    onClick={(e) => handleDeleteMaterial(mat.id, e)}
+                                    className="p-1.5 text-slate-400 hover:text-red-400 transition-colors rounded-lg bg-slate-950 hover:bg-slate-900 border border-white/5 text-xs font-mono font-bold flex items-center gap-1 cursor-pointer"
+                                    title={language === 'en' ? 'Delete' : '삭제'}
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span className="hidden sm:inline">{language === 'en' ? 'Delete' : '삭제'}</span>
+                                  </button>
+                                </>
+                              )}
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                if (!registeredUser) {
+                                  triggerToast(language === 'en' ? '❌ Guest users cannot download materials. Please register or log in first.' : '❌ 비회원은 기술 자료 다운로드가 불가능합니다. 회원가입 혹은 로그인을 먼저 진행해 주십시오.');
+                                  setTimeout(() => {
+                                    onOpenLoginModal();
+                                  }, 1500);
+                                  return;
+                                  }
+                                setDownloadingMaterial(mat);
+                                setHasAgreedToTerms(false);
+                              }}
+                              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-400/10 hover:bg-cyan-400 hover:text-slate-950 text-cyan-300 font-extrabold text-xs tracking-wide transition-all active:scale-95 cursor-pointer border border-cyan-400/20 group-hover:bg-cyan-400 group-hover:text-slate-950 font-mono"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              <span>{language === 'en' ? 'DOWNLOAD' : '다운로드'}</span>
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   );
                 })
