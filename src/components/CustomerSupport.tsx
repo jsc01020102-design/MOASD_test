@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Megaphone, HelpCircle, Lock, Unlock, Plus, Trash2, Calendar, FileText, User, ChevronDown, ChevronUp, AlertCircle, Check, Send, Sparkles, Key, ShieldAlert
+  Megaphone, HelpCircle, Lock, Unlock, Plus, Trash2, Calendar, FileText, User, ChevronDown, ChevronUp, AlertCircle, Check, Send, Sparkles, Key, ShieldAlert, Download, Edit, Upload
 } from 'lucide-react';
 
 interface Notice {
@@ -30,6 +30,63 @@ interface Inquiry {
     date: string;
   }[];
 }
+
+interface Material {
+  id: string;
+  title: string;
+  titleEn: string;
+  source: string;
+  sourceEn: string;
+  description: string;
+  descriptionEn: string;
+  fileSize: string;
+  fileName: string;
+  fileUrl: string;
+  date: string;
+  uploadedContent?: string;
+}
+
+const DEFAULT_MATERIALS: Material[] = [
+  {
+    id: 'mat-1',
+    title: '(주)MOASD HGE3D00 배선 어셈블리 시스템 CAD 상세 도면',
+    titleEn: '(주)MOASD HGE3D00 Wiring Assembly System CAD Blueprints',
+    source: '(주)MOASD 안전관제기술처 연구실',
+    sourceEn: '(주)MOASD Safety Control & Technology Division',
+    description: '고전압 하이브리드 배전 설비 HGE3D00의 섀시 및 커넥터 레이아웃 전체 도면 데이터입니다.',
+    descriptionEn: 'Complete chassis and connector layout diagram data for high-voltage hybrid power distributor HGE3D00.',
+    fileSize: '14.8 MB',
+    fileName: 'HGE3D00_System_Chassis_CAD_v2.4.dwg',
+    fileUrl: 'dwg_data_placeholder',
+    date: '2026.06.22'
+  },
+  {
+    id: 'mat-2',
+    title: '그래핀 슈퍼커패시터(ESS) 극전하 물리 흡착 성능 비교 분석 보고서',
+    titleEn: 'Graphene Supercapacitor (ESS) Polar Adsorption Performance Comparison Report',
+    source: '(주)MOASD 신소재에너지융합연구소',
+    sourceEn: '(주)MOASD Advanced Materials Research Lab',
+    description: '리튬이온 배터리 대비 슈퍼커패시터의 수명, 충방전 속도, 기온 변화에 따른 보존율 비교 데이터 파일입니다.',
+    descriptionEn: 'Comparative performance files covering cycle life, charge-discharge speed, and temperature efficiency of supercapacitors vs lithium batteries.',
+    fileSize: '8.2 MB',
+    fileName: 'MOASD_Graphene_Supercapacitor_Performance_Comparison.pdf',
+    fileUrl: 'pdf_data_placeholder',
+    date: '2026.06.24'
+  },
+  {
+    id: 'mat-3',
+    title: '전기자전거 및 오토바이 자체충전 자가동력 발전 1:1 시뮬레이터 구동 매뉴얼',
+    titleEn: 'E-Bicycle & E-Motorcycle Self-Charging Powertrain 1:1 Simulator Guide',
+    source: '(주)MOASD 모빌리티개발사업부',
+    sourceEn: '(주)MOASD Mobility Engineering Division',
+    description: '자체 동력 회생 제동 및 그래핀 버퍼 저장 루프 시스템의 조립 구조 및 시뮬레이터 제어 가이드 문서입니다.',
+    descriptionEn: 'Assembly structure and simulation control guide document for self-charging regenerative powertrain loops and graphene storage.',
+    fileSize: '5.1 MB',
+    fileName: 'Self_Charging_Ebike_Simulator_User_Manual.pdf',
+    fileUrl: 'pdf_data_placeholder',
+    date: '2026.06.25'
+  }
+];
 
 const DEFAULT_NOTICES: Notice[] = [
   {
@@ -115,7 +172,7 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
   registeredUser,
   onOpenLoginModal
 }) => {
-  const [subTab, setSubTab] = useState<'notices' | 'inquiries'>('notices');
+  const [subTab, setSubTab] = useState<'notices' | 'inquiries' | 'materials'>('notices');
   const [notices, setNotices] = useState<Notice[]>(() => {
     const saved = localStorage.getItem('moasd_support_notices');
     const loaded: Notice[] = saved ? JSON.parse(saved) : DEFAULT_NOTICES;
@@ -130,6 +187,10 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
     const saved = localStorage.getItem('moasd_support_inquiries');
     return saved ? JSON.parse(saved) : DEFAULT_INQUIRIES;
   });
+  const [materials, setMaterials] = useState<Material[]>(() => {
+    const saved = localStorage.getItem('moasd_support_materials');
+    return saved ? JSON.parse(saved) : DEFAULT_MATERIALS;
+  });
 
   // State for UI toggles
   const [expandedNoticeId, setExpandedNoticeId] = useState<string | null>(null);
@@ -142,6 +203,24 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
   const [newNoticeTitleEn, setNewNoticeTitleEn] = useState('');
   const [newNoticeContentEn, setNewNoticeContentEn] = useState('');
   const [newNoticeIsPinned, setNewNoticeIsPinned] = useState(false);
+
+  // Form states for creating/editing Material (Master/Admin Only)
+  const [showMaterialForm, setShowMaterialForm] = useState(false);
+  const [editingMaterialId, setEditingMaterialId] = useState<string | null>(null);
+  const [matTitle, setMatTitle] = useState('');
+  const [matTitleEn, setMatTitleEn] = useState('');
+  const [matSource, setMatSource] = useState('');
+  const [matSourceEn, setMatSourceEn] = useState('');
+  const [matDescription, setMatDescription] = useState('');
+  const [matDescriptionEn, setMatDescriptionEn] = useState('');
+  const [matFileSize, setMatFileSize] = useState('');
+  const [matFileName, setMatFileName] = useState('');
+  const [uploadedFileBase64, setUploadedFileBase64] = useState<string | null>(null);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+
+  // Download window/modal states
+  const [downloadingMaterial, setDownloadingMaterial] = useState<Material | null>(null);
+  const [hasAgreedToTerms, setHasAgreedToTerms] = useState(false);
 
   // Form states for creating Inquiry (Registered User Only)
   const [showInquiryForm, setShowInquiryForm] = useState(false);
@@ -157,6 +236,10 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
   useEffect(() => {
     localStorage.setItem('moasd_support_inquiries', JSON.stringify(inquiries));
   }, [inquiries]);
+
+  useEffect(() => {
+    localStorage.setItem('moasd_support_materials', JSON.stringify(materials));
+  }, [materials]);
 
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
@@ -345,6 +428,254 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
     setExpandedInquiryId(prev => prev === inq.id ? null : inq.id);
   };
 
+  // Save or edit material
+  const handleSaveMaterial = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isMasterOrAdmin) {
+      triggerToast(language === 'en' ? '❌ Only administrators can manage materials.' : '❌ 마스터 및 관리자만 자료를 등록/수정할 수 있습니다.');
+      return;
+    }
+    if (!matTitle.trim() || !matSource.trim() || !matFileName.trim()) {
+      triggerToast(language === 'en' ? '❌ Please fill out essential details (Title, Source, File Name).' : '❌ 필수 기재 사항(제목, 출처, 파일명)을 채워주십시오.');
+      return;
+    }
+
+    const today = new Date();
+    const formattedDate = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+
+    if (editingMaterialId) {
+      // Edit existing
+      setMaterials(prev => prev.map(m => m.id === editingMaterialId ? {
+        ...m,
+        title: matTitle,
+        titleEn: matTitleEn || matTitle,
+        source: matSource,
+        sourceEn: matSourceEn || matSource,
+        description: matDescription,
+        descriptionEn: matDescriptionEn || matDescription,
+        fileName: matFileName,
+        fileSize: matFileSize || '3.5 MB',
+        date: formattedDate,
+        uploadedContent: uploadedFileBase64 || m.uploadedContent
+      } : m));
+      triggerToast(language === 'en' ? '🎉 Material updated successfully!' : '🎉 기술 자료가 정상적으로 수정 반영되었습니다.');
+    } else {
+      // Create new
+      const newMat: Material = {
+        id: `mat-${Date.now()}`,
+        title: matTitle,
+        titleEn: matTitleEn || matTitle,
+        source: matSource,
+        sourceEn: matSourceEn || matSource,
+        description: matDescription,
+        descriptionEn: matDescriptionEn || matDescription,
+        fileName: matFileName,
+        fileSize: matFileSize || '3.5 MB',
+        fileUrl: 'placeholder_url',
+        date: formattedDate,
+        uploadedContent: uploadedFileBase64 || undefined
+      };
+      setMaterials(prev => [newMat, ...prev]);
+      triggerToast(language === 'en' ? '🎉 New material registered successfully!' : '🎉 새로운 공식 기술 문서가 신규 등록 완료되었습니다.');
+    }
+
+    handleResetMaterialForm();
+  };
+
+  const handleResetMaterialForm = () => {
+    setEditingMaterialId(null);
+    setShowMaterialForm(false);
+    setMatTitle('');
+    setMatTitleEn('');
+    setMatSource('');
+    setMatSourceEn('');
+    setMatDescription('');
+    setMatDescriptionEn('');
+    setMatFileName('');
+    setMatFileSize('');
+    setUploadedFileBase64(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDraggingFile(false);
+  };
+
+  const handleFileDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processSelectedFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      processSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const processSelectedFile = (file: File) => {
+    setMatFileName(file.name);
+    const sizeInMB = file.size / (1024 * 1024);
+    const sizeStr = sizeInMB >= 0.1 
+      ? `${sizeInMB.toFixed(1)} MB` 
+      : `${(file.size / 1024).toFixed(1)} KB`;
+    setMatFileSize(sizeStr);
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setUploadedFileBase64(event.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+    triggerToast(language === 'en' ? `📂 File "${file.name}" loaded successfully!` : `📂 "${file.name}" 파일이 성공적으로 로드되었습니다.`);
+  };
+
+  const handleEditMaterialClick = (mat: Material) => {
+    setEditingMaterialId(mat.id);
+    setMatTitle(mat.title);
+    setMatTitleEn(mat.titleEn);
+    setMatSource(mat.source);
+    setMatSourceEn(mat.sourceEn);
+    setMatDescription(mat.description);
+    setMatDescriptionEn(mat.descriptionEn);
+    setMatFileName(mat.fileName);
+    setMatFileSize(mat.fileSize);
+    setUploadedFileBase64(mat.uploadedContent || null);
+    setShowMaterialForm(true);
+    
+    // Smooth scroll to the form
+    setTimeout(() => {
+      document.getElementById('material-form-anchor')?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
+
+  const handleDeleteMaterial = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isMasterOrAdmin) return;
+    if (confirm(language === 'en' ? 'Are you sure you want to delete this material?' : '이 다운로드 자료를 영구 보존 데이터베이스에서 삭제하시겠습니까?')) {
+      setMaterials(prev => prev.filter(m => m.id !== id));
+      triggerToast(language === 'en' ? 'Material deleted successfully.' : '해당 기술 도면 자료가 시스템에서 완전히 삭제되었습니다.');
+    }
+  };
+
+  const handleExecuteDownload = () => {
+    if (!downloadingMaterial) return;
+    if (!registeredUser) {
+      triggerToast(language === 'en' ? '❌ Guest users cannot download materials. Please log in first.' : '❌ 비회원은 기술 자료 다운로드가 불가능합니다. 회원가입 혹은 로그인을 먼저 진행해 주십시오.');
+      setDownloadingMaterial(null);
+      setHasAgreedToTerms(false);
+      onOpenLoginModal();
+      return;
+    }
+    if (!hasAgreedToTerms) {
+      alert(language === 'en' ? 'Please agree to the terms to proceed.' : '본 자료의 취급 약관 및 서약에 동의해 주셔야 다운로드가 가능합니다.');
+      return;
+    }
+
+    let blob: Blob;
+    const fileName = downloadingMaterial.fileName;
+
+    const copyrightHeader = `========================================================================
+[ COPYRIGHT NOTICE / 저작권 고지 ]
+Copyright © (주)모아에스디 (MOASD Co., Ltd.) All Rights Reserved.
+본 자료의 모든 지식재산권은 (주)모아에스디에 귀속되어 있으며 대한민국 저작권법 
+및 관련 국제 협약의 법적 보호를 받습니다. 무단 변형, 배포 및 상업적 사용은 
+형사 처벌 및 손해 배상 청구의 대상이 됩니다.
+========================================================================\n\n`;
+
+    if (downloadingMaterial.uploadedContent) {
+      // Prepend copyright header to the uploaded material content
+      try {
+        if (downloadingMaterial.uploadedContent.startsWith('data:text/') || downloadingMaterial.uploadedContent.startsWith('data:application/json')) {
+          const base64Str = downloadingMaterial.uploadedContent.split(',')[1];
+          const textContent = decodeURIComponent(escape(atob(base64Str)));
+          const finalContent = copyrightHeader + textContent;
+          blob = new Blob([finalContent], { type: 'text/plain;charset=utf-8;' });
+        } else if (downloadingMaterial.uploadedContent.startsWith('data:')) {
+          // Prepend copyright header to binary content safely
+          const base64Str = downloadingMaterial.uploadedContent.split(',')[1];
+          const bstr = atob(base64Str);
+          const copyrightBytes = new TextEncoder().encode(copyrightHeader);
+          const u8arr = new Uint8Array(copyrightBytes.length + bstr.length);
+          copyrightBytes.forEach((byte, i) => { u8arr[i] = byte; });
+          for (let i = 0; i < bstr.length; i++) {
+            u8arr[copyrightBytes.length + i] = bstr.charCodeAt(i);
+          }
+          const mime = downloadingMaterial.uploadedContent.split(',')[0].match(/:(.*?);/)?.[1] || 'application/octet-stream';
+          blob = new Blob([u8arr], { type: mime });
+        } else {
+          const finalContent = copyrightHeader + downloadingMaterial.uploadedContent;
+          blob = new Blob([finalContent], { type: 'text/plain;charset=utf-8;' });
+        }
+      } catch (err) {
+        blob = new Blob([copyrightHeader + downloadingMaterial.uploadedContent], { type: 'text/plain;charset=utf-8;' });
+      }
+    } else {
+      // Generate beautiful formal document content
+      const docContent = `========================================================================
+[ (주)모아에스디 공식 보안 다운로드 센터 / OFFICIAL TECHNICAL RESOURCE ]
+========================================================================
+
+- 자료 일련번호 : ${downloadingMaterial.id}
+- 공식 자료명   : ${downloadingMaterial.title}
+- 공식 자료출처 : ${downloadingMaterial.source}
+- 전사 등록일자 : ${downloadingMaterial.date}
+- 파일 규격     : ${downloadingMaterial.fileName} (${downloadingMaterial.fileSize})
+
+------------------------------------------------------------------------
+[ 중요 보도보안 및 사용 권한 고지 서약 ]
+------------------------------------------------------------------------
+본 자료는 (주)모아에스디의 중요 기획 정보, 제원 상세 설계 도면 및 민감한 핵심 
+기술 내용이 포함되어 있으므로, 관련 임직원 및 제휴사 전력 부서 외 임의의 
+수정, 무단 배포, 복제 및 상업적 사용을 절대 엄금합니다.
+
+귀하(사용 이메일: ${registeredUser.email})는 다운로드 전 
+위 사항에 대해 서약하였으므로 이에 따른 민감 기술 유출 방지 서약을 성실히 
+준수해야 할 의무가 있습니다.
+
+------------------------------------------------------------------------
+[ MOASD INTEGRATED TECHNOLOGY BLUEPRINT DATA ]
+------------------------------------------------------------------------
+* 본 파일은 정식 승인 문서의 인코딩 원형 증명 검사본입니다.
+* 데이터 해시 대조를 통해 라이선스를 확인해 주십시오.
+
+------------------------------------------------------------------------
+[ COPYRIGHT NOTICE / 저작권 고지 ]
+------------------------------------------------------------------------
+Copyright © (주)모아에스디 (MOASD Co., Ltd.) All Rights Reserved.
+본 자료의 모든 지식재산권은 (주)모아에스디에 귀속되어 있으며 대한민국 저작권법 
+및 관련 국제 협약의 법적 보호를 받습니다. 무단 변형, 배포 및 상업적 사용은 
+형사 처벌 및 손해 배상 청구의 대상이 됩니다.
+
+(주)모아에스디 대표이사 및 안전관제기술단 드림.
+========================================================================`;
+
+      blob = new Blob([docContent], { type: 'text/plain;charset=utf-8;' });
+    }
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    triggerToast(language === 'en' ? `🎉 File ${fileName} downloaded successfully with copyright embedded.` : `🎉 ${fileName} 저작권 보호 파일이 성공적으로 다운로드되었습니다.`);
+    
+    // Close modal
+    setDownloadingMaterial(null);
+    setHasAgreedToTerms(false);
+  };
+
   return (
     <div id="customer-support-component" className="py-12 px-6 max-w-7xl mx-auto space-y-10 text-left select-text">
       
@@ -402,6 +733,25 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
           <span>{language === 'en' ? 'Confidential Inquiries' : '문의하기'}</span>
           <span className="text-[10px] bg-slate-900 font-mono px-1.5 py-0.5 rounded text-slate-300 animate-pulse">
             🔒 {inquiries.length}
+          </span>
+        </button>
+
+        <button
+          onClick={() => {
+            setSubTab('materials');
+            setExpandedNoticeId(null);
+            setExpandedInquiryId(null);
+          }}
+          className={`flex items-center gap-2 pb-3.5 px-2 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+            subTab === 'materials' 
+              ? 'border-cyan-400 text-cyan-400' 
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Download className="w-4 h-4" />
+          <span>{language === 'en' ? 'Download Materials' : '자료 다운로드'}</span>
+          <span className="text-[10px] bg-slate-900 font-mono px-1.5 py-0.5 rounded text-slate-300">
+            {materials.length}
           </span>
         </button>
       </div>
@@ -853,7 +1203,450 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
           </div>
         )}
 
+        {/* ==================================== DOWNLOAD MATERIALS ==================================== */}
+        {subTab === 'materials' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center" id="material-form-anchor">
+              <span className="text-xs font-mono text-slate-500 font-semibold uppercase">
+                {language === 'en' ? 'Official Technical Blueprints & Analytics' : '공인 기술 도면 및 분석 데이터 보고서 다운로드'}
+              </span>
+
+              {/* Master/Admin material register button */}
+              {isMasterOrAdmin && (
+                <button
+                  onClick={() => {
+                    if (showMaterialForm) {
+                      handleResetMaterialForm();
+                    } else {
+                      setShowMaterialForm(true);
+                    }
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-400 text-slate-950 text-xs font-bold font-mono transition-transform active:scale-95 cursor-pointer shadow-md shadow-cyan-950/20"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>{language === 'en' ? 'Register Material' : '자료 등록'}</span>
+                </button>
+              )}
+            </div>
+
+            {/* Material creation/editing Form for Master/Admin */}
+            {showMaterialForm && isMasterOrAdmin && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-6 rounded-2xl bg-slate-900/60 border border-cyan-500/20 space-y-4"
+              >
+                <div className="flex justify-between items-center">
+                  <h4 className="text-sm font-extrabold text-cyan-400 font-mono uppercase">
+                    [SYSTEM ADMIN] {editingMaterialId ? (language === 'en' ? 'Modify Secure Material' : '기술 자료 수정기') : (language === 'en' ? 'New Secure Material Register' : '기술 자료 신규 등록기')}
+                  </h4>
+                  <button 
+                    onClick={handleResetMaterialForm}
+                    className="text-[10px] font-bold text-slate-500 hover:text-white cursor-pointer"
+                  >
+                    {language === 'en' ? 'Cancel' : '취소'}
+                  </button>
+                </div>
+
+                <form onSubmit={handleSaveMaterial} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-300">자료 제목 국문 (필수)</label>
+                      <input
+                        type="text"
+                        value={matTitle}
+                        onChange={e => setMatTitle(e.target.value)}
+                        placeholder="예: (주)MOASD HGE3D00 전원 모듈 구조도"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-950 border border-white/5 text-white focus:outline-none focus:border-cyan-400"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono text-slate-400">Material Title English (Optional)</label>
+                      <input
+                        type="text"
+                        value={matTitleEn}
+                        onChange={e => setMatTitleEn(e.target.value)}
+                        placeholder="English Title..."
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-950 border border-white/5 text-white focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-300">자료 출처 국문 (필수)</label>
+                      <input
+                        type="text"
+                        value={matSource}
+                        onChange={e => setMatSource(e.target.value)}
+                        placeholder="예: (주)MOASD 안전관제기술단"
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-950 border border-white/5 text-white focus:outline-none focus:border-cyan-400"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono text-slate-400">Source English (Optional)</label>
+                      <input
+                        type="text"
+                        value={matSourceEn}
+                        onChange={e => setMatSourceEn(e.target.value)}
+                        placeholder="Source Dept English..."
+                        className="w-full px-3 py-2 text-xs rounded-lg bg-slate-950 border border-white/5 text-white focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-300">자료 상세 설명 국문</label>
+                      <textarea
+                        value={matDescription}
+                        onChange={e => setMatDescription(e.target.value)}
+                        placeholder="자료에 들어갈 간략한 목적이나 내용에 관한 요약을 기재하십시오."
+                        className="w-full h-16 px-3 py-1.5 text-xs rounded-lg bg-slate-950 border border-white/5 text-white focus:outline-none focus:border-cyan-400 resize-none"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono text-slate-400">Description English (Optional)</label>
+                      <textarea
+                        value={matDescriptionEn}
+                        onChange={e => setMatDescriptionEn(e.target.value)}
+                        placeholder="English description summary..."
+                        className="w-full h-16 px-3 py-1.5 text-xs rounded-lg bg-slate-950 border border-white/5 text-white focus:outline-none focus:border-cyan-400 resize-none"
+                      />
+                    </div>
+
+                    {/* Drag and Drop File Zone */}
+                    <div className="space-y-1 pb-1">
+                      <label className="text-[11px] font-bold text-slate-300">
+                        {language === 'en' ? 'Upload Actual File (Drag & Drop or Click)' : '자료 파일 업로드 (드래그 앤 드롭 또는 클릭)'}
+                      </label>
+                      <div
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleFileDrop}
+                        onClick={() => document.getElementById('material-file-input')?.click()}
+                        className={`border border-dashed rounded-xl p-4 text-center cursor-pointer transition-all duration-200 select-none flex flex-col items-center justify-center gap-1.5 ${
+                          isDraggingFile
+                            ? 'border-cyan-400 bg-cyan-950/20 text-cyan-300'
+                            : uploadedFileBase64
+                            ? 'border-emerald-500/40 bg-emerald-950/10 text-emerald-400 hover:border-emerald-500/60'
+                            : 'border-white/10 bg-slate-950/50 hover:border-cyan-500/30 text-slate-400'
+                        }`}
+                      >
+                        <input
+                          id="material-file-input"
+                          type="file"
+                          className="hidden"
+                          onChange={handleFileSelect}
+                        />
+                        <Upload className={`w-6 h-6 ${isDraggingFile ? 'animate-bounce text-cyan-400' : uploadedFileBase64 ? 'text-emerald-400' : 'text-slate-500'}`} />
+                        <div className="text-[11px] font-sans font-medium">
+                          {isDraggingFile ? (
+                            <span className="font-bold text-cyan-300 animate-pulse">
+                              {language === 'en' ? 'Drop file here...' : '여기에 파일을 놓으십시오...'}
+                            </span>
+                          ) : uploadedFileBase64 ? (
+                            <span className="font-bold text-emerald-400 flex items-center gap-1">
+                              ✓ {language === 'en' ? 'File loaded successfully!' : '파일이 등록되었습니다.'}
+                            </span>
+                          ) : (
+                            <span>
+                              {language === 'en' ? 'Drag file here or click to browse' : '마우스로 파일을 끌어다 놓거나 클릭하여 선택하십시오.'}
+                            </span>
+                          )}
+                        </div>
+                        {uploadedFileBase64 && (
+                          <div className="text-[9px] font-mono text-slate-500">
+                            {language === 'en' ? 'Actual file bytes will be embedded on download' : '다운로드 시 실제 원형 데이터 파일이 연결되어 전송됩니다.'}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-300">파일명 (필수)</label>
+                        <input
+                          type="text"
+                          value={matFileName}
+                          onChange={e => setMatFileName(e.target.value)}
+                          placeholder="HGE3D00_Layout.dwg"
+                          className="w-full px-3 py-2 text-xs rounded-lg bg-slate-950 border border-white/5 text-white focus:outline-none focus:border-cyan-400"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-300">파일 크기 (예: 4.8 MB)</label>
+                        <input
+                          type="text"
+                          value={matFileSize}
+                          onChange={e => setMatFileSize(e.target.value)}
+                          placeholder="4.8 MB"
+                          className="w-full px-3 py-2 text-xs rounded-lg bg-slate-950 border border-white/5 text-white focus:outline-none focus:border-cyan-400"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2 flex justify-end gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={handleResetMaterialForm}
+                      className="px-4 py-2 rounded-xl bg-slate-950 border border-white/5 text-slate-400 hover:text-white hover:bg-slate-900 font-bold text-xs transition-transform active:scale-95 cursor-pointer"
+                    >
+                      {language === 'en' ? 'Cancel' : '취소'}
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs transition-transform active:scale-95 cursor-pointer"
+                    >
+                      {editingMaterialId ? (language === 'en' ? 'Save Changes' : '수정 완료') : (language === 'en' ? 'Register' : '자료 등록 완료')}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+
+            {/* List of downloadable materials */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {materials.length === 0 ? (
+                <div className="col-span-full py-16 text-center text-slate-500 text-xs border border-dashed border-white/5 rounded-2xl bg-slate-900/10">
+                  {language === 'en' ? 'No registered materials found.' : '등록된 공인 기술 도면 및 분석 데이터가 존재하지 않습니다.'}
+                </div>
+              ) : (
+                materials.map((mat) => {
+                  const displayTitle = language === 'en' ? mat.titleEn : mat.title;
+                  const displaySource = language === 'en' ? mat.sourceEn : mat.source;
+                  const displayDesc = language === 'en' ? mat.descriptionEn : mat.description;
+
+                  return (
+                    <div 
+                      key={mat.id}
+                      className="p-5 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-cyan-500/20 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
+                    >
+                      {/* Subtle accent highlight on top */}
+                      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-500/10 via-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="p-2.5 rounded-xl bg-slate-950 border border-white/5 text-cyan-400 group-hover:text-cyan-300 transition-colors">
+                            <FileText className="w-5 h-5" />
+                          </div>
+                          
+                          {/* File info badge */}
+                          <div className="flex flex-col items-end text-right font-mono text-[10px]">
+                            <span className="text-emerald-400 font-extrabold">{mat.fileSize}</span>
+                            <span className="text-slate-500">{mat.date}</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1 text-left">
+                          <h4 className="text-sm font-bold text-white leading-snug group-hover:text-cyan-300 transition-colors line-clamp-2">
+                            {displayTitle}
+                          </h4>
+                          <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
+                            <span className="font-semibold text-slate-300">Source:</span>
+                            <span className="truncate max-w-[200px]">{displaySource}</span>
+                          </div>
+                        </div>
+
+                        {displayDesc && (
+                          <p className="text-xs text-slate-400 leading-relaxed line-clamp-3 pt-1 text-left">
+                            {displayDesc}
+                          </p>
+                        )}
+
+                        <div className="font-mono text-[10px] text-slate-500 bg-slate-950/50 p-2 rounded-lg border border-white/5 flex items-center gap-1.5">
+                          <span className="text-cyan-400 font-semibold">FILE:</span>
+                          <span className="truncate select-all">{mat.fileName}</span>
+                        </div>
+                      </div>
+
+                      {/* Card Footer Actions */}
+                      <div className="flex items-center justify-between gap-3 pt-5 mt-4 border-t border-white/5">
+                        <div className="flex gap-2">
+                          {isMasterOrAdmin && (
+                            <>
+                              <button
+                                onClick={() => handleEditMaterialClick(mat)}
+                                className="p-1.5 text-slate-400 hover:text-cyan-400 transition-colors rounded-lg bg-slate-950 hover:bg-slate-900 border border-white/5 text-xs font-mono font-bold flex items-center gap-1 cursor-pointer"
+                                title={language === 'en' ? 'Edit' : '수정'}
+                              >
+                                <Edit className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">{language === 'en' ? 'Edit' : '수정'}</span>
+                              </button>
+                              <button
+                                onClick={(e) => handleDeleteMaterial(mat.id, e)}
+                                className="p-1.5 text-slate-400 hover:text-red-400 transition-colors rounded-lg bg-slate-950 hover:bg-slate-900 border border-white/5 text-xs font-mono font-bold flex items-center gap-1 cursor-pointer"
+                                title={language === 'en' ? 'Delete' : '삭제'}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">{language === 'en' ? 'Delete' : '삭제'}</span>
+                              </button>
+                            </>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            if (!registeredUser) {
+                              triggerToast(language === 'en' ? '❌ Guest users cannot download materials. Please register or log in first.' : '❌ 비회원은 기술 자료 다운로드가 불가능합니다. 회원가입 혹은 로그인을 먼저 진행해 주십시오.');
+                              setTimeout(() => {
+                                onOpenLoginModal();
+                              }, 1500);
+                              return;
+                            }
+                            setDownloadingMaterial(mat);
+                            setHasAgreedToTerms(false);
+                          }}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-400/10 hover:bg-cyan-400 hover:text-slate-950 text-cyan-300 font-extrabold text-xs tracking-wide transition-all active:scale-95 cursor-pointer border border-cyan-400/20 group-hover:bg-cyan-400 group-hover:text-slate-950 font-mono"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>{language === 'en' ? 'DOWNLOAD' : '다운로드'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        )}
+
       </div>
+
+      {/* ==================================== SECURE DOWNLOAD DIALOG / WINDOW (MODAL) ==================================== */}
+      <AnimatePresence>
+        {downloadingMaterial && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+            {/* Dark blur overlay backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setDownloadingMaterial(null);
+                setHasAgreedToTerms(false);
+              }}
+              className="absolute inset-0 bg-slate-950/85 backdrop-blur-md"
+            />
+
+            {/* Modal Body Window */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative w-full max-w-lg rounded-2xl border border-white/10 bg-slate-900 p-6 shadow-2xl select-text text-left space-y-5 overflow-hidden z-[160]"
+            >
+              {/* Abstract subtle radar gradient glow */}
+              <div className="absolute top-0 right-0 opacity-10 blur-2xl w-40 h-40 bg-purple-500 rounded-full pointer-events-none" />
+
+              <div className="flex items-start gap-3.5 border-b border-white/5 pb-4">
+                <div className="p-3 rounded-xl bg-purple-950/50 border border-purple-500/20 text-purple-400 flex-shrink-0 animate-pulse">
+                  <ShieldAlert className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono font-extrabold text-purple-400 uppercase tracking-widest block">
+                    [SECURE DOWNLOAD CLEARANCE PANEL]
+                  </span>
+                  <h3 className="text-md font-bold text-white tracking-tight">
+                    {language === 'en' ? 'Security Vow & Consent Form' : '보안 서약 지침 및 다운로드 승인'}
+                  </h3>
+                </div>
+              </div>
+
+              {/* Download Details Panel */}
+              <div className="bg-slate-950/60 p-4 rounded-xl border border-white/5 space-y-2.5 text-xs">
+                <div className="flex justify-between items-start gap-4">
+                  <span className="text-slate-500 font-mono font-medium flex-shrink-0">{language === 'en' ? 'File Title:' : '자료 제목:'}</span>
+                  <span className="text-slate-200 font-bold text-right truncate max-w-[280px]">{language === 'en' ? downloadingMaterial.titleEn : downloadingMaterial.title}</span>
+                </div>
+                
+                {/* 1. 자료 출처 */}
+                <div className="flex justify-between items-start gap-4">
+                  <span className="text-slate-500 font-mono font-medium flex-shrink-0">{language === 'en' ? 'Source Authority:' : '1. 자료 출처:'}</span>
+                  <span className="text-cyan-400 font-bold text-right truncate max-w-[280px]">{language === 'en' ? downloadingMaterial.sourceEn : downloadingMaterial.source}</span>
+                </div>
+
+                <div className="flex justify-between items-center gap-4">
+                  <span className="text-slate-500 font-mono font-medium flex-shrink-0">{language === 'en' ? 'File Name:' : '파일명 및 규격:'}</span>
+                  <span className="text-slate-300 font-mono font-semibold truncate max-w-[250px]">{downloadingMaterial.fileName}</span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-mono font-medium">{language === 'en' ? 'Size / Date:' : '파일 용량 / 일자:'}</span>
+                  <span className="text-emerald-400 font-mono font-bold">{downloadingMaterial.fileSize} / {downloadingMaterial.date}</span>
+                </div>
+              </div>
+
+              {/* 2. 본 자료는 민감한 내용이 포함 되어 있으므로 임의로 수정 배포 및 상업적으로 사용을 금지합니다. */}
+              <div className="bg-amber-950/15 border border-amber-500/25 p-4 rounded-xl space-y-1.5">
+                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
+                  ⚠️ {language === 'en' ? '2. SECURITY BRIEFING WARNING NOTICE' : '2. 중요 보안 경고 및 권한 지침 고사'}
+                </span>
+                <p className="text-xs text-amber-200/95 leading-relaxed font-sans font-semibold">
+                  {language === 'en' 
+                    ? 'This material contains confidential blueprints and sensitive project data. Unauthorized modification, distribution, copy, or commercial exploitation is strictly prohibited.' 
+                    : '본 자료는 민감한 내용이 포함 되어 있으므로 임의로 수정 배포 및 상업적으로 사용을 금지합니다.'
+                  }
+                </p>
+              </div>
+
+              {/* 3. 동의합니다. 체크여부 만들기 */}
+              <label className="flex items-center gap-3 bg-slate-950 p-3.5 rounded-xl border border-white/5 cursor-pointer hover:border-cyan-400/30 transition-all select-none">
+                <input
+                  type="checkbox"
+                  checked={hasAgreedToTerms}
+                  onChange={(e) => setHasAgreedToTerms(e.target.checked)}
+                  className="w-4.5 h-4.5 rounded border-white/10 bg-slate-900 text-cyan-400 focus:ring-cyan-400 focus:ring-offset-slate-900 cursor-pointer"
+                />
+                <div className="text-left">
+                  <span className="text-xs font-bold text-white block">
+                    {language === 'en' ? '3. I Agree.' : '3. 동의합니다.'}
+                  </span>
+                  <span className="text-[10px] text-slate-500 block">
+                    {language === 'en' ? 'Declares compliance with strict data safety rules.' : '체크 시 정식 전사 기술 다운로드 버튼이 연동 활성화됩니다.'}
+                  </span>
+                </div>
+              </label>
+
+              {/* 4. 동의합니다 체크 후 다운로드할 수 있는 다운로드 클릭버튼 */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDownloadingMaterial(null);
+                    setHasAgreedToTerms(false);
+                  }}
+                  className="flex-1 py-2.5 text-center rounded-xl bg-slate-950 hover:bg-slate-900 border border-white/5 text-slate-400 hover:text-white font-bold text-xs tracking-wider transition-transform active:scale-95 cursor-pointer"
+                >
+                  {language === 'en' ? 'CANCEL' : '취소'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExecuteDownload}
+                  disabled={!hasAgreedToTerms}
+                  className={`flex-1 py-2.5 text-center rounded-xl font-bold text-xs tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2 ${
+                    hasAgreedToTerms 
+                      ? 'bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 shadow-lg shadow-emerald-950/20 cursor-pointer' 
+                      : 'bg-slate-950 border border-white/5 text-slate-600 cursor-not-allowed opacity-60'
+                  }`}
+                >
+                  <Download className="w-4 h-4" />
+                  <span>{language === 'en' ? '4. DOWNLOAD' : '4. 다운로드'}</span>
+                </button>
+              </div>
+
+              {/* Copyright Notice */}
+              <div className="text-center pt-3 border-t border-white/5">
+                <p className="text-[10px] font-mono text-slate-500 font-semibold tracking-wide">
+                  Copyright © (주)모아에스디 (MOASD Co., Ltd.) All Rights Reserved.
+                </p>
+              </div>
+
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Toast Overlay for Dynamic feedback */}
       <AnimatePresence>

@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { HybridMotorcycleAdvancedShowcase } from './HybridMotorcycleAdvancedShowcase';
+import { EssAdvancedShowcase } from './EssAdvancedShowcase';
 
 // Import image assets for path resolution in build bundles
 import adamhanCabinHouse from '../assets/images/adamhan_cabin_house_1781935827590.jpg';
@@ -490,6 +491,30 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                     <div className="mt-2 text-[9px] font-mono text-amber-400 font-bold flex items-center gap-2">
                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                        {isEn ? "SCROLL DOWN FOR INTERACTIVE 8-STAGE WORKFLOW" : "아래로 스크롤하여 8단계 상호작용 흐름도를 체험하세요"}
+                    </div>
+                  </div>
+                ) : activeIndex === 2 ? (
+                  /* Custom blueprint with scroll hint for E-Bicycle (Supercapacitor & Self-Charging) */
+                  <div className="relative w-full p-4 sm:p-6 rounded-2xl border border-purple-500/35 bg-gradient-to-r from-purple-950/25 to-slate-950/60 overflow-hidden flex flex-col justify-center min-h-[140px] shadow-lg shadow-purple-950/30">
+                    <div className="absolute -right-16 -bottom-16 w-48 h-48 bg-purple-400/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
+                    <div className="flex items-center gap-3.5 mb-2.5">
+                      <div className="p-2.5 rounded-xl bg-purple-500/25 border border-purple-400/30 text-purple-300">
+                        <Activity className="w-5 h-5 animate-pulse" />
+                      </div>
+                      <div className="text-left">
+                        <span className="text-[10px] font-mono text-purple-400 font-extrabold uppercase tracking-widest block">E-BICYCLE SUPER_CAPACITOR BRIEFING</span>
+                        <span className="text-xs font-bold text-slate-200">{isEn ? 'Supercapacitor & Self-Charging E-Bike Showcase Ready' : '자체충전 전기자전거 및 슈퍼커패시터 분석자료 탑재'}</span>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-purple-200/90 font-sans leading-relaxed text-left font-medium mb-3">
+                      {isEn 
+                        ? '※ Includes Graphene physical core mechanism, 5 key performance comparisons, and the live 1:1 self-charging e-bike loop simulator.' 
+                        : '※ 그래핀 기반 극전하 물리 흡착 원리, 리튬 대비 5대 비교 지표, 실시간 1:1 자체충전 전기자전거 시뮬레이터와 모듈 스펙이 제공됩니다.'
+                      }
+                    </p>
+                    <div className="text-[9px] font-mono text-purple-400 font-bold flex items-center gap-2">
+                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                       {isEn ? "SCROLL DOWN TO VIEW THE DETAILED SCROLLABLE REPORT" : "아래로 스크롤하여 상세 스크롤 보고서 및 시뮬레이션을 확인하세요"}
                     </div>
                   </div>
                 ) : activeIndex === 3 ? (
@@ -2163,6 +2188,12 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
             {activeIndex === 3 && (
               <div className="col-span-full mt-12 md:mt-18 pt-10 md:pt-16 border-t border-white/10 select-text w-full">
                 <HybridMotorcycleAdvancedShowcase language={language} isEn={isEn} />
+              </div>
+            )}
+
+            {activeIndex === 2 && (
+              <div className="col-span-full mt-12 md:mt-18 pt-10 md:pt-16 border-t border-white/10 select-text w-full">
+                <EssAdvancedShowcase language={language} isEn={isEn} />
               </div>
             )}
           </motion.div>
