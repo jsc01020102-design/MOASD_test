@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from '../context/LanguageContext';
 import { 
@@ -22,8 +22,51 @@ import {
   ArrowRight,
   ShieldAlert,
   Flame,
-  Zap
+  Zap,
+  Sliders,
+  Trash2,
+  Upload,
+  Image as ImageIcon,
+  Edit
 } from 'lucide-react';
+
+// Import high-fidelity local images
+import bgEvMoto from '../assets/images/ev_moto_assembly_1781624859000.jpg';
+import bgSamLab from '../assets/images/sam_material_lab_1781624876856.jpg';
+import bgSupercapacitor from '../assets/images/supercapacitor_factory_1781621879548.jpg';
+import bgSkyscraper from '../assets/images/moasd_skyscraper_hq_bg_1781618333946.jpg';
+
+// Get fallback images mapping
+const getDefaultImage = (itemId: string): string => {
+  switch (itemId) {
+    case 'b-01': // 따개비 특화 방오 신소재 / Marine Bio-SAM
+      return bgSamLab;
+    case 'b-02': // 친환경 해양 산업 / Marine & Shipbuilding
+      return 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&w=800&q=80';
+    case 'b-03': // 신재생 에너지 / Renewable Energy
+      return 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=800&q=80';
+    case 'b-04': // 고효율 수소발생장치 / Hydrogen Systems
+      return 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=800&q=80';
+    case 'b-05': // 미래 이동수단 / Future Mobility
+      return bgEvMoto;
+    case 'b-06': // 우주항공 SAM 코팅 / Aerospace Tech
+      return 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80';
+    case 'b-07': // 첨단 군수 장비 / Defense Industry
+      return 'https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?auto=format&fit=crop&w=800&q=80';
+    case 'b-08': // 반도체 및 차세대 디스플레이 / Semiconductor & Display
+      return bgSupercapacitor;
+    case 'b-09': // 탄소배출 제로 / Net-Zero Carbon
+      return 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80';
+    case 'b-10': // 스마트 건설 / Smart Construction
+      return bgSkyscraper;
+    case 'b-11': // 정밀 의료 장비 / Medical Devices
+      return 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80';
+    case 'b-12': // 친환경 코스메틱 / Eco-Cosmetics
+      return 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&w=800&q=80';
+    default:
+      return 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80';
+  }
+};
 
 interface BusinessItem {
   id: string;
@@ -241,6 +284,67 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
   // State for active Far-infrared application
   const [activeFirApp, setActiveFirApp] = useState<number>(0);
 
+  // Sync admin mode and storage modifications
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(() => {
+    const hasAdminSession = sessionStorage.getItem('moasd_admin_session') !== null;
+    const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
+    return hasAdminSession || manualToggle;
+  });
+
+  const [customImages, setCustomImages] = useState<Record<string, string>>(() => {
+    const saved = localStorage.getItem('moasd_custom_business_images');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  useEffect(() => {
+    const syncState = () => {
+      const hasAdminSession = sessionStorage.getItem('moasd_admin_session') !== null;
+      const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
+      setIsAdminMode(hasAdminSession || manualToggle);
+
+      const saved = localStorage.getItem('moasd_custom_business_images');
+      if (saved) {
+        try {
+          setCustomImages(JSON.parse(saved));
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        setCustomImages({});
+      }
+    };
+    window.addEventListener('storage', syncState);
+    const interval = setInterval(syncState, 1500);
+    return () => {
+      window.removeEventListener('storage', syncState);
+      clearInterval(interval);
+    };
+  }, []);
+
+  const handleImageUpload = (itemId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64Data = reader.result as string;
+      const updated = {
+        ...customImages,
+        [itemId]: base64Data
+      };
+      setCustomImages(updated);
+      localStorage.setItem('moasd_custom_business_images', JSON.stringify(updated));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleImageDelete = (itemId: string) => {
+    const updated = { ...customImages };
+    delete updated[itemId];
+    setCustomImages(updated);
+    localStorage.setItem('moasd_custom_business_images', JSON.stringify(updated));
+  };
+
   const filteredTracks = isMainScreen || activeTrackId === 'all' 
     ? tracks 
     : tracks.filter(t => t.id === activeTrackId);
@@ -328,7 +432,7 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
       )}
 
       {/* SECTION 2: 4 Core Business Tracks (Grid / Filter Tabs) */}
-      <section className={`${isMainScreen ? 'py-4' : 'py-24'} max-w-7xl mx-auto px-6 relative`}>
+      <section className={`${isMainScreen ? 'py-4 w-full' : 'py-24 max-w-7xl mx-auto px-6'} relative`}>
         {!isMainScreen && (
           <>
             <div className="text-center mb-16 space-y-3">
@@ -414,68 +518,134 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
                   </div>
                 </div>
 
-                {/* Grid of items */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                  {track.items.map((item) => {
+                {/* Full-width alternating items listing (좌우 전체 면적을 사용하여 교차 정렬) */}
+                <div className="space-y-12 mt-8">
+                  {track.items.map((item, itemIdx) => {
                     const ItemIcon = item.icon;
-                    // Colors
-                    const colorGlowMap: Record<string, string> = {
-                      cyan: 'group-hover:border-cyan-500/20 group-hover:bg-cyan-500/5',
-                      purple: 'group-hover:border-purple-500/20 group-hover:bg-purple-500/5',
-                      emerald: 'group-hover:border-emerald-500/20 group-hover:bg-emerald-500/5',
-                      amber: 'group-hover:border-amber-500/20 group-hover:bg-amber-500/5',
+                    const imageUrl = customImages[item.id] || getDefaultImage(item.id);
+                    const isEven = itemIdx % 2 === 0;
+
+                    // Accent styling
+                    const colorClasses: Record<string, { border: string, text: string, bg: string, glow: string }> = {
+                      cyan: {
+                        border: 'border-cyan-500/20',
+                        text: 'text-cyan-400',
+                        bg: 'bg-cyan-500/10',
+                        glow: 'shadow-[0_0_20px_rgba(34,211,238,0.1)]'
+                      },
+                      purple: {
+                        border: 'border-purple-500/20',
+                        text: 'text-purple-400',
+                        bg: 'bg-purple-500/10',
+                        glow: 'shadow-[0_0_20px_rgba(192,132,252,0.1)]'
+                      },
+                      emerald: {
+                        border: 'border-emerald-500/20',
+                        text: 'text-emerald-400',
+                        bg: 'bg-emerald-500/10',
+                        glow: 'shadow-[0_0_20px_rgba(52,211,153,0.1)]'
+                      },
+                      amber: {
+                        border: 'border-amber-500/20',
+                        text: 'text-amber-400',
+                        bg: 'bg-amber-500/10',
+                        glow: 'shadow-[0_0_20px_rgba(251,191,36,0.1)]'
+                      }
                     };
-                    const badgeColorMap: Record<string, string> = {
-                      cyan: 'bg-cyan-400/10 border-cyan-400/20 text-cyan-300',
-                      purple: 'bg-purple-400/10 border-purple-400/20 text-purple-300',
-                      emerald: 'bg-emerald-400/10 border-emerald-400/20 text-emerald-300',
-                      amber: 'bg-amber-400/10 border-amber-400/20 text-amber-300',
-                    };
-                    const accentTextMap: Record<string, string> = {
-                      cyan: 'text-cyan-400',
-                      purple: 'text-purple-400',
-                      emerald: 'text-emerald-400',
-                      amber: 'text-amber-400',
-                    };
+
+                    const activeStyle = colorClasses[item.color] || colorClasses.cyan;
 
                     return (
                       <div
                         key={item.id}
-                        className={`p-5 rounded-2xl bg-slate-900/40 border border-white/5 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden ${colorGlowMap[item.color] || ''}`}
+                        className="w-full bg-slate-900/40 border border-white/5 rounded-3xl p-6 sm:p-8 lg:p-10 transition-all duration-300 hover:border-white/10 relative overflow-hidden group"
                       >
-                        {/* Hologram card effect */}
-                        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                        {/* Subtle grid background glow on hover */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.01] to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="p-2.5 rounded-xl bg-slate-950 border border-white/5 text-slate-400 group-hover:text-cyan-300 transition-colors">
-                              <ItemIcon className="w-5 h-5 text-slate-300 group-hover:scale-110 transition-transform duration-300" />
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+                          {/* Text Section */}
+                          <div className={`space-y-6 text-left ${isEven ? 'order-1' : 'order-1 lg:order-2'}`}>
+                            <div className="flex items-center gap-3">
+                              <span className={`font-mono text-xs font-black px-2.5 py-1 rounded-lg border ${activeStyle.border} ${activeStyle.text} ${activeStyle.bg}`}>
+                                NO. {item.num}
+                              </span>
+                              <div className="p-2 rounded-lg bg-slate-950/60 border border-white/5 text-slate-400">
+                                <ItemIcon className="w-4 h-4" />
+                              </div>
                             </div>
-                            <span className="font-mono text-xs text-slate-600 font-extrabold group-hover:text-slate-400 transition-colors">
-                              #{item.num}
-                            </span>
+
+                            <div className="space-y-3">
+                              <h4 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">
+                                {isEn ? item.titleEn : item.title}
+                              </h4>
+                              <p className="text-sm text-slate-300 leading-relaxed">
+                                {isEn ? item.descriptionEn : item.description}
+                              </p>
+                            </div>
+
+                            {/* Keywords list */}
+                            <div className="flex flex-wrap gap-2 pt-2">
+                              {item.keywords.map((kw, idx) => (
+                                <span
+                                  key={idx}
+                                  className={`text-[10px] font-mono font-bold px-3 py-1 rounded-md border ${activeStyle.border} ${activeStyle.bg} ${activeStyle.text}`}
+                                >
+                                  #{kw}
+                                </span>
+                              ))}
+                            </div>
                           </div>
 
-                          <div className="space-y-2 text-left">
-                            <h4 className="text-sm font-bold text-white tracking-tight leading-snug group-hover:text-cyan-300 transition-colors">
-                              {isEn ? `${item.num}. ${item.titleEn}` : `${item.num}. ${item.title}`}
-                            </h4>
-                            <p className="text-xs text-slate-400 leading-relaxed min-h-[50px]">
-                              {isEn ? item.descriptionEn : item.description}
-                            </p>
-                          </div>
-                        </div>
+                          {/* Image Section with Admin capability */}
+                          <div className={`order-2 ${isEven ? 'order-2' : 'order-2 lg:order-1'}`}>
+                            <div className={`relative h-[240px] sm:h-[300px] lg:h-[320px] rounded-2xl overflow-hidden border border-white/10 bg-slate-950 flex items-center justify-center ${activeStyle.glow}`}>
+                              <img
+                                src={imageUrl}
+                                alt={item.title}
+                                className="w-full h-full object-cover transform group-hover:scale-[1.03] transition-transform duration-500"
+                                referrerPolicy="no-referrer"
+                              />
 
-                        {/* Keyword list */}
-                        <div className="flex flex-wrap gap-1.5 pt-4 mt-4 border-t border-white/5">
-                          {item.keywords.map((kw, idx) => (
-                            <span
-                              key={idx}
-                              className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-md border ${badgeColorMap[item.color] || 'bg-slate-950 border-white/10 text-slate-400'}`}
-                            >
-                              #{kw}
-                            </span>
-                          ))}
+                              {/* Admin overlay control bar */}
+                              {isAdminMode && (
+                                <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                  <Sliders className="w-7 h-7 text-cyan-400 mb-2 animate-bounce" />
+                                  <span className="text-xs font-black text-white uppercase tracking-widest block mb-1">
+                                    {isEn ? "Master/Admin Image Console" : "마스터/관리자 실물사진 제어부"}
+                                  </span>
+                                  <p className="text-[10px] text-slate-400 mb-4 max-w-xs leading-normal">
+                                    {isEn 
+                                      ? "Upload a high-fidelity front photo for this business domain." 
+                                      : "본 사업영역의 고품격 실물 전면 사진을 등록하거나 원본 복원할 수 있습니다."}
+                                  </p>
+
+                                  <div className="flex flex-wrap items-center justify-center gap-2">
+                                    <label className="px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-600 text-slate-950 text-[11px] font-black cursor-pointer flex items-center gap-1.5 transition-all shadow-md shadow-cyan-500/20">
+                                      <Upload className="w-3.5 h-3.5" />
+                                      {isEn ? "Upload Photo" : "사진 등록/수정"}
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={(e) => handleImageUpload(item.id, e)}
+                                      />
+                                    </label>
+
+                                    {customImages[item.id] && (
+                                      <button
+                                        onClick={() => handleImageDelete(item.id)}
+                                        className="px-3.5 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-400 text-[11px] font-black flex items-center gap-1.5 transition-all"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                        {isEn ? "Restore Default" : "원본 복원"}
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     );

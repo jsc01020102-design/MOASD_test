@@ -1370,8 +1370,8 @@ export default function App() {
           <MainHeroSlider />
 
       {/* 5. Business Domain (사업영역) */}
-      <section id="business-domain-main-section" className="max-w-7xl mx-auto px-6 relative py-12">
-        <div className="max-h-[900px] overflow-y-auto rounded-3xl border border-white/10 bg-slate-900/10 p-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-cyan-500/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-cyan-500/40">
+      <section id="business-domain-main-section" className="w-full max-w-none px-4 sm:px-8 lg:px-12 xl:px-16 relative py-12">
+        <div className="border border-white/5 bg-slate-900/10 rounded-3xl p-4 sm:p-6 lg:p-10">
           <BusinessDomain isMainScreen={true} />
         </div>
       </section>
