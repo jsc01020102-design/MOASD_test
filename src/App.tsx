@@ -551,6 +551,8 @@ export default function App() {
   };
 
   const handleLogOut = () => {
+    sessionStorage.removeItem('moasd_admin_session');
+    localStorage.removeItem('moasd_admin_manual_toggle');
     localStorage.removeItem('moasd_partner_user');
     setRegisteredUser(null);
     setIsSignedUp(false);

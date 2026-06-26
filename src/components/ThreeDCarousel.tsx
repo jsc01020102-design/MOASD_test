@@ -516,7 +516,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
               </div>
 
               {/* Image control panel (Upload, Modify, Delete) */}
-              {hasAdminSession && (
+              {isAdminMode && (
                 <div className="flex flex-wrap items-center justify-end gap-3 p-3 rounded-2xl bg-slate-950/60 border border-white/5">
                   <span className="text-xs font-mono text-slate-400 mr-auto pl-2 font-bold uppercase flex items-center gap-1.5">
                     <span className="w-2 h-2 bg-cyan-500 rounded-full animate-ping" />
