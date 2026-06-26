@@ -47,18 +47,26 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
   });
 
   // Admin Mode states
-  const [isAdminMode, setIsAdminMode] = useState<boolean>(() => {
-    const hasAdminSession = sessionStorage.getItem('moasd_admin_session') !== null;
-    const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
-    return hasAdminSession || manualToggle;
+  const [hasAdminSession, setHasAdminSession] = useState<boolean>(() => {
+    return sessionStorage.getItem('moasd_admin_session') !== null;
   });
+
+  const [isAdminMode, setIsAdminMode] = useState<boolean>(() => {
+    const activeSession = sessionStorage.getItem('moasd_admin_session') !== null;
+    const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
+    return activeSession && manualToggle;
+  });
+
+  const [stagedImage, setStagedImage] = useState<string | null>(null);
 
   // Sync admin mode and storage modifications
   useEffect(() => {
     const syncState = () => {
-      const hasAdminSession = sessionStorage.getItem('moasd_admin_session') !== null;
+      const activeSession = sessionStorage.getItem('moasd_admin_session') !== null;
+      setHasAdminSession(activeSession);
+
       const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
-      setIsAdminMode(hasAdminSession || manualToggle);
+      setIsAdminMode(activeSession && manualToggle);
 
       const saved = localStorage.getItem('moasd_custom_services');
       if (saved) {
@@ -76,6 +84,11 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
       clearInterval(interval);
     };
   }, []);
+
+  // Reset staged image when service index changes
+  useEffect(() => {
+    setStagedImage(null);
+  }, [activeIndex]);
 
   useEffect(() => {
     const handleCarouselChange = (e: Event) => {
@@ -101,7 +114,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!confirm(isEn ? `Are you sure you want to upload and apply this image (${file.name})?` : `이 이미지(${file.name})를 실제로 업로드하고 적용하시겠습니까?`)) {
+    if (!confirm(isEn ? `Are you sure you want to upload and preview this image (${file.name})?` : `이 이미지(${file.name})를 실제로 업로드하여 미리보시겠습니까?`)) {
       e.target.value = '';
       return;
     }
@@ -136,23 +149,10 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
           ctx.drawImage(img, 0, 0, width, height);
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
           
-          try {
-            const updated = [...services];
-            updated[idx] = {
-              ...updated[idx],
-              imageUrl: compressedBase64
-            };
-            setServices(updated);
-            localStorage.setItem('moasd_custom_services', JSON.stringify(updated));
-            alert(isEn 
-              ? "🎉 Custom service image uploaded and updated successfully!" 
-              : "🎉 맞춤 서비스 이미지가 성공적으로 업로드 및 적용되었습니다.");
-          } catch (error) {
-            console.error("Failed to save to localStorage:", error);
-            alert(isEn
-              ? "Storage space full. Please restore default photos on other domains first."
-              : "저장 공간 용량이 부족합니다. 다른 영역의 사진을 삭제하거나 초기화한 후 다시 시도해주세요.");
-          }
+          setStagedImage(compressedBase64);
+          alert(isEn 
+            ? "🎉 Image loaded for preview. Please click the 'Complete' (적용 완료) button below to finalize and register!" 
+            : "🎉 이미지가 성공적으로 업로드되어 미리보기 상태입니다. 아래 '적용 완료' 버튼을 클릭하면 최종 저장됩니다.");
         }
       };
       img.src = event.target?.result as string;
@@ -160,9 +160,37 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
     reader.readAsDataURL(file);
   };
 
+  const handleSaveStagedImage = () => {
+    if (!stagedImage) return;
+
+    if (!confirm(isEn ? "Are you sure you want to save and apply this uploaded image permanently?" : "업로드한 이미지를 실제로 최종 등록하고 적용하시겠습니까?")) {
+      return;
+    }
+
+    try {
+      const updated = [...services];
+      updated[activeIndex] = {
+        ...updated[activeIndex],
+        imageUrl: stagedImage
+      };
+      setServices(updated);
+      localStorage.setItem('moasd_custom_services', JSON.stringify(updated));
+      setStagedImage(null);
+      alert(isEn 
+        ? "🎉 Custom service image registered and saved successfully!" 
+        : "🎉 맞춤 서비스 이미지가 성공적으로 최종 등록 및 저장되었습니다.");
+    } catch (error) {
+      console.error("Failed to save to localStorage:", error);
+      alert(isEn
+        ? "Storage space full. Please restore default photos on other domains first."
+        : "저장 공간 용량이 부족합니다. 다른 영역의 사진을 삭제하거나 초기화한 후 다시 시도해주세요.");
+    }
+  };
+
   const handleImageDelete = (idx: number) => {
-    if (confirm(isEn ? "Are you sure you want to delete this image?" : "이 이미지를 정말로 삭제하시겠습니까?")) {
+    if (confirm(isEn ? "Are you sure you want to delete this image and reset to default?" : "이 이미지를 정말로 삭제하고 원본으로 복원하시겠습니까?")) {
       try {
+        setStagedImage(null);
         const updated = [...services];
         const newService = { ...updated[idx] };
         delete newService.imageUrl;
@@ -222,49 +250,51 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
       </div>
 
       {/* Dynamic Master/Admin Control Panel Bar */}
-      <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900/40 border border-white/5 rounded-2xl p-4 sm:p-5 mb-8 gap-4 select-text">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
-            <Sparkle className="w-5 h-5 animate-spin-slow" />
+      {hasAdminSession && (
+        <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-900/40 border border-white/5 rounded-2xl p-4 sm:p-5 mb-8 gap-4 select-text">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+              <Sparkle className="w-5 h-5 animate-spin-slow" />
+            </div>
+            <div>
+              <h4 className="text-sm font-black text-white flex items-center gap-2">
+                {isEn ? "Interactive Solution Image Console" : "대화형 솔루션 이미지 전용 뷰어"}
+                {isAdminMode ? (
+                  <span className="text-[9.5px] bg-red-500/20 border border-red-500/30 text-red-400 font-mono px-2 py-0.5 rounded font-black flex items-center gap-1 animate-pulse">
+                    <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
+                    MASTER CONTROL SYSTEM ON
+                  </span>
+                ) : (
+                  <span className="text-[9.5px] bg-slate-950 border border-white/5 text-slate-500 font-mono px-2 py-0.5 rounded font-black">
+                    STANDBY
+                  </span>
+                )}
+              </h4>
+              <p className="text-[11px] text-slate-400 leading-normal mt-0.5">
+                {isEn 
+                  ? "Manage high-fidelity solution images. Supports real-time Upload, Modification, and Deletion." 
+                  : "모든 솔루션 항목의 실물 전면 고품질 이미지만 노출되며, 이미지 업로드, 수정 및 삭제 기능을 실시간 지원합니다."}
+              </p>
+            </div>
           </div>
-          <div>
-            <h4 className="text-sm font-black text-white flex items-center gap-2">
-              {isEn ? "Interactive Solution Image Console" : "대화형 솔루션 이미지 전용 뷰어"}
-              {isAdminMode ? (
-                <span className="text-[9.5px] bg-red-500/20 border border-red-500/30 text-red-400 font-mono px-2 py-0.5 rounded font-black flex items-center gap-1 animate-pulse">
-                  <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
-                  MASTER CONTROL SYSTEM ON
-                </span>
-              ) : (
-                <span className="text-[9.5px] bg-slate-950 border border-white/5 text-slate-500 font-mono px-2 py-0.5 rounded font-black">
-                  STANDBY
-                </span>
-              )}
-            </h4>
-            <p className="text-[11px] text-slate-400 leading-normal mt-0.5">
-              {isEn 
-                ? "Manage high-fidelity solution images. Supports real-time Upload, Modification, and Deletion." 
-                : "모든 솔루션 항목의 실물 전면 고품질 이미지만 노출되며, 이미지 업로드, 수정 및 삭제 기능을 실시간 지원합니다."}
-            </p>
-          </div>
-        </div>
 
-        <button
-          onClick={() => {
-            const nextMode = !isAdminMode;
-            setIsAdminMode(nextMode);
-            localStorage.setItem('moasd_admin_manual_toggle', nextMode ? 'true' : 'false');
-          }}
-          className={`px-4 py-2 rounded-xl text-xs font-black transition-all border flex items-center gap-2 cursor-pointer w-full md:w-auto justify-center ${
-            isAdminMode
-              ? 'bg-red-500/15 border-red-500/50 text-red-400 shadow-[0_0_12px_rgba(239,68,68,0.25)] hover:bg-red-500/25'
-              : 'bg-slate-950/80 border-white/10 text-slate-300 hover:text-white hover:bg-slate-900/80'
-          }`}
-        >
-          <Sliders className="w-4 h-4" />
-          {isEn ? "Toggle Admin Mode" : "관리자 모드 전환"} ({isAdminMode ? "ON" : "OFF"})
-        </button>
-      </div>
+          <button
+            onClick={() => {
+              const nextMode = !isAdminMode;
+              setIsAdminMode(nextMode);
+              localStorage.setItem('moasd_admin_manual_toggle', nextMode ? 'true' : 'false');
+            }}
+            className={`px-4 py-2 rounded-xl text-xs font-black transition-all border flex items-center gap-2 cursor-pointer w-full md:w-auto justify-center ${
+              isAdminMode
+                ? 'bg-red-500/15 border-red-500/50 text-red-400 shadow-[0_0_12px_rgba(239,68,68,0.25)] hover:bg-red-500/25'
+                : 'bg-slate-950/80 border-white/10 text-slate-300 hover:text-white hover:bg-slate-900/80'
+            }`}
+          >
+            <Sliders className="w-4 h-4" />
+            {isEn ? "Toggle Admin Mode" : "관리자 모드 전환"} ({isAdminMode ? "ON" : "OFF"})
+          </button>
+        </div>
+      )}
 
       {/* Main High-Fidelity 2-Column Showcase Layout */}
       <div className="w-full">
@@ -454,7 +484,9 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                   📸 {isEn ? "Showcase Screen" : "실물 이미지 전시관"}
                 </div>
                 <div className="px-3 py-1 rounded bg-cyan-950/40 border border-cyan-500/20 text-[9px] font-mono font-bold text-cyan-400 tracking-wider">
-                  {service.imageUrl === MOASD_SERVICES[activeIndex]?.imageUrl 
+                  {stagedImage
+                    ? (isEn ? "PREVIEW (NOT SAVED)" : "업로드 대기중 (미저장)")
+                    : service.imageUrl === MOASD_SERVICES[activeIndex]?.imageUrl 
                     ? (isEn ? "DEFAULT" : "기본 원본") 
                     : (isEn ? "CUSTOM UPLOAD" : "사용자 업로드")}
                 </div>
@@ -465,9 +497,9 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                 {/* Sub-atmospheric subtle glow */}
                 <div className="absolute inset-0 bg-radial-at-c from-cyan-500/5 via-transparent to-transparent pointer-events-none" />
                 
-                {service.imageUrl ? (
+                {(stagedImage || service.imageUrl) ? (
                   <img 
-                    src={service.imageUrl} 
+                    src={stagedImage || service.imageUrl} 
                     alt={serviceTitle}
                     className="w-full h-full object-contain filter brightness-105 contrast-105 hover:scale-[1.02] transition-transform duration-700 select-all"
                     style={{ imageRendering: '-webkit-optimize-contrast' }}
@@ -484,47 +516,70 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
               </div>
 
               {/* Image control panel (Upload, Modify, Delete) */}
-              <div className="flex flex-wrap items-center justify-end gap-3 p-3 rounded-2xl bg-slate-950/60 border border-white/5">
-                <span className="text-xs font-mono text-slate-400 mr-auto pl-2 font-bold uppercase flex items-center gap-1.5">
-                  <span className="w-2 h-2 bg-cyan-500 rounded-full animate-ping" />
-                  {isEn ? "ACTIONS:" : "편집 기능:"}
-                </span>
-                
-                {/* 1. Upload Button */}
-                <label className="px-4 py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-400 hover:text-cyan-300 text-xs font-black flex items-center gap-2 cursor-pointer border border-cyan-500/30 transition-all active:scale-95">
-                  <Upload className="w-4 h-4" />
-                  {isEn ? "Upload" : "업로드"}
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    onChange={(e) => handleImageUpload(activeIndex, e)} 
-                  />
-                </label>
+              {hasAdminSession && (
+                <div className="flex flex-wrap items-center justify-end gap-3 p-3 rounded-2xl bg-slate-950/60 border border-white/5">
+                  <span className="text-xs font-mono text-slate-400 mr-auto pl-2 font-bold uppercase flex items-center gap-1.5">
+                    <span className="w-2 h-2 bg-cyan-500 rounded-full animate-ping" />
+                    {isEn ? "ACTIONS:" : "편집 기능:"}
+                  </span>
+                  
+                  {/* Staged State: Show 완료 (Complete) and 취소 (Cancel) buttons */}
+                  {stagedImage ? (
+                    <>
+                      <button
+                        onClick={handleSaveStagedImage}
+                        className="px-4 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 hover:text-emerald-300 text-xs font-black flex items-center gap-2 cursor-pointer border border-emerald-500/40 transition-all active:scale-95 animate-pulse"
+                      >
+                        <Sparkle className="w-4 h-4 text-emerald-400" />
+                        {isEn ? "Complete" : "적용 완료"}
+                      </button>
+                      <button
+                        onClick={() => setStagedImage(null)}
+                        className="px-4 py-2 rounded-xl bg-slate-500/15 hover:bg-slate-500/25 text-slate-400 hover:text-slate-300 text-xs font-black flex items-center gap-2 cursor-pointer border border-slate-500/30 transition-all active:scale-95"
+                      >
+                        {isEn ? "Cancel" : "취소"}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {/* 1. Upload Button */}
+                      <label className="px-4 py-2 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-400 hover:text-cyan-300 text-xs font-black flex items-center gap-2 cursor-pointer border border-cyan-500/30 transition-all active:scale-95">
+                        <Upload className="w-4 h-4" />
+                        {isEn ? "Upload" : "업로드"}
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={(e) => handleImageUpload(activeIndex, e)} 
+                        />
+                      </label>
 
-                {/* 2. Modify Button */}
-                <label className="px-4 py-2 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-400 hover:text-purple-300 text-xs font-black flex items-center gap-2 cursor-pointer border border-purple-500/30 transition-all active:scale-95">
-                  <RefreshCw className="w-4 h-4" />
-                  {isEn ? "Replace" : "수정"}
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    onChange={(e) => handleImageUpload(activeIndex, e)} 
-                  />
-                </label>
+                      {/* 2. Modify Button */}
+                      <label className="px-4 py-2 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-purple-400 hover:text-purple-300 text-xs font-black flex items-center gap-2 cursor-pointer border border-purple-500/30 transition-all active:scale-95">
+                        <RefreshCw className="w-4 h-4" />
+                        {isEn ? "Replace" : "수정"}
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={(e) => handleImageUpload(activeIndex, e)} 
+                        />
+                      </label>
 
-                {/* 3. Delete Button */}
-                {service.imageUrl && (
-                  <button
-                    onClick={() => handleImageDelete(activeIndex)}
-                    className="px-4 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 hover:text-red-300 text-xs font-black flex items-center gap-2 cursor-pointer border border-red-500/30 transition-all active:scale-95"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    {isEn ? "Delete" : "삭제/원복"}
-                  </button>
-                )}
-              </div>
+                      {/* 3. Delete Button */}
+                      {service.imageUrl && (
+                        <button
+                          onClick={() => handleImageDelete(activeIndex)}
+                          className="px-4 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 hover:text-red-300 text-xs font-black flex items-center gap-2 cursor-pointer border border-red-500/30 transition-all active:scale-95"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          {isEn ? "Delete" : "삭제/원복"}
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </motion.div>
         </AnimatePresence>

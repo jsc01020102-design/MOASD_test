@@ -47,11 +47,11 @@ export const initializeFirebaseSync = () => {
     }
   });
 
-  // 2. Wrap window.localStorage functions to capture local modifications and save to Firestore
-  const originalSetItem = localStorage.setItem;
-  const originalRemoveItem = localStorage.removeItem;
+  // 2. Wrap Storage.prototype functions to capture local modifications and save to Firestore reliably across all browsers
+  const originalSetItem = Storage.prototype.setItem;
+  const originalRemoveItem = Storage.prototype.removeItem;
 
-  localStorage.setItem = function (key: string, value: string) {
+  Storage.prototype.setItem = function (key: string, value: string) {
     // Call the original setItem to ensure local functionality remains unbroken
     originalSetItem.apply(this, [key, value]);
 
@@ -62,7 +62,7 @@ export const initializeFirebaseSync = () => {
     }
   };
 
-  localStorage.removeItem = function (key: string) {
+  Storage.prototype.removeItem = function (key: string) {
     // Call the original removeItem
     originalRemoveItem.apply(this, [key]);
 
