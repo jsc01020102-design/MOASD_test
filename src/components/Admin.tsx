@@ -172,7 +172,10 @@ export const Admin: React.FC<AdminProps> = ({
       if (!exists) {
         const updated = [registeredUser, ...members];
         setMembers(updated);
-        localStorage.setItem('moasd_member_list', JSON.stringify(updated));
+        const serialized = JSON.stringify(updated);
+        if (localStorage.getItem('moasd_member_list') !== serialized) {
+          localStorage.setItem('moasd_member_list', serialized);
+        }
       } else {
         // sync roles
         const updated = members.map(m => {
@@ -184,7 +187,10 @@ export const Admin: React.FC<AdminProps> = ({
         // Check if there are differences to avoid infinite loop
         if (JSON.stringify(updated) !== JSON.stringify(members)) {
           setMembers(updated);
-          localStorage.setItem('moasd_member_list', JSON.stringify(updated));
+          const serialized = JSON.stringify(updated);
+          if (localStorage.getItem('moasd_member_list') !== serialized) {
+            localStorage.setItem('moasd_member_list', serialized);
+          }
         }
       }
     }
@@ -192,8 +198,43 @@ export const Admin: React.FC<AdminProps> = ({
 
   // Persist sub admins
   useEffect(() => {
-    localStorage.setItem('moasd_sub_admins', JSON.stringify(subAdmins));
+    const serialized = JSON.stringify(subAdmins);
+    if (localStorage.getItem('moasd_sub_admins') !== serialized) {
+      localStorage.setItem('moasd_sub_admins', serialized);
+    }
   }, [subAdmins]);
+
+  // Real-time synchronization bridge with storage and cloud updates
+  useEffect(() => {
+    const syncAdminData = () => {
+      const savedMembers = localStorage.getItem('moasd_member_list');
+      if (savedMembers) {
+        try {
+          const parsed = JSON.parse(savedMembers);
+          if (JSON.stringify(parsed) !== JSON.stringify(members)) {
+            setMembers(parsed);
+          }
+        } catch (e) {}
+      }
+
+      const savedSubAdmins = localStorage.getItem('moasd_sub_admins');
+      if (savedSubAdmins) {
+        try {
+          const parsed = JSON.parse(savedSubAdmins);
+          if (JSON.stringify(parsed) !== JSON.stringify(subAdmins)) {
+            setSubAdmins(parsed);
+          }
+        } catch (e) {}
+      }
+    };
+
+    window.addEventListener('storage', syncAdminData);
+    const interval = setInterval(syncAdminData, 1500);
+    return () => {
+      window.removeEventListener('storage', syncAdminData);
+      clearInterval(interval);
+    };
+  }, [members, subAdmins]);
 
   // Master credentials
   const MASTER_ADMIN_INFO = {
@@ -347,6 +388,7 @@ export const Admin: React.FC<AdminProps> = ({
     if (confirm(language === 'en' ? `Are you sure you want to remove Admin ${name}?` : `진짜로 관리자 ${name}의 권한을 즉격 파기시키겠습니까?`)) {
       const filtered = subAdmins.filter(sa => sa.id !== id);
       setSubAdmins(filtered);
+      alert(language === 'en' ? `🎉 Admin ${name} removed successfully.` : `🎉 관리자 ${name}의 마스터 등록 정보 및 권한이 완전히 파기 소멸되었습니다.`);
     }
   };
 
@@ -400,18 +442,23 @@ export const Admin: React.FC<AdminProps> = ({
 
     const updatedMembers = members.map(m => {
       if (m.email === memberEmail) {
-        const nextRole = m.role === 'partner' ? 'general' : 'partner';
-        const partnerCode = nextRole === 'partner' ? 'MOASD_PARTNER' : undefined;
-        
-        // If this matches currently logged in user on home screen, sync their state
-        if (registeredUser && registeredUser.email === memberEmail) {
-          const updatedUser = { ...registeredUser, role: nextRole as 'general' | 'partner', partnerCode };
-          localStorage.setItem('moasd_partner_user', JSON.stringify(updatedUser));
-          setRegisteredUser(updatedUser);
-          setIsSignedUp(true);
-        }
+         const nextRole = m.role === 'partner' ? 'general' : 'partner';
+         const partnerCode = nextRole === 'partner' ? 'MOASD_PARTNER' : undefined;
+         
+         // If this matches currently logged in user on home screen, sync their state
+         if (registeredUser && registeredUser.email === memberEmail) {
+           const updatedUser = { ...registeredUser, role: nextRole as 'general' | 'partner', partnerCode };
+           localStorage.setItem('moasd_partner_user', JSON.stringify(updatedUser));
+           setRegisteredUser(updatedUser);
+           setIsSignedUp(true);
+         }
 
-        return { ...m, role: nextRole as 'general' | 'partner', partnerCode };
+         // Show specific alert for role change
+         alert(language === 'en' 
+           ? `🎉 Privilege for ${m.name || memberEmail} changed successfully to [${nextRole.toUpperCase()}].` 
+           : `🎉 "${m.name || memberEmail}" 회원의 등급 권한이 [${nextRole === 'partner' ? '협력사 등급' : '일반 회원 등급'}]으로 성공적으로 상향/조정 완료되었습니다.`);
+
+         return { ...m, role: nextRole as 'general' | 'partner', partnerCode };
       }
       return m;
     });
@@ -437,6 +484,7 @@ export const Admin: React.FC<AdminProps> = ({
         setRegisteredUser(null);
         setIsSignedUp(false);
       }
+      alert(language === 'en' ? '🎉 Member deleted successfully!' : '🎉 선택하신 회원의 정보가 전사 시스템에서 완전히 영구 소멸되었습니다.');
     }
   };
 

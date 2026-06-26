@@ -372,6 +372,9 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
             };
             setCustomImages(updated);
             localStorage.setItem('moasd_custom_business_images', JSON.stringify(updated));
+            alert(isEn 
+              ? "🎉 Business domain image uploaded and updated successfully!" 
+              : "🎉 사업 영역 이미지가 성공적으로 업로드 및 저장되었습니다.");
           } catch (error) {
             console.error("Failed to save to localStorage:", error);
             alert(isEn
@@ -386,10 +389,15 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
   };
 
   const handleImageDelete = (itemId: string) => {
-    const updated = { ...customImages };
-    delete updated[itemId];
-    setCustomImages(updated);
-    localStorage.setItem('moasd_custom_business_images', JSON.stringify(updated));
+    if (confirm(isEn ? "Are you sure you want to restore the original default image?" : "이 이미지를 원래 기본 이미지로 복원하시겠습니까?")) {
+      const updated = { ...customImages };
+      delete updated[itemId];
+      setCustomImages(updated);
+      localStorage.setItem('moasd_custom_business_images', JSON.stringify(updated));
+      alert(isEn
+        ? "🎉 Original image restored successfully!"
+        : "🎉 원래 기본 이미지로 성공적으로 복원되었습니다.");
+    }
   };
 
   const filteredTracks = isMainScreen || activeTrackId === 'all' 

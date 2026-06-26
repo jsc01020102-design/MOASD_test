@@ -10,17 +10,18 @@ import {
 } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyClbO1y7NBc86zjiSihvxWgDVitUxagksU",
-  authDomain: "lunar-phantasmata-0pnh2.firebaseapp.com",
-  projectId: "lunar-phantasmata-0pnh2",
-  storageBucket: "lunar-phantasmata-0pnh2.firebasestorage.app",
-  messagingSenderId: "956019912231",
-  appId: "1:956019912231:web:0218bcb807f0a6a0e5a802"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
+export default app;
 
-export const db = getFirestore(app, "ai-studio-moasdportfolio-44251b3f-01a3-431e-b5ed-3f99662755a4");
+export const db = getFirestore(app, import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || "ai-studio-moasdportfolio-44251b3f-01a3-431e-b5ed-3f99662755a4");
 
 
 // Keys to sync between localStorage and Firestore

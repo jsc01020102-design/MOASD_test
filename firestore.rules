@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id in [
+        'moasd_partner_images',
+        'moasd_custom_business_images',
+        'moasd_custom_services',
+        'moasd_media_center_videos',
+        'moasd_support_notices',
+        'moasd_support_inquiries',
+        'moasd_support_materials',
+        'moasd_member_list',
+        'moasd_sub_admins',
+        'moasd_user_passwords'
+      ];
+    }
+
+    function isValidWebsiteConfig(data) {
+      return data.keys().hasAll(['value', 'updatedAt'])
+        && data.keys().size() == 2
+        && data.value is string
+        && data.value.size() <= 1048576
+        && data.updatedAt is int;
+    }
+
+    match /website_config/{configId} {
+      allow get: if isValidId(configId);
+      allow list: if true;
+      allow create, update: if isValidId(configId) && isValidWebsiteConfig(request.resource.data);
+      allow delete: if isValidId(configId);
+    }
+  }
+}

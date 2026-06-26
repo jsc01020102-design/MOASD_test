@@ -4,5 +4,7 @@ dist/
 coverage/
 .DS_Store
 *.log
-.env*
+# 환경 변수 파일 제외
+.env
+.env.local
 !.env.example

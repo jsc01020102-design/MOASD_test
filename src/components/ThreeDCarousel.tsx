@@ -102,27 +102,74 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64Data = reader.result as string;
-      const updated = [...services];
-      updated[idx] = {
-        ...updated[idx],
-        imageUrl: base64Data
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // High-quality canvas compression & auto-downscaling to guarantee performance & bypass localStorage quota limitations
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1200;
+        const MAX_HEIGHT = 900;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          
+          try {
+            const updated = [...services];
+            updated[idx] = {
+              ...updated[idx],
+              imageUrl: compressedBase64
+            };
+            setServices(updated);
+            localStorage.setItem('moasd_custom_services', JSON.stringify(updated));
+            alert(isEn 
+              ? "🎉 Custom service image uploaded and updated successfully!" 
+              : "🎉 맞춤 서비스 이미지가 성공적으로 업로드 및 적용되었습니다.");
+          } catch (error) {
+            console.error("Failed to save to localStorage:", error);
+            alert(isEn
+              ? "Storage space full. Please restore default photos on other domains first."
+              : "저장 공간 용량이 부족합니다. 다른 영역의 사진을 삭제하거나 초기화한 후 다시 시도해주세요.");
+          }
+        }
       };
-      setServices(updated);
-      localStorage.setItem('moasd_custom_services', JSON.stringify(updated));
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
 
   const handleImageDelete = (idx: number) => {
     if (confirm(isEn ? "Are you sure you want to delete this image?" : "이 이미지를 정말로 삭제하시겠습니까?")) {
-      const updated = [...services];
-      const newService = { ...updated[idx] };
-      delete newService.imageUrl;
-      updated[idx] = newService;
-      setServices(updated);
-      localStorage.setItem('moasd_custom_services', JSON.stringify(updated));
+      try {
+        const updated = [...services];
+        const newService = { ...updated[idx] };
+        delete newService.imageUrl;
+        updated[idx] = newService;
+        setServices(updated);
+        localStorage.setItem('moasd_custom_services', JSON.stringify(updated));
+        alert(isEn 
+          ? "🎉 Image deleted successfully and reset to default." 
+          : "🎉 이미지가 성공적으로 삭제되었으며 기본 이미지로 초기화되었습니다.");
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 

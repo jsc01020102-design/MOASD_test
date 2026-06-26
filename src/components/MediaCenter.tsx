@@ -199,24 +199,31 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
     // Sync master role
     setIsMaster(checkIsMaster());
 
-    // Load custom video list or set defaults
-    const stored = localStorage.getItem('moasd_media_center_videos');
-    let loaded: VideoItem[] = [];
-    if (stored) {
-      try {
-        loaded = JSON.parse(stored);
-      } catch (e) {
+    const syncVideos = () => {
+      const stored = localStorage.getItem('moasd_media_center_videos');
+      let loaded: VideoItem[] = [];
+      if (stored) {
+        try {
+          loaded = JSON.parse(stored);
+          setVideos(loaded);
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
         loaded = DEFAULT_VIDEOS;
+        setVideos(DEFAULT_VIDEOS);
+        localStorage.setItem('moasd_media_center_videos', JSON.stringify(DEFAULT_VIDEOS));
       }
-    } else {
-      loaded = DEFAULT_VIDEOS;
-      localStorage.setItem('moasd_media_center_videos', JSON.stringify(DEFAULT_VIDEOS));
-    }
-    setVideos(loaded);
+    };
 
-    if (loaded.length > 0) {
-      setSelectedVideo(loaded[0]);
-    }
+    syncVideos();
+
+    window.addEventListener('storage', syncVideos);
+    const interval = setInterval(syncVideos, 1500);
+    return () => {
+      window.removeEventListener('storage', syncVideos);
+      clearInterval(interval);
+    };
   }, []);
 
   const handleMasterAuth = (password: string) => {
@@ -279,6 +286,7 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
 
     resetForm();
     setShowAddModal(false);
+    alert(language === 'en' ? '🎉 New video added successfully!' : '🎉 새로운 영상자료가 신규 등록 완료되었습니다.');
   };
 
   const openEditModal = (vid: VideoItem) => {
@@ -333,6 +341,7 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
 
     resetForm();
     setShowEditModal(false);
+    alert(language === 'en' ? '🎉 Video updated successfully!' : '🎉 영상자료가 성공적으로 수정 완료되었습니다.');
   };
 
   const handleDeleteVideo = (id: string) => {
@@ -352,6 +361,7 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
       if (selectedVideo?.id === id) {
         setSelectedVideo(updated.length > 0 ? updated[0] : null);
       }
+      alert(language === 'en' ? '🎉 Video deleted successfully!' : '🎉 영상자료가 성공적으로 삭제되었습니다.');
     }
   };
 

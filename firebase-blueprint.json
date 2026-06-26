@@ -1,0 +1,26 @@
+{
+  "entities": {
+    "WebsiteConfig": {
+      "title": "WebsiteConfig",
+      "description": "Serialized configuration of various modules stored under unique keys",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "JSON string representing the serialized state"
+        },
+        "updatedAt": {
+          "type": "integer",
+          "description": "Timestamp when the state was last updated"
+        }
+      },
+      "required": ["value", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "website_config/{configId}": {
+      "schema": "WebsiteConfig",
+      "description": "Dynamic configurations and stored data for different domains and customer support modules"
+    }
+  }
+}

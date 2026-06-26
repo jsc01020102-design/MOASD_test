@@ -218,16 +218,67 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    localStorage.setItem('moasd_support_notices', JSON.stringify(notices));
+    const serialized = JSON.stringify(notices);
+    if (localStorage.getItem('moasd_support_notices') !== serialized) {
+      localStorage.setItem('moasd_support_notices', serialized);
+    }
   }, [notices]);
 
   useEffect(() => {
-    localStorage.setItem('moasd_support_inquiries', JSON.stringify(inquiries));
+    const serialized = JSON.stringify(inquiries);
+    if (localStorage.getItem('moasd_support_inquiries') !== serialized) {
+      localStorage.setItem('moasd_support_inquiries', serialized);
+    }
   }, [inquiries]);
 
   useEffect(() => {
-    localStorage.setItem('moasd_support_materials', JSON.stringify(materials));
+    const serialized = JSON.stringify(materials);
+    if (localStorage.getItem('moasd_support_materials') !== serialized) {
+      localStorage.setItem('moasd_support_materials', serialized);
+    }
   }, [materials]);
+
+  // Real-time synchronization bridge with storage and cloud updates
+  useEffect(() => {
+    const syncState = () => {
+      const savedNotices = localStorage.getItem('moasd_support_notices');
+      if (savedNotices) {
+        try {
+          const parsed = JSON.parse(savedNotices);
+          if (JSON.stringify(parsed) !== JSON.stringify(notices)) {
+            setNotices(parsed);
+          }
+        } catch (e) {}
+      }
+
+      const savedInquiries = localStorage.getItem('moasd_support_inquiries');
+      if (savedInquiries) {
+        try {
+          const parsed = JSON.parse(savedInquiries);
+          if (JSON.stringify(parsed) !== JSON.stringify(inquiries)) {
+            setInquiries(parsed);
+          }
+        } catch (e) {}
+      }
+
+      const savedMaterials = localStorage.getItem('moasd_support_materials');
+      if (savedMaterials) {
+        try {
+          const parsed = JSON.parse(savedMaterials);
+          if (JSON.stringify(parsed) !== JSON.stringify(materials)) {
+            setMaterials(parsed);
+          }
+        } catch (e) {}
+      }
+    };
+
+    window.addEventListener('storage', syncState);
+    const interval = setInterval(syncState, 1500);
+    return () => {
+      window.removeEventListener('storage', syncState);
+      clearInterval(interval);
+    };
+  }, [notices, inquiries, materials]);
 
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
@@ -309,6 +360,7 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
     setNewNoticeContentEn('');
     setNewNoticeIsPinned(false);
     triggerToast(language === 'en' ? '🎉 Public notice announced successfully!' : '🎉 새로운 공지사항이 전사 실사망에 정식 배포되었습니다.');
+    alert(language === 'en' ? '🎉 Public notice announced and published successfully!' : '🎉 새로운 공지사항이 성공적으로 배포 및 등록되었습니다.');
   };
 
   // Delete Notice handler
@@ -318,6 +370,7 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
     if (confirm(language === 'en' ? 'Delete this notice?' : '해당 공지글을 즉격 삭제하시겠습니까?')) {
       setNotices(prev => prev.filter(n => n.id !== id));
       triggerToast(language === 'en' ? 'Notice deleted.' : '선택하신 공지글이 안전하게 소거되었습니다.');
+      alert(language === 'en' ? '🎉 Notice deleted successfully!' : '🎉 공지사항 글이 완전히 삭제되었습니다.');
     }
   };
 
@@ -447,6 +500,7 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
         uploadedContent: uploadedFileBase64 || m.uploadedContent
       } : m));
       triggerToast(language === 'en' ? '🎉 Material updated successfully!' : '🎉 기술 자료가 정상적으로 수정 반영되었습니다.');
+      alert(language === 'en' ? '🎉 Material updated successfully!' : '🎉 기술 자료가 정상적으로 수정 완료되었습니다.');
     } else {
       // Create new
       const newMat: Material = {
@@ -465,6 +519,7 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
       };
       setMaterials(prev => [newMat, ...prev]);
       triggerToast(language === 'en' ? '🎉 New material registered successfully!' : '🎉 새로운 공식 기술 문서가 신규 등록 완료되었습니다.');
+      alert(language === 'en' ? '🎉 New material registered successfully!' : '🎉 새로운 공식 기술 문서가 신규 등록 완료되었습니다.');
     }
 
     handleResetMaterialForm();
@@ -509,19 +564,59 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
 
   const processSelectedFile = (file: File) => {
     setMatFileName(file.name);
-    const sizeInMB = file.size / (1024 * 1024);
-    const sizeStr = sizeInMB >= 0.1 
-      ? `${sizeInMB.toFixed(1)} MB` 
-      : `${(file.size / 1024).toFixed(1)} KB`;
-    setMatFileSize(sizeStr);
     
     const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setUploadedFileBase64(event.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
+    if (file.type.startsWith('image/')) {
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 900;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+            setUploadedFileBase64(compressedBase64);
+            
+            const compressedSizeInMB = (compressedBase64.length * 0.75) / (1024 * 1024);
+            setMatFileSize(`${compressedSizeInMB.toFixed(1)} MB`);
+          }
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setUploadedFileBase64(event.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+      const sizeInMB = file.size / (1024 * 1024);
+      const sizeStr = sizeInMB >= 0.1 
+        ? `${sizeInMB.toFixed(1)} MB` 
+        : `${(file.size / 1024).toFixed(1)} KB`;
+      setMatFileSize(sizeStr);
+    }
+    
     triggerToast(language === 'en' ? `📂 File "${file.name}" loaded successfully!` : `📂 "${file.name}" 파일이 성공적으로 로드되었습니다.`);
   };
 
@@ -550,6 +645,7 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
     if (confirm(language === 'en' ? 'Are you sure you want to delete this material?' : '이 다운로드 자료를 영구 보존 데이터베이스에서 삭제하시겠습니까?')) {
       setMaterials(prev => prev.filter(m => m.id !== id));
       triggerToast(language === 'en' ? 'Material deleted successfully.' : '해당 기술 도면 자료가 시스템에서 완전히 삭제되었습니다.');
+      alert(language === 'en' ? '🎉 Material deleted successfully!' : '🎉 기술 도면 자료가 정상적으로 삭제되었습니다.');
     }
   };
 
