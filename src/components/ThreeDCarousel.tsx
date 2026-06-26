@@ -125,8 +125,8 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
       img.onload = () => {
         // High-quality canvas compression & auto-downscaling to guarantee performance & bypass localStorage quota limitations
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 1200;
-        const MAX_HEIGHT = 900;
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 600;
         let width = img.width;
         let height = img.height;
 
@@ -147,7 +147,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
         const ctx = canvas.getContext('2d');
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
           
           setStagedImage(compressedBase64);
           alert(isEn 

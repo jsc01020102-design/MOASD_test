@@ -284,11 +284,15 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
   // State for active Far-infrared application
   const [activeFirApp, setActiveFirApp] = useState<number>(0);
 
+  const [hasAdminSession, setHasAdminSession] = useState<boolean>(() => {
+    return sessionStorage.getItem('moasd_admin_session') !== null;
+  });
+
   // Sync admin mode and storage modifications
   const [isAdminMode, setIsAdminMode] = useState<boolean>(() => {
-    const hasAdminSession = sessionStorage.getItem('moasd_admin_session') !== null;
+    const activeSession = sessionStorage.getItem('moasd_admin_session') !== null;
     const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
-    return hasAdminSession || manualToggle;
+    return activeSession && manualToggle;
   });
 
   const [customImages, setCustomImages] = useState<Record<string, string>>(() => {
@@ -298,9 +302,11 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
 
   useEffect(() => {
     const syncState = () => {
-      const hasAdminSession = sessionStorage.getItem('moasd_admin_session') !== null;
+      const activeSession = sessionStorage.getItem('moasd_admin_session') !== null;
+      setHasAdminSession(activeSession);
+
       const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
-      setIsAdminMode(hasAdminSession || manualToggle);
+      setIsAdminMode(activeSession && manualToggle);
 
       const saved = localStorage.getItem('moasd_custom_business_images');
       if (saved) {
@@ -345,8 +351,8 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
       img.onload = () => {
         // High-quality canvas compression & auto-downscaling to guarantee performance & bypass localStorage quota limitations
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 1000;
-        const MAX_HEIGHT = 750;
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 600;
         let width = img.width;
         let height = img.height;
 
@@ -367,8 +373,8 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
         const ctx = canvas.getContext('2d');
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
-          // Compress to lightweight high-quality JPEG
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+          // Compress to lightweight high-quality JPEG (0.6 quality ensures standard photos are only ~30-50KB)
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
           
           try {
             const updated = {

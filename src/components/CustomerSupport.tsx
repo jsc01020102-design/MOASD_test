@@ -573,6 +573,15 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
   };
 
   const processSelectedFile = (file: File) => {
+    // 1MB Firestore limit safety threshold is 600KB to allow room for base64 expansion and other materials in the JSON array
+    const MAX_FILE_SIZE = 600 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      alert(language === 'en' 
+        ? "File is too large. For database compatibility, the maximum allowed file size is 600KB." 
+        : "파일 용량이 너무 큽니다. 데이터베이스 보관 안정성을 위해 업로드 가능한 최대 용량은 600KB로 제한됩니다.");
+      return;
+    }
+
     if (!confirm(language === 'en' ? `Do you want to stage the file "${file.name}" for upload?` : `"${file.name}" 파일을 정말로 업로드할 임시 파일로 지정하시겠습니까?`)) {
       return;
     }
@@ -584,8 +593,8 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1200;
-          const MAX_HEIGHT = 900;
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 600;
           let width = img.width;
           let height = img.height;
 
@@ -606,7 +615,7 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
           const ctx = canvas.getContext('2d');
           if (ctx) {
             ctx.drawImage(img, 0, 0, width, height);
-            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
             setUploadedFileBase64(compressedBase64);
             
             const compressedSizeInMB = (compressedBase64.length * 0.75) / (1024 * 1024);

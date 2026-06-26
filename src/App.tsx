@@ -219,8 +219,16 @@ export default function App() {
   });
 
   useEffect(() => {
-    setIsAdminUser(sessionStorage.getItem('moasd_admin_session') !== null);
-  }, [currentTab, registeredUser]);
+    const syncAdmin = () => {
+      setIsAdminUser(sessionStorage.getItem('moasd_admin_session') !== null);
+    };
+    window.addEventListener('storage', syncAdmin);
+    const interval = setInterval(syncAdmin, 1500);
+    return () => {
+      window.removeEventListener('storage', syncAdmin);
+      clearInterval(interval);
+    };
+  }, []);
 
   const handlePartnerImageUpload = (caseId: string, file: File) => {
     const isEn = language === 'en';
@@ -228,12 +236,41 @@ export default function App() {
       return;
     }
     const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
-      const updated = { ...partnerImages, [caseId]: base64String };
-      setPartnerImages(updated);
-      localStorage.setItem('moasd_partner_images', JSON.stringify(updated));
-      alert(isEn ? "🎉 Image uploaded and applied successfully!" : "🎉 이미지가 성공적으로 업로드 및 적용되었습니다.");
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // High-quality canvas compression & auto-downscaling to guarantee performance & bypass localStorage/Firestore quota limitations
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 600;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+          const updated = { ...partnerImages, [caseId]: compressedBase64 };
+          setPartnerImages(updated);
+          localStorage.setItem('moasd_partner_images', JSON.stringify(updated));
+          alert(isEn ? "🎉 Image uploaded and applied successfully!" : "🎉 이미지가 성공적으로 업로드 및 적용되었습니다.");
+        }
+      };
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
