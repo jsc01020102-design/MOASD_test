@@ -324,6 +324,7 @@ export const Admin: React.FC<AdminProps> = ({
   // Logout handler
   const handleLogout = () => {
     sessionStorage.removeItem('moasd_admin_session');
+    localStorage.removeItem('moasd_admin_manual_toggle');
     localStorage.removeItem('moasd_partner_user');
     setRegisteredUser(null);
     setIsSignedUp(false);
