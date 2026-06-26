@@ -63,8 +63,8 @@ export const ConsultingSimulator: React.FC = () => {
         <p className="text-xs md:text-sm text-slate-400 mt-2 max-w-2xl leading-relaxed">
           {t(
             'simulator.desc',
-            'Please specify your target renewable grid capacity scale and hybrid supercapacitor cells. Real-time active power flow recovery, extended operational life, and peak cell thermal control metrics are simulated live.',
-            '지향하시는 신재생에너지 그리드 스케일과 하이브리드 슈퍼커패시터 유닛 수, 독자 특허인 SAM 신물질의 전도성 함지 농도를 선택해 주십시오. 실시간 전력 흐름 회복도 및 연장 수명, 피크 발열 제어 온도가 물리 정량 방정식에 맞춰 정합 시뮬레이션됩니다.'
+            'Please specify your target renewable grid capacity scale and power bank configurations. Real-time active power flow recovery, extended operational life, and peak cell thermal control metrics are simulated live.',
+            '지향하시는 신재생에너지 그리드 스케일과 고성능 파워뱅크 구성 유닛 수, 독자 특허인 SAM 신물질의 전도성 함침 밀도를 선택해 주십시오. 실시간 전력 흐름 회복도 및 연장 수명, 피크 발열 제어 온도가 물리 정량 방정식에 맞춰 정합 시뮬레이션됩니다.'
           )}
         </p>
       </div>
@@ -94,10 +94,10 @@ export const ConsultingSimulator: React.FC = () => {
               <span className="text-[10px] text-slate-500 block">{t('simulator.param1.desc', 'Configures base load characteristics for power grid integration.', '계통 송배전에 걸리는 기본 부하 충돌 수준을 설정합니다.')}</span>
             </div>
 
-            {/* Parameter 2: Capacitor Modules */}
+            {/* Parameter 2: Power Bank Modules */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-300 font-semibold">{t('simulator.param2', 'Hybrid Supercapacitor Module Count', '하이브리드 슈퍼커패시터 모듈 구성')}</span>
+                <span className="text-slate-300 font-semibold">{t('simulator.param2', 'Power Bank Module Count', '고성능 파워뱅크 모듈 구성')}</span>
                 <span className="text-cyan-400 font-mono font-bold">{state.pipelineChains} Rack Cell <span className="text-slate-500">(2-8)</span></span>
               </div>
               <input
@@ -108,7 +108,7 @@ export const ConsultingSimulator: React.FC = () => {
                 onChange={(e) => handleChange('pipelineChains', parseInt(e.target.value))}
                 className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400 focus:outline-none opacity-85 hover:opacity-100"
               />
-              <span className="text-[10px] text-slate-500 block">{t('simulator.param2.desc', 'Specifies nested capacitor cell layers deployed against thermal stress.', '초고주파 충방전 과열에 반응을 대응할 적층 셀 수입니다.')}</span>
+              <span className="text-[10px] text-slate-500 block">{t('simulator.param2.desc', 'Specifies nested battery cell layers deployed against thermal stress.', '충방전 과열 반응을 능동 억제할 적층 파워뱅크 셀 구성 수입니다.')}</span>
             </div>
 
             {/* Parameter 3: SAM compound blend percentage */}
@@ -277,9 +277,9 @@ export const ConsultingSimulator: React.FC = () => {
               <div className={`w-11 h-11 rounded-full flex items-center justify-center border text-[10px] font-mono font-bold transition-all duration-300 ${
                 !state.hasSiloBarrier ? 'bg-red-950/50 border-red-500/50 text-red-400' : 'bg-cyan-950/60 border-cyan-400 text-cyan-300'
               }`}>
-                {isEn ? 'CAP' : '커패시터'}
+                {isEn ? 'PB' : '파워뱅크'}
               </div>
-              <span className="text-[9px] text-slate-500 mt-1 font-mono">CAP CELL</span>
+              <span className="text-[9px] text-slate-500 mt-1 font-mono">PB CELL</span>
             </div>
 
             <div className="absolute left-[65%] flex flex-col items-center">
@@ -337,7 +337,7 @@ export const ConsultingSimulator: React.FC = () => {
             {/* Box 2: Dynamic Capacity Range */}
             <div className="p-4 rounded-2xl bg-slate-900 border border-white/5 flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="text-[9px] font-mono font-bold tracking-wider text-slate-400 uppercase">{t('simulator.metric2', 'Energy High-Output Cap', '에너지 고출력 한계치')}</span>
+                <span className="text-[9px] font-mono font-bold tracking-wider text-slate-400 uppercase">{t('simulator.metric2', 'Energy High-Output Bank', '에너지 고출력 한계치')}</span>
                 <Zap className="w-4 h-4 text-purple-400" />
               </div>
               <div className="mt-3">

@@ -325,15 +325,62 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validate format
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      alert(isEn 
+        ? "Invalid file format. Please upload JPG, PNG, WEBP, or GIF." 
+        : "올바르지 않은 파일 형식입니다. JPG, PNG, WEBP, GIF 파일을 업로드해주세요.");
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64Data = reader.result as string;
-      const updated = {
-        ...customImages,
-        [itemId]: base64Data
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // High-quality canvas compression & auto-downscaling to guarantee performance & bypass localStorage quota limitations
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1000;
+        const MAX_HEIGHT = 750;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          // Compress to lightweight high-quality JPEG
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+          
+          try {
+            const updated = {
+              ...customImages,
+              [itemId]: compressedBase64
+            };
+            setCustomImages(updated);
+            localStorage.setItem('moasd_custom_business_images', JSON.stringify(updated));
+          } catch (error) {
+            console.error("Failed to save to localStorage:", error);
+            alert(isEn
+              ? "Storage space full. Please restore default photos on other domains first."
+              : "저장 공간 용량이 부족합니다. 다른 영역의 사진을 '원본 복원'한 후 다시 시도해주세요.");
+          }
+        }
       };
-      setCustomImages(updated);
-      localStorage.setItem('moasd_custom_business_images', JSON.stringify(updated));
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
@@ -609,8 +656,8 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
 
                               {/* Admin overlay control bar */}
                               {isAdminMode && (
-                                <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                  <Sliders className="w-7 h-7 text-cyan-400 mb-2 animate-bounce" />
+                                <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                  <Sliders className="w-8 h-8 text-cyan-400 mb-2 animate-bounce" />
                                   <span className="text-xs font-black text-white uppercase tracking-widest block mb-1">
                                     {isEn ? "Master/Admin Image Console" : "마스터/관리자 실물사진 제어부"}
                                   </span>
@@ -619,6 +666,25 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
                                       ? "Upload a high-fidelity front photo for this business domain." 
                                       : "본 사업영역의 고품격 실물 전면 사진을 등록하거나 원본 복원할 수 있습니다."}
                                   </p>
+
+                                  {/* Guidelines Section */}
+                                  <div className="w-full max-w-xs bg-slate-900/60 border border-white/5 rounded-xl p-3 mb-4 space-y-1.5 text-left text-[10px] text-slate-300">
+                                    <div className="font-bold text-cyan-400 border-b border-white/5 pb-1">
+                                      {isEn ? "Image Upload Specifications" : "이미지 업로드 가이드라인"}
+                                    </div>
+                                    <div>
+                                      <span className="text-slate-500 font-bold mr-1">• {isEn ? "Formats:" : "지원 포맷:"}</span>
+                                      <span className="font-mono text-white">JPG, PNG, WEBP, GIF</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-slate-500 font-bold mr-1">• {isEn ? "Resolution:" : "권장 사이즈:"}</span>
+                                      <span className="font-mono text-white">{isEn ? "800x600 px or higher (4:3 / 16:9)" : "800x600 px 이상 (4:3 또는 16:9 비율)"}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-slate-500 font-bold mr-1">• {isEn ? "File Size:" : "파일 크기:"}</span>
+                                      <span className="text-emerald-400 font-medium">{isEn ? "Up to 10MB (Auto compressed on upload)" : "최대 10MB (업로드 시 자동 압축 및 초고속 최적화)"}</span>
+                                    </div>
+                                  </div>
 
                                   <div className="flex flex-wrap items-center justify-center gap-2">
                                     <label className="px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-600 text-slate-950 text-[11px] font-black cursor-pointer flex items-center gap-1.5 transition-all shadow-md shadow-cyan-500/20">

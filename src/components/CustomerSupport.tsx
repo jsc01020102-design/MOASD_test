@@ -49,14 +49,14 @@ interface Material {
 const DEFAULT_MATERIALS: Material[] = [
   {
     id: 'mat-2',
-    title: '그래핀 슈퍼커패시터(ESS) 극전하 물리 흡착 성능 비교 분석 보고서',
-    titleEn: 'Graphene Supercapacitor (ESS) Polar Adsorption Performance Comparison Report',
+    title: '고성능 그래핀 파워뱅크(ESS) 극전하 물리 흡착 성능 비교 분석 보고서',
+    titleEn: 'High-Capacity Graphene Power Bank (ESS) Polar Adsorption Performance Comparison Report',
     source: '(주)MOASD 신소재에너지융합연구소',
     sourceEn: '(주)MOASD Advanced Materials Research Lab',
-    description: '리튬이온 배터리 대비 슈퍼커패시터의 수명, 충방전 속도, 기온 변화에 따른 보존율 비교 데이터 파일입니다.',
-    descriptionEn: 'Comparative performance files covering cycle life, charge-discharge speed, and temperature efficiency of supercapacitors vs lithium batteries.',
+    description: '기존 리튬 배터리 대비 고성능 파워뱅크의 수명, 충방전 속도, 기온 변화에 따른 보존율 비교 데이터 파일입니다.',
+    descriptionEn: 'Comparative performance files covering cycle life, charge-discharge speed, and temperature efficiency of advanced power banks vs lithium batteries.',
     fileSize: '8.2 MB',
-    fileName: 'MOASD_Graphene_Supercapacitor_Performance_Comparison.pdf',
+    fileName: 'MOASD_Graphene_Power_Bank_Performance_Comparison.pdf',
     fileUrl: 'pdf_data_placeholder',
     date: '2026.06.24'
   },

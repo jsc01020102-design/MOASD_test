@@ -27,10 +27,10 @@ export const EssAdvancedShowcase: React.FC<EssAdvancedShowcaseProps> = ({ langua
       {/* Upper Title Section */}
       <div className="text-left space-y-2 border-b border-white/5 pb-4">
         <span className="text-[10px] text-cyan-450 font-bold block uppercase tracking-widest leading-none">
-          {isEn ? "NEXT-GENERATION ASYMMETRIC ENERGY STORAGE SYSTEM" : "차세대 비대칭 에너지 저장 장치"}
+          {isEn ? "NEXT-GENERATION HIGH-CAPACITY PORTABLE POWER BANK" : "차세대 고성능 모바일 파워뱅크 장치"}
         </span>
         <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">
-          {isEn ? "Hybrid Supercapacitor (HSC)" : "하이브리드 슈퍼 커패시터 (HSC)"}
+          {isEn ? "High-Capacity Power Bank" : "고성능 대용량 파워뱅크"}
         </h2>
       </div>
 
@@ -48,82 +48,82 @@ export const EssAdvancedShowcase: React.FC<EssAdvancedShowcaseProps> = ({ langua
               </span>
               <p className="text-sm md:text-base text-cyan-400 font-semibold leading-relaxed bg-cyan-950/30 border border-cyan-500/20 p-4 rounded-xl shadow-lg">
                 {isEn 
-                  ? "Hybrid Supercapacitor (HSC) is a next-generation asymmetric energy storage device that combines the advantages of traditional batteries (high energy density) with those of general supercapacitors (rapid charge/discharge, ultra-long lifespan)."
-                  : "하이브리드 슈퍼 커패시터(Hybrid Supercapacitor, HSC)는 기존 이차전지(배터리)의 장점(높은 에너지 밀도)과 일반 슈퍼 커패시터의 장점(빠른 충·방전, 긴 수명)을 결합한 차세대 비대칭 에너지 저장 장치입니다."}
+                  ? "The High-Capacity Power Bank is a next-generation portable energy storage device that combines the high energy density of advanced lithium-ion cells with modern high-speed charging protocols and intelligent multi-layer safety controllers."
+                  : "고성능 파워뱅크는 최신 고에너지밀도 충전 셀 기술과 최첨단 고속 전력 분배 IC, 지능형 다중 보호 안전 컨트롤러를 결합하여 언제 어디서나 신뢰할 수 있는 모바일 전원 공급 장치입니다."}
               </p>
             </div>
 
             {/* 2. Detailed Attributes organizd into highly readable lists */}
             <div className="space-y-4">
               <span className="text-[10px] font-mono font-extrabold text-slate-400 uppercase tracking-widest block border-b border-white/5 pb-1">
-                {isEn ? "ULTRA-CAPACITOR HIGH-EFFICIENCY CHARACTERISTICS" : "울트라 커패시터 고효율 특성 설명내용"}
+                {isEn ? "HIGH-PERFORMANCE POWER BANK FEATURES" : "고성능 파워뱅크 핵심 기술 규격"}
               </span>
               
               <div className="space-y-3.5">
-                {/* Point 1: Coulombic Efficiency */}
+                {/* Point 1: Lossless Efficiency */}
                 <div className="flex gap-3 items-start bg-slate-950/40 border border-white/5 hover:border-cyan-500/20 p-4 rounded-xl transition-all">
                   <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-450 flex-shrink-0 mt-0.5">
                     <CheckCircle className="w-4 h-4" />
                   </div>
                   <div className="space-y-1 text-left">
                     <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                      {isEn ? "Lossless Coulombic Efficiency >99%" : "99% 초과 무결점 쿨롱 효율"}
+                      {isEn ? "Lossless Energy Conversion Efficiency >95%" : "95% 초과 고효율 전력 변환율"}
                     </h4>
                     <p className="text-[12px] text-slate-300 leading-relaxed">
                       {isEn
-                        ? "Because its Coulombic Efficiency (the ratio of discharged charge to the total charge added to replenish the discharge) exceeds 99% even under high currents, virtually no charge is lost during charge/discharge."
-                        : "쿨롱 효율(방전된 충전량을 채우기 위해 추가된 총 충전량으로 방전된 총 충전량을 나눈 값)이 고전류에서도 99%를 초과하기 때문에 울트라커패시터를 충·방전할 때 소실되는 충전량이 거의 없습니다."}
+                        ? "Because its energy conversion efficiency exceeds 95% thanks to premium internal ICs, virtually no energy is lost as heat during operation."
+                        : "프리미엄 지능형 전력 관리 회로 덕분에 변환 효율이 95%를 상회하여, 고부하 전력 사용 시에도 불필요한 누설이나 열 소실이 전혀 발생하지 않습니다."}
                     </p>
                   </div>
                 </div>
 
-                {/* Point 2: RTE & Low ESR */}
+                {/* Point 2: PD & Multiport */}
                 <div className="flex gap-3 items-start bg-slate-950/40 border border-white/5 hover:border-cyan-500/20 p-4 rounded-xl transition-all">
                   <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-450 flex-shrink-0 mt-0.5">
                     <Zap className="w-4 h-4 animate-bounce" />
                   </div>
                   <div className="space-y-1 text-left">
                     <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                      {isEn ? "High RTE (Round-Trip Efficiency) & Low ESR" : "압도적 에너지 효율(RTE) 및 낮은 등가저항(ESR)"}
+                      {isEn ? "Bespoke Multi-port Output & USB-PD Support" : "다포트 양방향 초고속 충전 기술"}
                     </h4>
                     <p className="text-[12px] text-slate-300 leading-relaxed">
                       {isEn
-                        ? "Thanks to its extremely low Equivalent Series Resistance (ESR), its Round-Trip Efficiency (RTE) is exceptionally high: exceeding 70% within 5 seconds and 80% within 10 seconds."
-                        : "낮은 ESR(Equivalent Series Resistance) 덕분에 RTE(Round-Trip Efficiency)도 매우 높습니다. 5초 내에 RTE 가 70%를 넘으며, 10초 내에 RTE가 80%를 넘습니다."}
+                        ? "Supports high-voltage USB Power Delivery (PD) and multi-port simultaneous outputs, delivering perfect power matching for laptops, outdoor gears, and backup systems."
+                        : "최신 고기압 PD 3.0 및 다양한 직간접 출력을 완벽 지원하여 노트북, 캠핑 장비, 대용량 비상 전원 공급 기기까지 지연 없는 균일 전압을 출하합니다."}
                     </p>
                   </div>
                 </div>
 
-                {/* Point 3: Thermal Safety */}
+                {/* Point 3: BMS Thermal Safety */}
                 <div className="flex gap-3 items-start bg-slate-950/40 border border-white/5 hover:border-cyan-500/20 p-4 rounded-xl transition-all">
                   <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-450 flex-shrink-0 mt-0.5">
                     <ShieldCheck className="w-4 h-4" />
                   </div>
                   <div className="space-y-1 text-left">
                     <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                      {isEn ? "Overheat Prevention & Minimized Cooling Overhead" : "과열 방지 및 냉각 오버헤드 감소"}
+                      {isEn ? "Advanced Intelligent BMS Thermal Management" : "지능형 BMS 통합 안전 장치"}
                     </h4>
                     <p className="text-[12px] text-slate-300 leading-relaxed">
                       {isEn
-                        ? "This not only enables more efficient energy utilization but also prevents overheating. Consequently, the cooling overhead required to actively cool the energy storage device is significantly reduced."
-                        : "이는 에너지를 더욱 효율적으로 사용할 수 있을 뿐만 아니라 과열을 방지합니다. 따라서 에너지 저장 디바이스를 냉각해야 하는 오버헤드가 줄어들 가능성이 매우 높습니다."}
+                        ? "Monitors internal cell temperature, voltage balance, and current limits in real time. Actively protects against short-circuits and thermal runaways without any complex cooling fans."
+                        : "내부 셀의 실시간 전압 균등성, 충전 한계 전류 및 온도 프로필을 상시 추적합니다. 별도의 시끄러운 냉각팬 없이도 발열을 자동 억제하여 폭발을 원천 봉쇄합니다."}
                     </p>
                   </div>
                 </div>
 
-                {/* Point 4: Fast Cycle */}
+                {/* Point 4: Semi-permanent Cycles */}
                 <div className="flex gap-3 items-start bg-slate-950/40 border border-white/5 hover:border-cyan-500/20 p-4 rounded-xl transition-all">
                   <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-450 flex-shrink-0 mt-0.5">
                     <Activity className="w-4 h-4 animate-pulse" />
                   </div>
                   <div className="space-y-1 text-left">
                     <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                      {isEn ? "5-Second Ultra-Fast Discharge & Charging Loop" : "5초 초고속 방전 및 동일 대역 충전 루프"}
+                      {isEn ? "Extended Lifespan & Semi-Permanent Battery Cycles" : "반영구적 배터리 충방전 수명 수렴"}
                     </h4>
                     <p className="text-[12px] text-slate-300 leading-relaxed">
                       {isEn
-                        ? "Discharges to 1/2 voltage within 5 seconds and charges concurrently at the exact same high rate until the ultra-capacitor is fully charged."
-                        : "5초 내에 1/2 전압으로 방전하고 울트라커패시터가 완전히 충전될 때까지 같은 속도로 초고속 연속 충전이 가능합니다."}
+                        ? "Uses robust active-layer chemistry and SAM formulation to guarantee over 5,000 deep discharge cycles, maintaining over 85% of original capacity for years."
+                        : "화학적 조성을 극대화하고 특수 SAM 신물질 피막을 도포하여, 5,000회 이상의 완전 충방전 후에도 초기 용량의 85% 이상을 철저 유지하는 영속 수명을 갖춥니다."}
                     </p>
                   </div>
                 </div>
@@ -223,7 +223,7 @@ export const EssAdvancedShowcase: React.FC<EssAdvancedShowcaseProps> = ({ langua
                     <rect x="-12" y="-12" width="24" height="24" rx="3" fill="#0f172a" stroke="#22d3ee" strokeWidth="1.5" className="animate-[pulse_2s_infinite]" />
                     <rect x="-8" y="-8" width="16" height="16" rx="1.5" fill="#0c4a6e" />
                     <Zap className="w-3 h-3 text-cyan-400 absolute" style={{ transform: 'translate(-6px, -6px)' }} />
-                    <text x="-9" y="19" fontSize="5.5" fontWeight="bold" fill="#22d3ee" fontFamily="sans-serif">HSC</text>
+                    <text x="-9" y="19" fontSize="5.5" fontWeight="bold" fill="#22d3ee" fontFamily="sans-serif">BMS</text>
                   </g>
 
                   {/* External Network Nodes */}
@@ -354,19 +354,19 @@ export const EssAdvancedShowcase: React.FC<EssAdvancedShowcaseProps> = ({ langua
               </div>
 
               <span className="text-[8.5px] text-slate-500 leading-normal text-left">
-                {isEn ? "Internal roll anatomy of positive/negative carbon terminals & separator." : "단자, 알루미늄 외장 캔, 카본 활성물질 및 집전체 양음극 극판, 분리막의 내부 조권."}
+                {isEn ? "Internal roll anatomy of positive/negative terminals & separator." : "단자, 알루미늄 외장 캔, 집전체 양음극 극판, 분리막의 내부 조성."}
               </span>
             </div>
 
-            {/* Panel 4 (Bottom Right): Advanced Carbon/Graphene Material */}
+            {/* Panel 4 (Bottom Right): Advanced SAM Binder & Active Materials */}
             <div className="bg-slate-900/40 border border-white/10 rounded-xl p-3.5 flex flex-col justify-between relative overflow-hidden group">
               <div className="absolute top-1.5 right-1.5 text-[7.5px] font-mono px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-500/20 text-cyan-400 font-bold">
                 PANEL_04
               </div>
               <div className="space-y-2">
-                <span className="text-[9px] font-mono text-slate-500 block font-bold">ACTIVE_CARBON_MATERIAL</span>
+                <span className="text-[9px] font-mono text-slate-500 block font-bold">ACTIVE_SAM_BINDER</span>
                 <h4 className="text-[10px] md:text-xs font-extrabold text-white leading-tight">
-                  {isEn ? "Advanced Carbon Powder" : "탄소 신소재 활성 물질 분말"}
+                  {isEn ? "Advanced SAM Binder & Active Materials" : "SAM 복합 소재 및 활성 전극 물질"}
                 </h4>
               </div>
 
@@ -414,7 +414,7 @@ export const EssAdvancedShowcase: React.FC<EssAdvancedShowcaseProps> = ({ langua
               </div>
 
               <span className="text-[8.5px] text-slate-500 leading-normal text-left">
-                {isEn ? "Ultra-pure graphite/graphene base particles optimized for electrostatic adsorption." : "정밀 분자 크기로 조제되어 물리적 전하 이온을 극대 흡착하는 고유성 그래핀 탄소 분말."}
+                {isEn ? "Ultra-pure SAM layer optimized for rapid charging and chemical bonding." : "정밀 분자 수준에서 조제되어 충전 입자의 밀도를 극대화하고 결합력을 유지하는 SAM 코팅 공법."}
               </span>
             </div>
 

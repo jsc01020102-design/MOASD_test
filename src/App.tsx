@@ -51,6 +51,7 @@ import {
   Check,
   ArrowLeft
 } from 'lucide-react';
+import { Upload, Trash2, Image as ImageIcon } from 'lucide-react';
 
 export const CompanyLogoIcon = ({ className = "w-9 h-9" }: { className?: string }) => (
   <svg 
@@ -156,7 +157,7 @@ export default function App() {
     localStorage.setItem('moasd_simulated_sms_logs', JSON.stringify(updatedLogs));
   };
   const [activeTabCase, setActiveTabCase] = useState<string | null>(null);
-  const [activeSolutionIdx, setActiveSolutionIdx] = useState<number>(5);
+  const [activeSolutionIdx, setActiveSolutionIdx] = useState<number>(4);
   const [activeSubTab, setActiveSubTab] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [scrolled, setScrolled] = useState<boolean>(false);
@@ -204,6 +205,43 @@ export default function App() {
     return saved ? JSON.parse(saved) : null;
   });
 
+  const [partnerImages, setPartnerImages] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem('moasd_partner_images');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  const [isAdminUser, setIsAdminUser] = useState<boolean>(() => {
+    return sessionStorage.getItem('moasd_admin_session') !== null;
+  });
+
+  useEffect(() => {
+    setIsAdminUser(sessionStorage.getItem('moasd_admin_session') !== null);
+  }, [currentTab, registeredUser]);
+
+  const handlePartnerImageUpload = (caseId: string, file: File) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      const updated = { ...partnerImages, [caseId]: base64String };
+      setPartnerImages(updated);
+      localStorage.setItem('moasd_partner_images', JSON.stringify(updated));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handlePartnerImageDelete = (caseId: string) => {
+    if (confirm(language === 'en' ? 'Do you want to reset this image to the default?' : '이 이미지를 기본값으로 초기화하시겠습니까?')) {
+      const updated = { ...partnerImages };
+      delete updated[caseId];
+      setPartnerImages(updated);
+      localStorage.setItem('moasd_partner_images', JSON.stringify(updated));
+    }
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -213,7 +251,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (activeSolutionIdx !== 4) {
+    if (activeSolutionIdx !== 3) {
       setActiveSubTab(null);
     }
   }, [activeSolutionIdx]);
@@ -716,7 +754,7 @@ export default function App() {
                     <div className="flex flex-col gap-1 relative">
                       <button
                         onClick={(e) => {
-                          navigateToSolutions(5, undefined, e);
+                          navigateToSolutions(4, undefined, e);
                           setSolutionsDropdownOpen(false);
                         }}
                         className="flex items-center gap-2.5 px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
@@ -733,7 +771,7 @@ export default function App() {
                         className="flex items-center gap-2.5 px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
-                        {language === 'en' ? 'Hybrid Supercapacitor (HSC)' : '하이브리드 슈퍼 커패시터 (HSC)'}
+                        {language === 'en' ? 'High-Performance Power Bank' : '고성능 파워뱅크'}
                       </button>
 
                       {/* SAM with nested sub-flyout */}
@@ -744,7 +782,7 @@ export default function App() {
                       >
                         <button
                           onClick={(e) => {
-                            navigateToSolutions(4, undefined, e);
+                            navigateToSolutions(3, undefined, e);
                             setSolutionsDropdownOpen(false);
                           }}
                           className="flex items-center justify-between px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
@@ -769,7 +807,7 @@ export default function App() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    navigateToSolutions(4, 'sam-p', e);
+                                    navigateToSolutions(3, 'sam-p', e);
                                     setSolutionsDropdownOpen(false);
                                     setSamSubmenuOpen(false);
                                   }}
@@ -782,7 +820,7 @@ export default function App() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    navigateToSolutions(4, 'ecotube', e);
+                                    navigateToSolutions(3, 'ecotube', e);
                                     setSolutionsDropdownOpen(false);
                                     setSamSubmenuOpen(false);
                                   }}
@@ -795,7 +833,7 @@ export default function App() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    navigateToSolutions(4, 'terramuvics', e);
+                                    navigateToSolutions(3, 'terramuvics', e);
                                     setSolutionsDropdownOpen(false);
                                     setSamSubmenuOpen(false);
                                   }}
@@ -808,7 +846,7 @@ export default function App() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    navigateToSolutions(4, 'heat-coating', e);
+                                    navigateToSolutions(3, 'heat-coating', e);
                                     setSolutionsDropdownOpen(false);
                                     setSamSubmenuOpen(false);
                                   }}
@@ -821,7 +859,7 @@ export default function App() {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    navigateToSolutions(4, 'polaris', e);
+                                    navigateToSolutions(3, 'polaris', e);
                                     setSolutionsDropdownOpen(false);
                                     setSamSubmenuOpen(false);
                                   }}
@@ -838,67 +876,6 @@ export default function App() {
                         </AnimatePresence>
                       </div>
 
-                      {/* Motorcycle with nested sub-flyout */}
-                      <div 
-                        className="relative"
-                        onMouseEnter={() => setMotorcycleSubmenuOpen(true)}
-                        onMouseLeave={() => setMotorcycleSubmenuOpen(false)}
-                      >
-                        <button
-                          onClick={(e) => {
-                            navigateToSolutions(3, undefined, e);
-                            setSolutionsDropdownOpen(false);
-                          }}
-                          className="flex items-center justify-between px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0" />
-                            <span>{language === 'en' ? 'Motorcycle' : '오토바이'}</span>
-                          </div>
-                          <ChevronRight className="w-3.5 h-3.5 text-slate-450" />
-                        </button>
-
-                        <AnimatePresence>
-                          {motorcycleSubmenuOpen && (
-                            <motion.div
-                              initial={{ opacity: 0, x: 8 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              exit={{ opacity: 0, x: 8 }}
-                              transition={{ duration: 0.15 }}
-                              className="absolute top-0 left-full ml-1 w-60 rounded-xl bg-slate-950/98 border border-white/10 p-2 shadow-2xl backdrop-blur-2xl z-50"
-                            >
-                              <div className="flex flex-col gap-1">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigateToSolutions(3, undefined, e);
-                                    setSolutionsDropdownOpen(false);
-                                    setMotorcycleSubmenuOpen(false);
-                                  }}
-                                  className="flex items-center gap-2 px-2 py-1.5 text-[11.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
-                                >
-                                  <span className="w-1 h-1 rounded-full bg-cyan-400 flex-shrink-0" />
-                                  {language === 'en' ? 'Hybrid Motorcycle' : '하이브리드 오토바이'}
-                                </button>
-                                
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigateToSolutions(3, undefined, e);
-                                    setSolutionsDropdownOpen(false);
-                                    setMotorcycleSubmenuOpen(false);
-                                  }}
-                                  className="flex items-center gap-2 px-2 py-1.5 text-[11.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
-                                >
-                                  <span className="w-1 h-1 rounded-full bg-purple-400 flex-shrink-0" />
-                                  {language === 'en' ? 'Electric Motorcycle' : '전기 오토바이'}
-                                </button>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-
                       <button
                         onClick={(e) => {
                           navigateToSolutions(2, undefined, e);
@@ -906,8 +883,8 @@ export default function App() {
                         }}
                         className="flex items-center gap-2.5 px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                        {language === 'en' ? 'E-Bicycle' : '자전거'}
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0" />
+                        {language === 'en' ? 'Hybrid Motorcycle' : '하이브리드 이륜차'}
                       </button>
 
                       <button
@@ -917,8 +894,8 @@ export default function App() {
                         }}
                         className="flex items-center gap-2.5 px-3 py-2 text-[12.5px] font-bold text-slate-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg text-left transition-all cursor-pointer w-full bg-transparent border-0"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
-                        {language === 'en' ? 'Solar Energy' : '태양열'}
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                        {language === 'en' ? 'Self-Charging E-Bicycle' : '자가충전 전기자전거'}
                       </button>
                     </div>
                   </motion.div>
@@ -1123,7 +1100,7 @@ export default function App() {
                         {/* 발전기 */}
                         <button
                           onClick={() => {
-                            navigateToSolutions(5);
+                            navigateToSolutions(4);
                             setMobileMenuOpen(false);
                           }}
                           className="text-left text-xs font-bold text-slate-400 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-2 bg-transparent border-0"
@@ -1141,7 +1118,7 @@ export default function App() {
                           className="text-left text-xs font-bold text-slate-400 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-2 bg-transparent border-0"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
-                          {language === 'en' ? 'Hybrid Supercapacitor (HSC)' : '하이브리드 슈퍼 커패시터 (HSC)'}
+                          {language === 'en' ? 'High-Performance Power Bank' : '고성능 파워뱅크'}
                         </button>
 
                         {/* SAM inner accordion */}
@@ -1168,7 +1145,7 @@ export default function App() {
                               >
                                 <button
                                   onClick={() => {
-                                    navigateToSolutions(4, 'sam-p');
+                                    navigateToSolutions(3, 'sam-p');
                                     setMobileMenuOpen(false);
                                   }}
                                   className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
@@ -1178,7 +1155,7 @@ export default function App() {
                                 </button>
                                 <button
                                   onClick={() => {
-                                    navigateToSolutions(4, 'ecotube');
+                                    navigateToSolutions(3, 'ecotube');
                                     setMobileMenuOpen(false);
                                   }}
                                   className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
@@ -1188,7 +1165,7 @@ export default function App() {
                                 </button>
                                 <button
                                   onClick={() => {
-                                    navigateToSolutions(4, 'terramuvics');
+                                    navigateToSolutions(3, 'terramuvics');
                                     setMobileMenuOpen(false);
                                   }}
                                   className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
@@ -1198,7 +1175,7 @@ export default function App() {
                                 </button>
                                 <button
                                   onClick={() => {
-                                    navigateToSolutions(4, 'heat-coating');
+                                    navigateToSolutions(3, 'heat-coating');
                                     setMobileMenuOpen(false);
                                   }}
                                   className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
@@ -1208,7 +1185,7 @@ export default function App() {
                                 </button>
                                 <button
                                   onClick={() => {
-                                    navigateToSolutions(4, 'polaris');
+                                    navigateToSolutions(3, 'polaris');
                                     setMobileMenuOpen(false);
                                   }}
                                   className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
@@ -1222,56 +1199,7 @@ export default function App() {
                           </AnimatePresence>
                         </div>
 
-                        {/* 오토바이 */}
-                        {/* 오토바이 */}
-                        <div className="flex flex-col">
-                          <button
-                            onClick={() => setMobileMotorcycleOpen(!mobileMotorcycleOpen)}
-                            className="text-left text-xs font-bold text-slate-400 hover:text-cyan-400 py-1 cursor-pointer flex items-center justify-between bg-transparent border-0 w-full"
-                          >
-                            <div className="flex items-center gap-2">
-                              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0" />
-                              <span>{language === 'en' ? 'Motorcycle' : '오토바이'}</span>
-                            </div>
-                            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 text-slate-450 ${mobileMotorcycleOpen ? 'rotate-180 text-cyan-400' : ''}`} />
-                          </button>
-
-                          <AnimatePresence>
-                            {mobileMotorcycleOpen && (
-                              <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                transition={{ duration: 0.15 }}
-                                className="pl-4 flex flex-col gap-2 pt-1.5 overflow-hidden pb-1"
-                              >
-                                <button
-                                  onClick={() => {
-                                    navigateToSolutions(3);
-                                    setMobileMenuOpen(false);
-                                  }}
-                                  className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
-                                >
-                                  <span className="w-1 h-0.5 bg-cyan-400" />
-                                  {language === 'en' ? 'Hybrid Motorcycle' : '하이브리드 오토바이'}
-                                </button>
-                                
-                                <button
-                                  onClick={() => {
-                                    navigateToSolutions(3);
-                                    setMobileMenuOpen(false);
-                                  }}
-                                  className="text-left text-[11px] font-semibold text-slate-500 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-1.5 bg-transparent border-0"
-                                >
-                                  <span className="w-1 h-0.5 bg-purple-400" />
-                                  {language === 'en' ? 'Electric Motorcycle' : '전기 오토바이'}
-                                </button>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-
-                        {/* 자전거 */}
+                        {/* 하이브리드 이륜차 */}
                         <button
                           onClick={() => {
                             navigateToSolutions(2);
@@ -1279,11 +1207,11 @@ export default function App() {
                           }}
                           className="text-left text-xs font-bold text-slate-400 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-2 bg-transparent border-0"
                         >
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                          {language === 'en' ? 'E-Bicycle' : '자전거'}
+                          <span className="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0" />
+                          {language === 'en' ? 'Hybrid Motorcycle' : '하이브리드 이륜차'}
                         </button>
 
-                        {/* 태양열 */}
+                        {/* 자전거 */}
                         <button
                           onClick={() => {
                             navigateToSolutions(1);
@@ -1291,8 +1219,8 @@ export default function App() {
                           }}
                           className="text-left text-xs font-bold text-slate-400 hover:text-cyan-400 py-1 cursor-pointer flex items-center gap-2 bg-transparent border-0"
                         >
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
-                          {language === 'en' ? 'Solar Energy' : '태양열'}
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                          {language === 'en' ? 'Self-Charging E-Bicycle' : '자가충전 전기자전거'}
                         </button>
                       </motion.div>
                     )}
@@ -1829,8 +1757,8 @@ export default function App() {
           <p className="text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
             {t(
               'about.desc',
-              'MOASD Co., Ltd. integrates peerless US CAS-registered SAM new material intellectual properties, high-density hybrid supercapacitor fab lines, and eco-friendly electric mobility manufacturing infrastructures to demonstrate tomorrow\'s green energy patterns today.',
-              '(주)MOASD는 독보적인 미국 CAS 등재 SAM 신소재 지적재산권과 하이브리드 슈퍼커패시터 최고 팹 라인, 그리고 친환경 전기 모빌리티 제조 인프라를 통합하여 내일의 녹색 에너지를 오늘 실증 선포합니다.'
+              'MOASD Co., Ltd. integrates peerless US CAS-registered SAM new material intellectual properties, high-density power bank manufacturing lines, and eco-friendly electric mobility manufacturing infrastructures to demonstrate tomorrow\'s green energy patterns today.',
+              '(주)MOASD는 독보적인 미국 CAS 등재 SAM 신소재 지적재산권과 고성능 파워뱅크 양산 팹 라인, 그리고 친환경 전기 모빌리티 제조 인프라를 통합하여 내일의 녹색 에너지를 오늘 실증 선포합니다.'
             )}
           </p>
         </div>
@@ -1928,14 +1856,14 @@ export default function App() {
           <p className="text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
             {t(
               'solutions.desc',
-              'Explore our 5 core technology and industrial portfolios, including renewable grids, hybrid supercapacitor cells, e-mobility packages, US CAS-registered SAM materials, and discharge-free HGE3D00 generators.',
-              '신재생에너지 스마트 그리드와 하이브리드 슈퍼커패시터 셀, 전기 모빌리티 구동체, 미국 CAS 공인 SAM 신소재의 유기적 공급 등 5가지 핵심 비즈니스 포트폴리오를 탐색해 보십시오.'
+              'Explore our 5 core technology and industrial portfolios, including renewable grids, high-capacity power banks, e-mobility portfolios, US CAS-registered SAM materials, and discharge-free HGE3D00 generators.',
+              '신재생에너지 스마트 그리드와 고성능 파워뱅크, 전기 모빌리티 구동체, 미국 CAS 공인 SAM 신소재의 유기적 공급 등 5가지 핵심 비즈니스 포트폴리오를 탐색해 보십시오.'
             )}
           </p>
         </div>
 
         {/* Tabbed Solutions detailed content rendering */}
-        {activeSolutionIdx === 4 && activeSubTab ? (
+        {activeSolutionIdx === 3 && activeSubTab ? (
           <SamPolishingSolutions activeTab={activeSubTab} setActiveTab={setActiveSubTab} />
         ) : (
           <ThreeDCarousel activeIndex={activeSolutionIdx} setActiveIndex={setActiveSolutionIdx} />
@@ -1943,265 +1871,584 @@ export default function App() {
       </section>
     </div>
   ) : currentTab === 'partners' ? (
-    <div className="pt-24 min-h-[85vh] bg-slate-950">
-      <section className="py-12 max-w-7xl mx-auto px-6 relative space-y-12">
-        {/* Header */}
-        <div className="text-center mb-12 space-y-3">
+    <div className="pt-24 min-h-[85vh] bg-slate-950 relative">
+      {/* Sticky Right-side Dot Navigation for Desktop */}
+      <div className="fixed right-6 top-1/2 -translate-y-1/2 z-40 hidden xl:flex flex-col gap-3.5 bg-slate-900/60 border border-white/5 p-4 rounded-full backdrop-blur-md shadow-xl">
+        {MOASD_CASES.map((caseRef, index) => (
+          <button
+            key={caseRef.id}
+            onClick={() => {
+              const el = document.getElementById(`case-section-${caseRef.id}`);
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }}
+            title={language === 'en' ? caseRef.clientEn : caseRef.client}
+            className="w-3.5 h-3.5 rounded-full transition-all border border-cyan-400/30 hover:border-cyan-400 hover:bg-cyan-400/80 bg-slate-950 flex items-center justify-center group relative cursor-pointer"
+          >
+            <span className="absolute right-7 bg-slate-950/90 border border-white/10 text-[10px] font-mono text-cyan-400 font-extrabold px-3 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-md">
+              0{index + 1} • {language === 'en' ? caseRef.clientEn : caseRef.client}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <section className="py-8 max-w-7xl mx-auto px-6 relative space-y-12">
+        {/* Main Header */}
+        <div className="text-center mb-6 space-y-3 border-b border-white/5 pb-10">
           <div className="inline-flex items-center gap-1 text-xs text-cyan-400 font-mono font-bold tracking-widest uppercase bg-cyan-950/40 border border-cyan-400/20 px-3 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /> PARTNER RECORDS
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /> PARTNER ECOSYSTEM
           </div>
-          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight animate-fade-in">
+          <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight animate-fade-in">
             {t('partners.title', 'Partner Collaborations', '협력기업')}
           </h2>
-          <p className="text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
+          <p className="text-sm md:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed font-medium">
             {t(
               'partners.desc',
-              'Explore the details of real-time power metrics, stabilization factors, and operational cost savings achieved by our partners.',
+              'Explore our core partner network, collaborating on breakthrough energy and manufacturing integrations.',
               '주요 협력기업들이 (주)MOASD와 연계하여 축적해 온 실증 오퍼레이팅 성과 및 전력 혁신 지표 기록서입니다.'
             )}
           </p>
+          
+          {/* Quick Smooth Anchor Link Jump Bar */}
+          <div className="pt-5 flex flex-wrap justify-center gap-3.5">
+            {MOASD_CASES.map((caseRef, idx) => (
+              <button
+                key={caseRef.id}
+                onClick={() => {
+                  const el = document.getElementById(`case-section-${caseRef.id}`);
+                  if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+                }}
+                className="px-4 py-2 rounded-xl bg-slate-900 border border-white/5 hover:border-cyan-400/30 text-xs text-slate-300 hover:text-white font-bold transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <span className="text-[10px] font-mono text-cyan-400">0{idx + 1}</span>
+                {language === 'en' ? caseRef.clientEn : caseRef.client}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Cooperating Enterprises Interactive Section Block */}
-        <div id="partners-section-root" className="w-full transition-all">
-          {activeTabCase === null ? (
-            /* 3 Grid Multi-Enterprise selector cards (Initially shown, extremely highly-polished UI) */
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {MOASD_CASES.map((caseRef, index) => {
-                const isCase1 = caseRef.id === 'case-1';
-                const isCase2 = caseRef.id === 'case-2';
+        {/* Sequentially stacked full-page sections */}
+        <div className="space-y-24">
+          {/* 1. (주)두현인프라텍 (Doohyun Infratech Co., Ltd.) */}
+          <div 
+            id="case-section-case-1" 
+            className="min-h-[85vh] lg:min-h-screen flex flex-col justify-center py-10 lg:py-16 border-b border-white/5 last:border-0 relative"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 35 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6 }}
+              className="border border-white/5 bg-slate-900/15 backdrop-blur-xl p-6 md:p-8 lg:p-12 rounded-3xl space-y-8 shadow-2xl relative overflow-hidden"
+            >
+              {/* Top ambient glow */}
+              <div className="absolute top-0 left-1/4 w-96 h-48 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+
+              {/* Header */}
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-5 relative z-10">
+                <div className="space-y-1.5 text-left">
+                  <div className="flex flex-wrap items-center gap-2.5 text-xs text-cyan-400 font-mono">
+                    <span className="font-bold uppercase tracking-wider bg-slate-900 border border-white/5 px-2.5 py-1 rounded-md">
+                      {language === 'en' ? 'COOPERATING ENTERPRISE 01' : '핵심 협력기업 01'}
+                    </span>
+                    <span>• {language === 'en' ? 'Official Corporate Profile' : '공식 기업 소개'}</span>
+                  </div>
+                  <h3 className="text-2xl md:text-3.5xl font-black text-white tracking-tight leading-tight">
+                    {language === 'en' ? 'Doohyun Infratech Co., Ltd.' : '두현인프라텍(주)'}
+                  </h3>
+                </div>
                 
-                const cardBorder = isCase1 
-                  ? 'border-blue-500/25 hover:border-blue-400/50' 
-                  : isCase2 
-                    ? 'border-emerald-500/25 hover:border-emerald-400/50' 
-                    : 'border-cyan-500/25 hover:border-cyan-400/50';
-
-                const accentText = isCase1 
-                  ? 'text-blue-400' 
-                  : isCase2 
-                    ? 'text-emerald-400' 
-                    : 'text-cyan-400';
-
-                const bgGradient = isCase1 
-                  ? 'from-blue-950/20 via-slate-900/40 to-slate-950/90 hover:from-blue-950/30' 
-                  : isCase2 
-                    ? 'from-emerald-950/20 via-slate-900/40 to-slate-950/90 hover:from-emerald-950/30' 
-                    : 'from-cyan-950/20 via-slate-900/40 to-slate-950/90 hover:from-cyan-950/30';
-
-                return (
-                  <button
-                    key={caseRef.id}
-                    onClick={() => {
-                      setActiveTabCase(caseRef.id);
-                      const rootEl = document.getElementById('partners-section-root');
-                      if (rootEl) {
-                        rootEl.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }}
-                    className={`group relative p-6 md:p-8 rounded-3xl border ${cardBorder} bg-gradient-to-b ${bgGradient} transition-all duration-300 shadow-xl backdrop-blur-md flex flex-col justify-between text-left h-full min-h-[290px] hover:-translate-y-1 cursor-pointer`}
-                  >
-                    <div className="space-y-4 w-full">
-                      <div className="flex justify-between items-start">
-                        <div className={`p-3 rounded-2xl bg-white/5 border border-white/5 ${accentText}`}>
-                          <Building2 className="w-5 h-5" />
-                        </div>
-                        <span className="text-[10px] font-mono font-bold text-slate-500">0{index + 1}</span>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <span className={`text-[9px] font-mono font-extrabold tracking-widest uppercase block ${accentText}`}>
-                          {language === 'en' && caseRef.industryEn ? caseRef.industryEn : caseRef.industry}
-                        </span>
-                        <h4 className="text-lg md:text-xl font-black text-white tracking-tight leading-snug group-hover:text-cyan-300 transition-colors">
-                          {language === 'en' && caseRef.clientEn ? caseRef.clientEn : caseRef.client}
-                        </h4>
-                        <p className="text-xs text-slate-400 leading-relaxed font-normal line-clamp-2 pt-1">
-                          {language === 'en' && caseRef.challengeEn ? caseRef.challengeEn : caseRef.challenge}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="pt-5 border-t border-white/5 mt-6 flex items-center justify-between w-full">
-                      <span className="text-[11px] font-bold text-slate-400 group-hover:text-white transition-colors">
-                        {language === 'en' ? 'Open Enterprise Log →' : '실증 기록서 열람 →'}
-                      </span>
-                      <div className={`p-1.5 rounded-lg bg-white/5 border border-white/5 group-hover:bg-cyan-400 group-hover:text-slate-950 transition-all ${accentText}`}>
-                        <ArrowUpRight className="w-3.5 h-3.5" />
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-            /* Active Selected Enterprise Mode: Renders top task bar + chosen enterprise details */
-            <div className="space-y-5 animate-fade-in">
-              
-              {/* Top Navigation Bar: Back to List + Segmented Switcher (Zero Scroll layout) */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3.5 rounded-2xl bg-slate-950/60 border border-white/10 backdrop-blur-md">
-                <button
-                  onClick={() => setActiveTabCase(null)}
-                  className="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl cursor-pointer transition-all self-start"
-                >
-                  <ArrowLeft className="w-4 h-4 text-cyan-400" />
-                  {language === 'en' ? 'Back to Enterprise List' : '← 협력기업 목록으로 돌아가기'}
-                </button>
-
-                {/* Switch easily on the fly */}
-                <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-900/80 border border-white/5 rounded-xl">
-                  {MOASD_CASES.map((caseRef) => {
-                    const isCurActive = caseRef.id === activeTabCase;
-                    return (
-                      <button
-                        key={caseRef.id}
-                        onClick={() => setActiveTabCase(caseRef.id)}
-                        className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                          isCurActive
-                            ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-400/15'
-                            : 'text-slate-400 hover:text-white hover:bg-white/5'
-                        }`}
-                      >
-                        {language === 'en' && caseRef.clientEn ? caseRef.clientEn : caseRef.client}
-                      </button>
-                    );
-                  })}
+                <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/20 text-xs text-cyan-400 font-bold font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                  PARTNER SINCE 2024
                 </div>
               </div>
 
-              {/* Seamless, High-End Details board */}
-              <AnimatePresence mode="wait">
-                {MOASD_CASES.filter(c => c.id === activeTabCase).map((activeStudy) => (
-                  <motion.div
-                    key={activeStudy.id}
-                    initial={{ opacity: 0, scale: 0.99, y: 8 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.99, y: -8 }}
-                    transition={{ duration: 0.25 }}
-                    className="space-y-6"
-                  >
-                    {/* The main details panel */}
-                    <div className="border border-white/5 bg-slate-900/15 backdrop-blur-xl p-6 md:p-8 rounded-3xl space-y-6">
-                      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-5">
-                        <div className="space-y-1.5 text-left">
-                          <div className="flex flex-wrap items-center gap-2.5 text-xs text-cyan-400 font-mono">
-                            <span className="font-bold uppercase tracking-wider bg-slate-900 border border-white/5 px-2.5 py-1 rounded-md">
-                              {language === 'en' && activeStudy.industryEn ? activeStudy.industryEn : activeStudy.industry}
-                            </span>
-                            <span>• {language === 'en' ? 'Verified Success Reference' : '정합 수렴 검증 완료'}</span>
-                          </div>
-                          <h3 className="text-2xl font-black text-white tracking-tight leading-tight">
-                            {language === 'en' && activeStudy.clientEn ? activeStudy.clientEn : activeStudy.client}
-                          </h3>
-                        </div>
-                        
-                        <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-xs text-emerald-400 font-bold font-mono">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                          ACTIVE REPORT
-                        </div>
-                      </div>
+              {/* Two-column layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch relative z-10">
+                {/* Left column: Text Content */}
+                <div className="lg:col-span-7 space-y-6 text-left flex flex-col justify-center">
+                  {/* Slogan Quote Banner */}
+                  <div className="relative pl-5 border-l-4 border-cyan-400 py-3 bg-gradient-to-r from-cyan-950/25 to-transparent rounded-r-2xl">
+                    <p className="text-lg md:text-xl font-extrabold text-white tracking-tight leading-snug">
+                      {language === 'en' 
+                        ? '"We will continuously research based on experience gained through numerous failures."' 
+                        : '"수많은 실패를 통한 경험을 바탕으로 끊임없이 연구하겠습니다."'
+                      }
+                    </p>
+                  </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                        {/* Left: Challenge and Solution and Result info boxes */}
-                        <div className="space-y-5 text-left">
-                          {/* Issue Box (Red left line) */}
-                          <div className="pl-4 border-l-2 border-red-500/50 space-y-1">
-                            <span className="text-[10px] font-mono text-slate-500 font-bold tracking-wider block uppercase">
-                              {language === 'en' ? 'INITIALLY IDENTIFIED FRICTION' : '기존 핵심 해결 장벽'}
-                            </span>
-                            <p className="text-xs text-slate-300 leading-relaxed font-medium">
-                              {language === 'en' && activeStudy.challengeEn ? activeStudy.challengeEn : activeStudy.challenge}
-                            </p>
-                          </div>
+                  {/* Main Introduction Body Paragraphs */}
+                  <div className="space-y-4 text-xs md:text-[13px] text-slate-300 leading-relaxed font-medium">
+                    <p>
+                      {language === 'en' ? (
+                        <>
+                          The trend of <strong className="text-cyan-400 font-bold">renewable energy</strong> is constantly evolving. Energy has undergone continuous transformation from fossil fuels to oil, nuclear power, and renewable wind power.
+                        </>
+                      ) : (
+                        <>
+                          <strong className="text-cyan-400 font-bold">신재생 에너지</strong>의 트렌드는 지속적으로 진화를 하고 있습니다. 에너지는 화석에서 석유로 원자력, 신재생 풍력으로 끊임없이 변화를 거듭하여 왔습니다.
+                        </>
+                      )}
+                    </p>
+                    <p>
+                      {language === 'en' ? (
+                        <>
+                          Larger-scale, higher-power plants are being built, transitioning to eco-friendly electric energy, and the production capacity of electric energy has become a benchmark that determines a nation's status.
+                        </>
+                      ) : (
+                        <>
+                          대규모, 더 많은 파워가 건설되고, 친환경적인 전기 에너지로 바뀌어 가고 있으며, 전기 에너지의 생산 능력이 국가의 위상을 결정하는 가늠자가 되고 있습니다.
+                        </>
+                      )}
+                    </p>
+                    <p>
+                      {language === 'en' ? (
+                        <>
+                          With the goal of responding to these demands of our times, we have continuously researched ways to store energy, and based on our experience gained through numerous failures, we have developed a more <strong className="text-white font-bold">progressive energy storage technology</strong>.
+                        </>
+                      ) : (
+                        <>
+                          우리는 이러한 시대적 요구 사항에 부응해 나간다는 목표로, 에너지를 저장할 수 있는 방법에 대하여 끊임없이 연구를 하고, 수많은 실패를 통한 경험을 바탕으로 하여 보다 <strong className="text-white font-bold">진보적인 에너지 저장기술</strong>을 개발하였습니다.
+                        </>
+                      )}
+                    </p>
+                    <p>
+                      {language === 'en' ? (
+                        <>
+                          The wisest way to store energy is through <strong className="text-cyan-400 font-bold">supercapacitors</strong>, and we will continue to manufacture various energy storage devices utilizing them. Supercapacitors will be the energy storage devices that are faster, have a longer lifespan, and prioritize the health of the global environment.
+                        </>
+                      ) : (
+                        <>
+                          에너지의 저장에서 가장 현명한 방법은 <strong className="text-cyan-400 font-bold">슈퍼 커패시터</strong>이며, 이를 이용한 다양한 에너지 저장 장치를 생산해 나갈 것입니다. 보다 빠르게, 보다 긴 수명을 가지고 있으면서도, 지구 환경의 건강을 생각하는 에너지 저장 장치는 슈퍼 커패시터가 될 것입니다.
+                        </>
+                      )}
+                    </p>
+                    <p>
+                      {language === 'en' ? (
+                        <>
+                          Along with our innovative energy storage technology and the advancement of the materials industry, our company will bring about a rapid transition from secondary batteries to the era of supercapacitors. We strongly believe that <strong className="text-white font-bold">hybrid supercapacitor energy storage</strong> is the absolute best way to protect the global environment.
+                        </>
+                      ) : (
+                        <>
+                          당사는 우리가 가지고 있는 에너지 저장기술의 신기술과 함께 소재산업의 발전에 따라서, 2차 배터리에서 슈퍼 커패시터의 시대로 급격한 변화를 가져올 것이며, 지구의 환경을 지키는 최선의 방법이 <strong className="text-white font-bold">하이브리드 슈퍼 커패시터의 에너지 저장</strong>임이 확실하다고 생각합니다.
+                        </>
+                      )}
+                    </p>
+                    <p>
+                      {language === 'en' ? (
+                        <>
+                          We, Doohyun Infratech, will contribute to <strong className="text-cyan-400 font-bold">sustaining a prosperous life for humanity</strong> by creating energy storage technologies needed by a world dedicated to human life.
+                        </>
+                      ) : (
+                        <>
+                          우리 두현인프라텍은 인간의 생활을 위한 세상이 필요로 하는 에너지 저장기술을 만들어 나감으로써 <strong className="text-cyan-400 font-bold">인류의 윤택한 삶이 지속 가능</strong>하도록 기여해 나갈 것입니다.
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </div>
 
-                          {/* Solution Applied Box (Cyan left line) */}
-                          <div className="pl-4 border-l-2 border-cyan-400/50 space-y-1">
-                            <span className="text-[10px] font-mono text-cyan-400/80 font-bold tracking-wider block uppercase">
-                              {language === 'en' ? 'MOASD APPLIED MEDICINE' : 'MOASD 적용 핵심 솔루션'}
-                            </span>
-                            <p className="text-xs text-cyan-300 leading-relaxed font-medium">
-                              {language === 'en' && activeStudy.solutionEn ? activeStudy.solutionEn : activeStudy.solution}
-                            </p>
-                          </div>
+                {/* Right column: Image ONLY with Admin controls */}
+                <div className="lg:col-span-5 flex flex-col justify-center">
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[4/3] lg:h-[480px] w-full shadow-2xl flex items-center justify-center">
+                    <img 
+                      src={partnerImages['case-1'] || "/src/assets/images/generator_assembly_line_1781624380514.jpg"} 
+                      alt="Doohyun Infratech Corporate Visual"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                    
 
-                          {/* Result Summary Box (Green left line) */}
-                          <div className="pl-4 border-l-2 border-emerald-500/50 space-y-1">
-                            <span className="text-[10px] font-mono text-emerald-400 font-bold tracking-wider block uppercase">
-                              {language === 'en' ? 'RESULT & IMPACT GAINED' : '실증 개선 성과 수치'}
-                            </span>
-                            <p className="text-xs text-emerald-300 font-semibold leading-relaxed">
-                              {language === 'en' && activeStudy.resultEn ? activeStudy.resultEn : activeStudy.result}
-                            </p>
-                          </div>
-                        </div>
 
-                        {/* Right: Metrics graphics */}
-                        <div className="space-y-4 p-5 rounded-2xl bg-slate-900/60 border border-white/5 text-left">
-                          <h4 className="text-xs font-mono font-bold tracking-wider text-slate-400 uppercase mb-3">
-                            {language === 'en' ? 'Key Optimization Metrics Active' : '핵심 연계 최적화 지표'}
-                          </h4>
-
-                          {activeStudy.metrics.map((metric, mIdx) => {
-                            const label = language === 'en' && metric.labelEn ? metric.labelEn : metric.label;
-                            let valueStr = metric.value;
-                            if (language === 'en') {
-                              valueStr = valueStr
-                                .replace('초', 's')
-                                .replace('연장', ' Ext')
-                                .replace('격감', ' Cut')
-                                .replace('절감', ' Saved');
-                            }
-
-                            return (
-                              <div key={mIdx} className="space-y-2 p-3 rounded-lg bg-slate-950/80 border border-white/5 flex flex-col">
-                                <div className="flex justify-between items-center text-xs">
-                                  <span className="font-semibold text-slate-300">{label}</span>
-                                  <div className="flex items-center gap-1.5">
-                                    <span className={`font-extrabold font-mono tracking-tight text-right ${
-                                      metric.trend === 'up' ? 'text-emerald-400' : 'text-cyan-400'
-                                    }`}>
-                                      {valueStr}
-                                    </span>
-                                    <div className={`w-1.5 h-1.5 rounded-full ${
-                                      metric.trend === 'up' ? 'bg-emerald-400 animate-pulse' : 'bg-cyan-400'
-                                    }`} />
-                                  </div>
-                                </div>
-
-                                {/* Visual Bar chart utilizing HTML divs */}
-                                <div className="w-full h-1 bg-slate-900 rounded-full overflow-hidden">
-                                  <motion.div 
-                                    initial={{ width: 0 }}
-                                    animate={{ width: metric.trend === 'up' ? '88%' : '20%' }}
-                                    transition={{ duration: 0.8, delay: mIdx * 0.15 }}
-                                    className={`h-full rounded-full ${
-                                      metric.trend === 'up' ? 'bg-gradient-to-r from-emerald-500/40 to-emerald-400' : 'bg-gradient-to-r from-cyan-500/40 to-cyan-400'
-                                    }`}
-                                  />
-                                </div>
-                              </div>
-                            );
-                          })}
-
-                          {/* Simulated Growth Trend Arrow */}
-                          <div className="mt-2 text-center text-[10px] font-mono text-slate-500 uppercase flex items-center justify-center gap-1 flex-row">
-                            <ThumbsUp className="w-3.5 h-3.5 text-cyan-400" /> SYSTEM LEVEL: ACCELERATED SUCCESS
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="pt-5 border-t border-white/5 text-[10px] text-slate-500 font-mono text-left">
-                        {t(
-                          'cases.disclaimer',
-                          '※ This information consists of actual operating logs adjusted under our standard information safety protocols.',
-                          '※ 해당 정보는 정보 관리 협약 하에 가공 수치 조정 처리된 실증 오퍼레이팅 기록서입니다.'
+                    {/* Admin Image control overlay */}
+                    {isAdminUser && (
+                      <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+                        <label className="p-2.5 rounded-xl bg-slate-950/80 hover:bg-slate-900 text-cyan-400 border border-white/15 cursor-pointer shadow-lg hover:shadow-cyan-400/25 transition-all flex items-center gap-1.5 text-xs font-bold">
+                          <Upload className="w-4 h-4" />
+                          <span>{language === 'en' ? 'Upload' : '업로드/수정'}</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                handlePartnerImageUpload('case-1', e.target.files[0]);
+                              }
+                            }}
+                          />
+                        </label>
+                        {partnerImages['case-1'] && (
+                          <button
+                            onClick={() => handlePartnerImageDelete('case-1')}
+                            className="p-2.5 rounded-xl bg-slate-950/80 hover:bg-red-500/25 text-red-400 hover:text-red-300 border border-white/15 cursor-pointer shadow-lg transition-all flex items-center gap-1.5 text-xs font-bold"
+                            title={language === 'en' ? 'Delete / Reset' : '이미지 삭제'}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span>{language === 'en' ? 'Delete' : '삭제'}</span>
+                          </button>
                         )}
                       </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* 2. (주)신화에너지솔루션 (Shinhwa Energy Solution Co., Ltd.) */}
+          <div 
+            id="case-section-case-2" 
+            className="min-h-[85vh] lg:min-h-screen flex flex-col justify-center py-10 lg:py-16 border-b border-white/5 last:border-0 relative"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 35 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6 }}
+              className="border border-white/5 bg-slate-900/15 backdrop-blur-xl p-6 md:p-8 lg:p-12 rounded-3xl space-y-8 shadow-2xl relative overflow-hidden"
+            >
+              {/* Top ambient glow */}
+              <div className="absolute top-0 left-1/3 w-96 h-48 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+
+              {/* Header */}
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-5 relative z-10">
+                <div className="space-y-1.5 text-left">
+                  <div className="flex flex-wrap items-center gap-2.5 text-xs text-emerald-400 font-mono">
+                    <span className="font-bold uppercase tracking-wider bg-slate-900 border border-white/5 px-2.5 py-1 rounded-md">
+                      {language === 'en' ? 'COOPERATING ENTERPRISE 02' : '핵심 협력기업 02'}
+                    </span>
+                    <span>• {language === 'en' ? 'Official Corporate Profile' : '공식 기업 소개'}</span>
+                  </div>
+                  <h3 className="text-2xl md:text-3.5xl font-black text-white tracking-tight leading-tight">
+                    {language === 'en' ? 'Shinhwa Energy Solution Co., Ltd.' : '(주)신화에너지솔루션'}
+                  </h3>
+                </div>
+                
+                <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-400/20 text-xs text-emerald-400 font-bold font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  PARTNER SINCE 2024
+                </div>
+              </div>
+
+              {/* Two-column layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch relative z-10">
+                {/* Left column: Text Content */}
+                <div className="lg:col-span-7 space-y-6 text-left flex flex-col justify-center">
+                  {/* Slogan Quote Banner */}
+                  <div className="relative pl-5 border-l-4 border-emerald-400 py-3 bg-gradient-to-r from-emerald-950/25 to-transparent rounded-r-2xl">
+                    <p className="text-lg md:text-xl font-extrabold text-white tracking-tight leading-snug">
+                      {language === 'en' 
+                        ? '"Shinhwa Energy Solution: An Eco-Friendly Energy Leader Restoring Nature and Leading a Sustainable Future"' 
+                        : '"죽어가는 자연을 살리고 지속 가능한 미래를 선도하는 친환경 에너지 리더, (주)신화에너지솔루션"'
+                      }
+                    </p>
+                  </div>
+
+                  {/* Main Introduction Body Paragraphs */}
+                  <div className="space-y-4 text-xs md:text-[13px] text-slate-300 leading-relaxed font-medium">
+                    <p>
+                      {language === 'en' ? (
+                        <>
+                          Recognizing the gravity of global warming and climate change, the entire world is moving toward carbon neutrality. Within this massive shift, <strong className="text-white font-bold">Shinhwa Energy Solution Co., Ltd.</strong> is striving as a specialized enterprise in low-carbon core infrastructure to hand over a healthy planet to future generations.
+                        </>
+                      ) : (
+                        <>
+                          지구 온난화와 기후 변화로 인한 심각성을 인식하고, 전 세계가 탄소 중립을 향해 나아가고 있습니다. 이 거대한 흐름 속에서 <strong className="text-white font-bold">(주)신화에너지솔루션</strong>은 탄소 중립 실현을 위한 저탄소 핵심 인프라 분야의 전문 기업으로서, 미래 세대에게 건강한 지구를 물려주기 위해 노력하고 있습니다.
+                        </>
+                      )}
+                    </p>
+                    <p>
+                      {language === 'en' ? (
+                        <>
+                          Our company possesses key technology to resolve the chronic issue of irregular output fluctuations in renewable power generation such as wind and solar energy. Through smart grid-based intelligent power grid systems and high-performance electricity storage technologies, we enable highly stable power distribution and construct low-carbon infrastructures to ensure clean energy is utilized efficiently without waste. This is a technology that contributes to building a sustainable energy ecosystem that the Earth can bear, going far beyond mere energy supply.
+                        </>
+                      ) : (
+                        <>
+                          저희 기업은 풍력과 태양광 등 신재생에너지 발전의 고질적인 문제였던 불규칙한 출력 변동을 해결하는 핵심 기술력을 보유하고 있습니다. 스마트 그리드 기반의 지능형 전력망 기술과 고성능 축전 기술을 통해 안정적인 전력 공급을 가능하게 하며, 깨끗한 에너지가 낭비 없이 효율적으로 사용될 수 있도록 저탄소 인프라를 구축합니다. 이는 단순한 에너지 공급을 넘어, 지구가 감당할 수 있는 지속 가능한 에너지 생태계를 만드는 데 기여하는 기술입니다.
+                        </>
+                      )}
+                    </p>
+                    <p>
+                      {language === 'en' ? (
+                        <>
+                          Rather than settling for the present, <strong className="text-emerald-400 font-bold">Shinhwa Energy Solution</strong> is dedicating its efforts to innovative item development and research with a mindset that prioritizes our dying nature and environment. We aim to discover new materials and technologies that will serve as the foundation of future industries, propose innovative solutions for climate crisis response through proactive research and development (R&D), and leap forward as an industry-leading eco-friendly enterprise.
+                        </>
+                      ) : (
+                        <>
+                          <strong className="text-emerald-400 font-bold">(주)신화에너지솔루션</strong>은 현재에 안주하지 않고, 죽어가는 자연과 환경을 먼저 생각하는 마음으로 획기적인 아이템 개발과 연구에 매진하고 있습니다. 미래 산업의 기반이 될 신소재와 신기술을 발굴하고, 선제적인 연구개발(R&D)을 통해 기후 위기 대응을 위한 혁신적인 솔루션을 제시하며, 업계를 선도하는 친환경 선도기업으로 도약하고자 합니다.
+                        </>
+                      )}
+                    </p>
+                    <p>
+                      {language === 'en' ? (
+                        <>
+                          We dream of a sustainable future where human prosperity and environmental preservation coexist. We ask for your keen interest and support in our valuable journey toward clean energy. Shinhwa Energy Solution will walk beside you so that the Earth can breathe once again.
+                        </>
+                      ) : (
+                        <>
+                          인류의 번영과 환경 보전이 함께할 수 있는 지속 가능한 미래를 꿈꿉니다. 깨끗한 에너지를 향한 여정, (주)신화에너지솔루션의 가치 있는 도전에 많은 관심과 성원을 부탁드립니다. 지구가 다시 숨 쉴 수 있도록, (주)신화에너지솔루션이 함께하겠습니다.
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right column: Image ONLY with Admin controls */}
+                <div className="lg:col-span-5 flex flex-col justify-center">
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[4/3] lg:h-[480px] w-full shadow-2xl flex items-center justify-center">
+                    <img 
+                      src={partnerImages['case-2'] || "/src/assets/images/supercapacitor_factory_1781621879548.jpg"} 
+                      alt="Shinhwa Energy Solution Corporate Visual"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                    
+
+
+                    {/* Admin Image control overlay */}
+                    {isAdminUser && (
+                      <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+                        <label className="p-2.5 rounded-xl bg-slate-950/80 hover:bg-slate-900 text-cyan-400 border border-white/15 cursor-pointer shadow-lg hover:shadow-cyan-400/25 transition-all flex items-center gap-1.5 text-xs font-bold">
+                          <Upload className="w-4 h-4" />
+                          <span>{language === 'en' ? 'Upload' : '업로드/수정'}</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                handlePartnerImageUpload('case-2', e.target.files[0]);
+                              }
+                            }}
+                          />
+                        </label>
+                        {partnerImages['case-2'] && (
+                          <button
+                            onClick={() => handlePartnerImageDelete('case-2')}
+                            className="p-2.5 rounded-xl bg-slate-950/80 hover:bg-red-500/25 text-red-400 hover:text-red-300 border border-white/15 cursor-pointer shadow-lg transition-all flex items-center gap-1.5 text-xs font-bold"
+                            title={language === 'en' ? 'Delete / Reset' : '이미지 삭제'}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span>{language === 'en' ? 'Delete' : '삭제'}</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* 3. SAM신소재R&D (SAM Materials R&D) */}
+          <div 
+            id="case-section-case-3" 
+            className="min-h-[85vh] lg:min-h-screen flex flex-col justify-center py-10 lg:py-16 border-b border-white/5 last:border-0 relative"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 35 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6 }}
+              className="border border-white/5 bg-slate-900/15 backdrop-blur-xl p-6 md:p-8 lg:p-12 rounded-3xl space-y-8 shadow-2xl relative overflow-hidden"
+            >
+              {/* Top ambient glow */}
+              <div className="absolute top-0 left-1/2 w-96 h-48 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+
+              {/* Header */}
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-5 relative z-10">
+                <div className="space-y-1.5 text-left">
+                  <div className="flex flex-wrap items-center gap-2.5 text-xs text-cyan-400 font-mono">
+                    <span className="font-bold uppercase tracking-wider bg-slate-900 border border-white/5 px-2.5 py-1 rounded-md">
+                      {language === 'en' ? 'COOPERATING ENTERPRISE 03' : '핵심 협력기업 03'}
+                    </span>
+                    <span>• {language === 'en' ? 'Official Corporate Profile' : '공식 기업 소개'}</span>
+                  </div>
+                  <h3 className="text-2xl md:text-3.5xl font-black text-white tracking-tight leading-tight">
+                    {language === 'en' ? 'SAM Materials R&D' : 'SAM신소재R&D'}
+                  </h3>
+                </div>
+                
+                <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/20 text-xs text-cyan-400 font-bold font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                  PARTNER SINCE 2024
+                </div>
+              </div>
+
+              {/* Two-column layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch relative z-10">
+                {/* Left column: Text Content */}
+                <div className="lg:col-span-7 space-y-6 text-left flex flex-col justify-center">
+                  {/* Slogan Quote Banner */}
+                  <div className="relative pl-5 border-l-4 border-cyan-400 py-3 bg-gradient-to-r from-cyan-950/25 to-transparent rounded-r-2xl">
+                    <p className="text-lg md:text-xl font-extrabold text-white tracking-tight leading-snug">
+                      {language === 'en' 
+                        ? '"SAM (Super Activity Material) - The Core Material of Future Industries, South Korea\'s Peak Technology"' 
+                        : '"SAM(Super Activity Material) - 미래 산업의 핵심 소재, 대한민국 최고 기술"'
+                      }
+                    </p>
+                  </div>
+
+                  {/* Main Introduction Body Paragraphs */}
+                  <div className="space-y-4 text-xs md:text-[13px] text-slate-300 leading-relaxed font-medium">
+                    <p>
+                      {language === 'en' ? (
+                        <>
+                          <strong className="text-cyan-400 font-bold">SAM (Super Activity Material)</strong> is an innovative new substance officially registered with the US CAS, symbolizing South Korea\'s cutting-edge material technology. SAM is attracting immense attention as a core material that drastically improves performance and functionality across existing industries or enables the implementation of completely new technologies.
+                        </>
+                      ) : (
+                        <>
+                          <strong className="text-cyan-400 font-bold">SAM(Super Activity Material)</strong>은 미국 CAS에 정식 등록된 혁신적인 신물질로, 대한민국의 최첨단 소재 기술력을 상징합니다. SAM은 기존 산업 전반에 적용되어 성능과 기능을 획기적으로 개선하거나, 완전히 새로운 기술 구현을 가능하게 하는 핵심 소재로 주목받고 있습니다.
+                        </>
+                      )}
+                    </p>
+
+                    <div className="pt-2">
+                      <h4 className="text-xs font-mono font-bold tracking-wider text-cyan-400 uppercase mb-3 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                        {language === 'en' ? 'Key Application Areas Summary' : '[주요 응용 분야 핵심 요약]'}
+                      </h4>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {[
+                          {
+                            id: 1,
+                            titleKo: "국방",
+                            titleEn: "Defense",
+                            descKo: "육군 탱크, 대포, 총기류의 합금 코팅으로 성능 강화, 해군 잠수함 및 선박 코팅을 통해 따개비 및 염해 방지, 공군 스텔스 기능 및 드론 유체저항/강도 개선.",
+                            descEn: "Reinforcing army tanks, artillery, and firearms alloy coatings; anti-fouling/salt-damage prevention for navy submarines and ships; stealth functions and drone fluid resistance/strength improvements."
+                          },
+                          {
+                            id: 2,
+                            titleKo: "에너지",
+                            titleEn: "Energy",
+                            descKo: "청정에너지 ORC 발전기, 수소 연료, 산업용 보일러 및 스팀 시스템, 축전지 성능 개선.",
+                            descEn: "Clean energy ORC generators, hydrogen fuels, industrial boilers/steam systems, and battery performance enhancement."
+                          },
+                          {
+                            id: 3,
+                            titleKo: "환경",
+                            titleEn: "Environment",
+                            descKo: "화력발전소, 제철소 등의 배기가스 저감, 폐수 수처리 및 악취 제거, 선박평형수 처리.",
+                            descEn: "Emission reduction for power plants and steel mills; wastewater treatment, odor removal, and ballast water treatment."
+                          },
+                          {
+                            id: 4,
+                            titleKo: "건설",
+                            titleEn: "Construction",
+                            descKo: "구조체 기능 개선 및 강도/부식 방지, 해양 구조물, 유리, 냉난방 청정 시스템 적용.",
+                            descEn: "Structural function enhancement, strength improvement, corrosion prevention; marine structures, glass, and HVAC clean systems."
+                          },
+                          {
+                            id: 5,
+                            titleKo: "자동차/고속철도",
+                            titleEn: "Automotive & Rail",
+                            descKo: "수소차 엔진 메니폴드 및 부품 플라스틱, 차량 유리, 공기청정 시스템, 고속열차 브레이크 패드 및 디스크 합금 코팅.",
+                            descEn: "Hydrogen vehicle engine manifolds and plastic parts; vehicle glass, air purification systems, high-speed train brake pads and disk alloy coatings."
+                          },
+                          {
+                            id: 6,
+                            titleKo: "조선/산업설비",
+                            titleEn: "Marine & Plants",
+                            descKo: "선박 스크류 따개비 방지 코팅, 수출 컨테이너, 유전/정유 시설 코팅 및 송유관 부식 방지.",
+                            descEn: "Anti-fouling screw coatings, export containers, oil field/refining facility coatings, and pipeline corrosion prevention."
+                          },
+                          {
+                            id: 7,
+                            titleKo: "농·어·축산/생활",
+                            titleEn: "Agriculture & Daily Life",
+                            descKo: "건조 가공 및 수출 포장 시스템, 기능성 가전(정수기, 가습기), 건강 케어 제품 및 기능성 의류.",
+                            descEn: "Drying processing and export packaging systems; functional appliances (water purifiers, humidifiers), health care products, and functional apparel."
+                          }
+                        ].map((app) => (
+                          <div key={app.id} className="p-3 rounded-xl bg-slate-900/60 border border-white/5 space-y-1">
+                            <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                              <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/40 px-1.5 py-0.5 rounded border border-cyan-400/10">0{app.id}</span>
+                              <span>{language === 'en' ? app.titleEn : app.titleKo}</span>
+                            </div>
+                            <p className="text-[11px] leading-relaxed text-slate-400 font-normal">
+                              {language === 'en' ? app.descEn : app.descKo}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
+
+                    <p className="pt-2">
+                      {language === 'en' ? (
+                        <>
+                          Based on South Korea\'s peak material technology, <strong className="text-cyan-400 font-bold">SAM</strong> will serve as an innovative driving force leading various future industries worldwide and guiding sustainable development.
+                        </>
+                      ) : (
+                        <>
+                          <strong className="text-cyan-400 font-bold">SAM</strong>은 대한민국 최고의 소재 기술력을 바탕으로, 전 세계 다양한 미래 산업을 선도하며 지속 가능한 발전을 이끄는 혁신 동력이 될 것입니다.
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right column: Image ONLY with Admin controls */}
+                <div className="lg:col-span-5 flex flex-col justify-center">
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[4/3] lg:h-[480px] w-full shadow-2xl flex items-center justify-center">
+                    <img 
+                      src={partnerImages['case-3'] || "/src/assets/images/sam_material_lab_1781624876856.jpg"} 
+                      alt="SAM Materials Corporate Visual"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent animate-fade-in" />
+                    
+
+
+                    {/* Admin Image control overlay */}
+                    {isAdminUser && (
+                      <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+                        <label className="p-2.5 rounded-xl bg-slate-950/80 hover:bg-slate-900 text-cyan-400 border border-white/15 cursor-pointer shadow-lg hover:shadow-cyan-400/25 transition-all flex items-center gap-1.5 text-xs font-bold">
+                          <Upload className="w-4 h-4" />
+                          <span>{language === 'en' ? 'Upload' : '업로드/수정'}</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                handlePartnerImageUpload('case-3', e.target.files[0]);
+                              }
+                            }}
+                          />
+                        </label>
+                        {partnerImages['case-3'] && (
+                          <button
+                            onClick={() => handlePartnerImageDelete('case-3')}
+                            className="p-2.5 rounded-xl bg-slate-950/80 hover:bg-red-500/25 text-red-400 hover:text-red-300 border border-white/15 cursor-pointer shadow-lg transition-all flex items-center gap-1.5 text-xs font-bold"
+                            title={language === 'en' ? 'Delete / Reset' : '이미지 삭제'}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span>{language === 'en' ? 'Delete' : '삭제'}</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Disclaimer footer at the bottom of the section */}
+        <div className="pt-8 border-t border-white/5 text-[10px] text-slate-500 font-mono text-center">
+          {t(
+            'cases.disclaimer',
+            '※ This information consists of actual operating logs adjusted under our standard information safety protocols.',
+            '※ 해당 정보는 정보 관리 협약 하에 가공 수치 조정 처리된 실증 오퍼레이팅 기록서입니다.'
           )}
         </div>
       </section>
@@ -2360,7 +2607,7 @@ export default function App() {
               <div className="p-4 border-t border-white/5 bg-slate-950/20 text-xs text-slate-400 leading-relaxed font-sans">
                 <p>
                   {language === 'en' 
-                    ? '(주)MOASD integrates world-class US CAS-registered SAM materials, pioneering state-of-the-art supercapacitor systems.'
+                    ? '(주)MOASD integrates world-class US CAS-registered SAM materials, pioneering state-of-the-art power bank systems.'
                     : '전지 표전 혁신을 이끄는 미국 CAS 공식 제정 독점 SAM 신물질(쌤물질) 설명 홍보 영상자료입니다.'}
                 </p>
               </div>
