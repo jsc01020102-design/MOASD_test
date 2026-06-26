@@ -10,12 +10,12 @@ import {
 } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyClbO1y7NBc86zjiSihvxWgDVitUxagksU",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "lunar-phantasmata-0pnh2.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "lunar-phantasmata-0pnh2",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "lunar-phantasmata-0pnh2.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "956019912231",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:956019912231:web:0218bcb807f0a6a0e5a802"
 };
 
 const app = initializeApp(firebaseConfig);

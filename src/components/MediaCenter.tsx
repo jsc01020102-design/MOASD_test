@@ -270,6 +270,10 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
       return;
     }
 
+    if (!confirm(language === 'en' ? 'Are you sure you want to add this new video resource?' : '이 새로운 영상을 정말로 등록하시겠습니까?')) {
+      return;
+    }
+
     const newVideo: VideoItem = {
       id: `vid-${Date.now()}`,
       title: formTitle,
@@ -308,6 +312,10 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
 
     if (!formTitle.trim() || !formUrl.trim()) {
       setFormError(language === 'en' ? 'Please fill in required fields.' : '영상 제목 및 비디오 주소는 필수입니다.');
+      return;
+    }
+
+    if (!confirm(language === 'en' ? 'Are you sure you want to update this video metadata?' : '이 영상 정보를 실제로 수정하시겠습니까?')) {
       return;
     }
 

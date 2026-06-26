@@ -223,12 +223,17 @@ export default function App() {
   }, [currentTab, registeredUser]);
 
   const handlePartnerImageUpload = (caseId: string, file: File) => {
+    const isEn = language === 'en';
+    if (!confirm(isEn ? `Are you sure you want to upload and apply this image (${file.name})?` : `이 이미지(${file.name})를 실제로 업로드하고 적용하시겠습니까?`)) {
+      return;
+    }
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
       const updated = { ...partnerImages, [caseId]: base64String };
       setPartnerImages(updated);
       localStorage.setItem('moasd_partner_images', JSON.stringify(updated));
+      alert(isEn ? "🎉 Image uploaded and applied successfully!" : "🎉 이미지가 성공적으로 업로드 및 적용되었습니다.");
     };
     reader.readAsDataURL(file);
   };

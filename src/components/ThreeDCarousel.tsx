@@ -101,6 +101,11 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!confirm(isEn ? `Are you sure you want to upload and apply this image (${file.name})?` : `이 이미지(${file.name})를 실제로 업로드하고 적용하시겠습니까?`)) {
+      e.target.value = '';
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();

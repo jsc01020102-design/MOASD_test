@@ -340,6 +340,10 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
       return;
     }
 
+    if (!confirm(language === 'en' ? 'Are you sure you want to publish this notice?' : '이 공지사항을 실제로 작성하여 게시하시겠습니까?')) {
+      return;
+    }
+
     const nextNotice: Notice = {
       id: `notice-${Date.now()}`,
       title: newNoticeTitle.trim(),
@@ -485,6 +489,9 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
     const formattedDate = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
 
     if (editingMaterialId) {
+      if (!confirm(language === 'en' ? 'Are you sure you want to update this technical document?' : '이 기술 자료를 실제로 수정하시겠습니까?')) {
+        return;
+      }
       // Edit existing
       setMaterials(prev => prev.map(m => m.id === editingMaterialId ? {
         ...m,
@@ -502,6 +509,9 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
       triggerToast(language === 'en' ? '🎉 Material updated successfully!' : '🎉 기술 자료가 정상적으로 수정 반영되었습니다.');
       alert(language === 'en' ? '🎉 Material updated successfully!' : '🎉 기술 자료가 정상적으로 수정 완료되었습니다.');
     } else {
+      if (!confirm(language === 'en' ? 'Are you sure you want to register this new technical document?' : '새로운 기술 자료를 전사 데이터에 등록하시겠습니까?')) {
+        return;
+      }
       // Create new
       const newMat: Material = {
         id: `mat-${Date.now()}`,
@@ -563,6 +573,9 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
   };
 
   const processSelectedFile = (file: File) => {
+    if (!confirm(language === 'en' ? `Do you want to stage the file "${file.name}" for upload?` : `"${file.name}" 파일을 정말로 업로드할 임시 파일로 지정하시겠습니까?`)) {
+      return;
+    }
     setMatFileName(file.name);
     
     const reader = new FileReader();
