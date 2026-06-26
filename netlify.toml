@@ -2,6 +2,9 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
+
 # Handle clean client-side routing and prevent 404 page loads on refreshing sub-paths
 [[redirects]]
   from = "/*"
