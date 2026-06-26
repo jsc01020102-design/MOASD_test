@@ -289,6 +289,13 @@ export const MainHeroSlider: React.FC = () => {
         <div className="absolute top-4 right-4 w-4 h-4 border-t border-r border-cyan-400/20" />
         <div className="absolute bottom-4 left-4 w-4 h-4 border-b border-l border-cyan-400/20" />
         <div className="absolute bottom-4 right-4 w-4 h-4 border-b border-r border-cyan-400/20" />
+
+        {/* Video AI generation disclaimer overlay on bottom right */}
+        {videoUrl && (
+          <div className="absolute bottom-4 right-4 text-[10px] sm:text-xs text-white/50 bg-slate-950/40 backdrop-blur-[2px] px-2.5 py-1 rounded-lg border border-white/5 font-sans tracking-wide">
+            {t('hero.ai_video_disclaimer', 'This video is AI-generated and may differ from reality.', '본 영상은 AI로 제작되어서 실제와는 다릅니다.')}
+          </div>
+        )}
       </div>
 
       {/* Full screen Drag & Drop Active Overlay */}
