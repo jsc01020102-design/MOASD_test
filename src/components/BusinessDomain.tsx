@@ -307,20 +307,6 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
   const [pendingImages, setPendingImages] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    // Clear old b-12 image on mount to replace with Wide 7 per client request
-    const savedOnMount = localStorage.getItem('moasd_custom_business_images');
-    if (savedOnMount) {
-      try {
-        const parsed = JSON.parse(savedOnMount);
-        if (parsed['b-12']) {
-          delete parsed['b-12'];
-          localStorage.setItem('moasd_custom_business_images', JSON.stringify(parsed));
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
     const syncState = () => {
       const activeSession = sessionStorage.getItem('moasd_admin_session') !== null;
       setHasAdminSession(activeSession);
