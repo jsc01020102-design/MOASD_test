@@ -27,7 +27,10 @@ import {
   Trash2,
   Upload,
   Image as ImageIcon,
-  Edit
+  Edit,
+  Check,
+  X,
+  AlertTriangle
 } from 'lucide-react';
 
 // Import high-fidelity local images
@@ -62,7 +65,7 @@ const getDefaultImage = (itemId: string): string => {
     case 'b-11': // 정밀 의료 장비 / Medical Devices
       return 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80';
     case 'b-12': // 친환경 코스메틱 / Eco-Cosmetics
-      return 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&w=800&q=80';
+      return 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80';
     default:
       return 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80';
   }
@@ -292,7 +295,7 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
   const [isAdminMode, setIsAdminMode] = useState<boolean>(() => {
     const activeSession = sessionStorage.getItem('moasd_admin_session') !== null;
     const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
-    return activeSession && manualToggle;
+    return activeSession || manualToggle;
   });
 
   const [customImages, setCustomImages] = useState<Record<string, string>>(() => {
@@ -300,13 +303,30 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
     return saved ? JSON.parse(saved) : {};
   });
 
+  // State to hold pending/selected images before they are confirmed
+  const [pendingImages, setPendingImages] = useState<Record<string, string>>({});
+
   useEffect(() => {
+    // Clear old b-12 image on mount to replace with Wide 7 per client request
+    const savedOnMount = localStorage.getItem('moasd_custom_business_images');
+    if (savedOnMount) {
+      try {
+        const parsed = JSON.parse(savedOnMount);
+        if (parsed['b-12']) {
+          delete parsed['b-12'];
+          localStorage.setItem('moasd_custom_business_images', JSON.stringify(parsed));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     const syncState = () => {
       const activeSession = sessionStorage.getItem('moasd_admin_session') !== null;
       setHasAdminSession(activeSession);
 
       const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
-      setIsAdminMode(activeSession && manualToggle);
+      setIsAdminMode(activeSession || manualToggle);
 
       const saved = localStorage.getItem('moasd_custom_business_images');
       if (saved) {
@@ -330,11 +350,6 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
   const handleImageUpload = (itemId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (!confirm(isEn ? `Are you sure you want to upload and apply this image (${file.name})?` : `이 이미지(${file.name})를 실제로 업로드하고 적용하시겠습니까?`)) {
-      e.target.value = '';
-      return;
-    }
 
     // Validate format
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
@@ -373,30 +388,59 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
         const ctx = canvas.getContext('2d');
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
-          // Compress to lightweight high-quality JPEG (0.6 quality ensures standard photos are only ~30-50KB)
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+          // Compress to lightweight high-quality JPEG (0.65 quality ensures standard photos are only ~30-50KB)
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
           
-          try {
-            const updated = {
-              ...customImages,
-              [itemId]: compressedBase64
-            };
-            setCustomImages(updated);
-            localStorage.setItem('moasd_custom_business_images', JSON.stringify(updated));
-            alert(isEn 
-              ? "🎉 Business domain image uploaded and updated successfully!" 
-              : "🎉 사업 영역 이미지가 성공적으로 업로드 및 저장되었습니다.");
-          } catch (error) {
-            console.error("Failed to save to localStorage:", error);
-            alert(isEn
-              ? "Storage space full. Please restore default photos on other domains first."
-              : "저장 공간 용량이 부족합니다. 다른 영역의 사진을 '원본 복원'한 후 다시 시도해주세요.");
-          }
+          setPendingImages(prev => ({
+            ...prev,
+            [itemId]: compressedBase64
+          }));
+          
+          // Reset value to allow uploading the same file if canceled
+          e.target.value = '';
         }
       };
       img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleImageConfirm = (itemId: string) => {
+    const pendingData = pendingImages[itemId];
+    if (!pendingData) return;
+
+    try {
+      const updated = {
+        ...customImages,
+        [itemId]: pendingData
+      };
+      setCustomImages(updated);
+      localStorage.setItem('moasd_custom_business_images', JSON.stringify(updated));
+      
+      // Clear pending
+      setPendingImages(prev => {
+        const next = { ...prev };
+        delete next[itemId];
+        return next;
+      });
+
+      alert(isEn 
+        ? "🎉 Business domain image updated and applied successfully!" 
+        : "🎉 사업 영역 이미지가 성공적으로 반영 및 저장되었습니다.");
+    } catch (error) {
+      console.error("Failed to save to localStorage:", error);
+      alert(isEn
+        ? "Storage space full. Please restore default photos on other domains first."
+        : "저장 공간 용량이 부족합니다. 다른 영역의 사진을 '원본 복원'한 후 다시 시도해주세요.");
+    }
+  };
+
+  const handleImageCancel = (itemId: string) => {
+    setPendingImages(prev => {
+      const next = { ...prev };
+      delete next[itemId];
+      return next;
+    });
   };
 
   const handleImageDelete = (itemId: string) => {
@@ -666,67 +710,303 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
                           {/* Image Section with Admin capability */}
                           <div className={`order-2 ${isEven ? 'order-2' : 'order-2 lg:order-1'}`}>
                             <div className={`relative h-[240px] sm:h-[300px] lg:h-[320px] rounded-2xl overflow-hidden border border-white/10 bg-slate-950 flex items-center justify-center ${activeStyle.glow}`}>
-                              <img
-                                src={imageUrl}
-                                alt={item.title}
-                                className="w-full h-full object-cover transform group-hover:scale-[1.03] transition-transform duration-500"
-                                referrerPolicy="no-referrer"
-                              />
+                              {item.id === 'b-12' && !customImages['b-12'] && !pendingImages['b-12'] ? (
+                                <div className="absolute inset-0 w-full h-full bg-slate-950 overflow-hidden select-none">
+                                  {/* Cafe terrace background with subtle blue-cyan overlay */}
+                                  <div 
+                                    className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity scale-[1.05] group-hover:scale-[1.10] transition-transform duration-[6s]"
+                                    style={{ 
+                                      backgroundImage: 'url("https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80")' 
+                                    }}
+                                  />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-900/50" />
+                                  <div className="absolute inset-0 bg-cyan-950/20 mix-blend-overlay" />
+
+                                  {/* Top S'AMBLIME curved text banner simulation */}
+                                  <div className="absolute top-4 left-0 right-0 px-4 text-center z-10">
+                                    <div className="inline-block border border-cyan-500/20 py-1.5 px-4 bg-slate-950/70 backdrop-blur-md rounded-xl">
+                                      <h5 className="text-[9px] sm:text-[11px] font-sans font-black tracking-[0.15em] text-white/95 uppercase">
+                                        S'AMBLIME: THE NEXT GENERATION OF WOMEN'S HYDRATION & CARE
+                                      </h5>
+                                      <p className="text-[7px] sm:text-[8px] font-mono tracking-[0.2em] text-cyan-400 font-extrabold mt-0.5">
+                                        LBT QUANTUM TECH
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  {/* Center: Beautifully crafted realistic glass cosmetics lineup standing on a tray */}
+                                  <div className="absolute inset-x-0 bottom-6 flex flex-col items-center justify-end h-full pt-16 select-none">
+                                    {/* Glass Bottles Row */}
+                                    <div className="flex items-end justify-center gap-1.5 sm:gap-2.5 z-10 transition-transform duration-500 group-hover:translate-y-[-4px]">
+                                      
+                                      {/* Bottle 1: Foundation (Beige, left) */}
+                                      <div className="flex flex-col items-center group/b1 relative">
+                                        {/* Bottle shadow */}
+                                        <div className="absolute bottom-[-2px] w-6 h-1.5 bg-black/60 rounded-full blur-[1px]" />
+                                        {/* Pump cap */}
+                                        <div className="w-2.5 h-3 bg-slate-200 rounded-t-sm border-b border-amber-500/30" />
+                                        {/* Gold neck */}
+                                        <div className="w-3 h-1 bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500" />
+                                        {/* Glass body */}
+                                        <div className="w-5 h-16 rounded-sm bg-gradient-to-b from-orange-100/95 via-orange-50/90 to-orange-100/95 border border-white/25 shadow-lg flex flex-col justify-between py-1.5 px-0.5 text-center">
+                                          <div className="text-[4px] font-bold text-slate-800 scale-[0.8] leading-none uppercase tracking-[0.05em] origin-center">S'AMB</div>
+                                          <div className="text-[3px] font-mono text-slate-500 scale-[0.6] origin-center mt-[-4px]">LIME</div>
+                                          <div className="text-[2.5px] text-slate-400 scale-[0.6] origin-center">LBT</div>
+                                        </div>
+                                      </div>
+
+                                      {/* Bottle 2: Serum Dropper (Blue low, left-mid) */}
+                                      <div className="flex flex-col items-center group/b2 relative">
+                                        <div className="absolute bottom-[-2px] w-6 h-1.5 bg-black/60 rounded-full blur-[1px]" />
+                                        {/* Bulb */}
+                                        <div className="w-2.5 h-2.5 bg-white rounded-t-md" />
+                                        {/* Gold collar */}
+                                        <div className="w-3 h-1 bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500" />
+                                        {/* Glass body */}
+                                        <div className="w-4.5 h-11 rounded-t-sm rounded-b-md bg-gradient-to-b from-blue-700/90 via-blue-800 to-blue-950 border border-blue-400/30 shadow-lg flex flex-col justify-between py-1 px-0.5 text-center">
+                                          <div className="text-[4px] font-bold text-white scale-[0.8] leading-none uppercase tracking-[0.05em]">S'AMB</div>
+                                          <div className="text-[3px] font-mono text-cyan-300 scale-[0.6] origin-center mt-[-3px]">LIME</div>
+                                          <div className="text-[2.5px] text-blue-300 scale-[0.6] origin-center">LBT</div>
+                                        </div>
+                                      </div>
+
+                                      {/* Bottle 3: Energy Mist (Tall Blue, Center) */}
+                                      <div className="flex flex-col items-center group/b3 relative z-20">
+                                        {/* Glowing core spray effect */}
+                                        <div className="absolute top-[-10px] h-10 w-24 bg-cyan-400/10 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                                        <div className="absolute bottom-[-3px] w-8 h-2 bg-black/70 rounded-full blur-[1.5px]" />
+                                        {/* Spray nozzle cap */}
+                                        <div className="w-3 h-3 bg-white/40 border border-white/30 rounded-t-sm" />
+                                        {/* Metal collar */}
+                                        <div className="w-3.5 h-1 bg-slate-300" />
+                                        {/* Glass body */}
+                                        <div className="w-6 h-22 rounded-t-sm rounded-b-lg bg-gradient-to-b from-cyan-400/90 via-blue-500/80 to-blue-900 border border-cyan-300/40 shadow-2xl flex flex-col justify-between py-2 px-0.5 text-center relative overflow-hidden">
+                                          {/* Glass reflections */}
+                                          <div className="absolute inset-y-0 left-0.5 w-[2px] bg-white/20 blur-[0.5px]" />
+                                          <div className="text-[5px] font-bold text-white scale-[0.85] leading-none uppercase tracking-[0.05em]">S'AMBLIME</div>
+                                          <div className="text-[3.5px] font-mono text-cyan-200 scale-[0.7] origin-center mt-[-6px]">MIST</div>
+                                          <div className="text-[3px] text-cyan-300 scale-[0.7] origin-center">LBT</div>
+                                        </div>
+                                      </div>
+
+                                      {/* Bottle 4: Balancing Skin (Medium, right-mid) */}
+                                      <div className="flex flex-col items-center group/b4 relative">
+                                        <div className="absolute bottom-[-2px] w-6 h-1.5 bg-black/60 rounded-full blur-[1px]" />
+                                        {/* Chrome cap */}
+                                        <div className="w-3.5 h-4 bg-gradient-to-r from-slate-300 via-white to-slate-400 rounded-t-sm border-b border-white/20" />
+                                        {/* Glass body */}
+                                        <div className="w-5.5 h-18 rounded-b-md bg-gradient-to-b from-blue-500/80 via-blue-700 to-blue-950 border border-blue-400/30 shadow-lg flex flex-col justify-between py-1.5 px-0.5 text-center">
+                                          <div className="text-[4.5px] font-bold text-white scale-[0.8] leading-none uppercase tracking-[0.05em]">S'AMB</div>
+                                          <div className="text-[3.5px] font-mono text-blue-200 scale-[0.6] origin-center mt-[-4px]">SKIN</div>
+                                          <div className="text-[2.5px] text-blue-300 scale-[0.6] origin-center">LBT</div>
+                                        </div>
+                                      </div>
+
+                                      {/* Bottle 5: Balancing Lotion (Medium Gold Cap, right) */}
+                                      <div className="flex flex-col items-center group/b5 relative">
+                                        <div className="absolute bottom-[-2px] w-6 h-1.5 bg-black/60 rounded-full blur-[1px]" />
+                                        {/* Gold Cap */}
+                                        <div className="w-3 h-3 bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 rounded-t-sm" />
+                                        {/* Glass body */}
+                                        <div className="w-5 h-15 rounded-b-md bg-gradient-to-b from-cyan-600/80 via-cyan-800 to-blue-950 border border-cyan-400/30 shadow-lg flex flex-col justify-between py-1.5 px-0.5 text-center">
+                                          <div className="text-[4px] font-bold text-white scale-[0.8] leading-none uppercase tracking-[0.05em]">S'AMB</div>
+                                          <div className="text-[3px] font-mono text-cyan-200 scale-[0.6] origin-center mt-[-4px]">LOTION</div>
+                                          <div className="text-[2.5px] text-cyan-300 scale-[0.6] origin-center">LBT</div>
+                                        </div>
+                                      </div>
+
+                                    </div>
+
+                                    {/* Gold Metal Tray Base with LBT logo */}
+                                    <div className="w-48 sm:w-56 h-3 bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-600 rounded-sm border-t border-yellow-200 shadow-md flex items-center justify-center relative z-10 mt-[-1px]">
+                                      <div className="absolute top-0 inset-x-0 h-[1px] bg-white/40" />
+                                      <span className="text-[7px] font-sans font-black text-amber-950 tracking-[0.25em] scale-[0.8]">
+                                        LBT
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* HUD Left Overlay 1: QUANTUM ENERGY STABILIZATION */}
+                                  <div className="absolute top-16 left-3 sm:left-4 z-20 pointer-events-none group-hover:translate-x-1 transition-transform duration-500">
+                                    <div className="bg-slate-950/80 backdrop-blur-sm border border-cyan-500/20 rounded-lg p-1.5 sm:p-2 flex flex-col gap-0.5 max-w-[120px] shadow-lg">
+                                      <span className="text-[5px] sm:text-[6px] font-mono text-slate-400 leading-none">
+                                        QUANTUM ENERGY
+                                      </span>
+                                      <div className="flex items-center justify-between gap-1.5">
+                                        <span className="text-[5px] sm:text-[6px] font-mono text-cyan-400 font-extrabold leading-none">
+                                          STABILIZATION
+                                        </span>
+                                        <span className="text-[5px] sm:text-[6px] font-bold text-emerald-400 px-1 py-[1px] bg-emerald-500/10 rounded border border-emerald-500/20 leading-none scale-[0.8] origin-right">
+                                          [OK]
+                                        </span>
+                                      </div>
+                                      
+                                      {/* Small glowing sine wave simulator */}
+                                      <div className="h-4 w-full mt-1 overflow-hidden relative opacity-70">
+                                        <svg className="w-full h-full stroke-cyan-400 fill-none" viewBox="0 0 100 20" preserveAspectRatio="none">
+                                          <path d="M 0 10 Q 12.5 1, 25 10 T 50 10 T 75 10 T 100 10" strokeWidth="1.5">
+                                            <animate attributeName="d" 
+                                              values="M 0 10 Q 12.5 1, 25 10 T 50 10 T 75 10 T 100 10;
+                                                      M 0 10 Q 12.5 19, 25 10 T 50 10 T 75 10 T 100 10;
+                                                      M 0 10 Q 12.5 1, 25 10 T 50 10 T 75 10 T 100 10" 
+                                              dur="2.5s" 
+                                              repeatCount="indefinite" 
+                                            />
+                                          </path>
+                                        </svg>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* HUD Left Overlay 2: CELLULAR HYDRATION POTENTIOMETER */}
+                                  <div className="absolute bottom-16 left-3 sm:left-4 z-20 pointer-events-none group-hover:translate-x-1 transition-transform duration-500 delay-75">
+                                    <div className="bg-slate-950/80 backdrop-blur-sm border border-cyan-500/20 rounded-lg p-1.5 sm:p-2 flex flex-col gap-0.5 max-w-[120px] shadow-lg">
+                                      <span className="text-[5px] sm:text-[6px] font-mono text-slate-400 leading-none">
+                                        CELLULAR HYDRATION
+                                      </span>
+                                      <span className="text-[5px] sm:text-[6px] font-mono text-cyan-400 font-extrabold leading-none">
+                                        POTENTIOMETER
+                                      </span>
+                                      
+                                      <div className="flex items-center gap-1 mt-1">
+                                        <div className="flex-1 h-1 bg-slate-800 rounded-full overflow-hidden">
+                                          <div className="h-full bg-cyan-400 rounded-full w-[95%] animate-pulse" />
+                                        </div>
+                                        <span className="text-[5px] font-mono font-black text-cyan-400 scale-[0.8] origin-right">
+                                          MAX
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* HUD Right Overlay: QUANTUM POTENTIAL */}
+                                  <div className="absolute top-16 right-3 sm:right-4 z-20 pointer-events-none group-hover:translate-x-[-4px] transition-transform duration-500">
+                                    <div className="bg-slate-950/80 backdrop-blur-sm border border-cyan-500/20 rounded-lg p-1.5 sm:p-2 flex flex-col gap-0.5 max-w-[110px] shadow-lg text-right">
+                                      <span className="text-[5px] sm:text-[6px] font-mono text-slate-400 leading-none">
+                                        LBT STABILITY MATRIX
+                                      </span>
+                                      <span className="text-[7px] sm:text-[8px] font-mono text-cyan-400 font-black leading-none mt-0.5">
+                                        89.362%
+                                      </span>
+                                      <div className="text-[4px] font-mono text-emerald-400 mt-0.5 flex items-center justify-end gap-1">
+                                        <span className="w-1 h-1 rounded-full bg-emerald-500 animate-ping" />
+                                        <span>SYSTEM_SECURED</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Ambient glowing dust particles inside the image */}
+                                  <div className="absolute inset-0 pointer-events-none">
+                                    <div className="absolute top-1/2 left-1/3 w-1.5 h-1.5 bg-cyan-400/40 rounded-full blur-[0.5px] animate-pulse" style={{ animationDelay: '0.3s' }} />
+                                    <div className="absolute top-1/3 right-1/4 w-1 h-1 bg-yellow-400/30 rounded-full blur-[0.5px] animate-pulse" style={{ animationDelay: '1.2s' }} />
+                                    <div className="absolute bottom-1/3 left-1/4 w-2 h-2 bg-blue-400/20 rounded-full blur-[1px] animate-pulse" style={{ animationDelay: '0.8s' }} />
+                                  </div>
+
+                                </div>
+                              ) : (
+                                <img
+                                  src={pendingImages[item.id] || imageUrl}
+                                  alt={item.title}
+                                  className="w-full h-full object-cover transform group-hover:scale-[1.03] transition-transform duration-500"
+                                  referrerPolicy="no-referrer"
+                                />
+                              )}
 
                               {/* Admin overlay control bar */}
                               {isAdminMode && (
-                                <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                  <Sliders className="w-8 h-8 text-cyan-400 mb-2 animate-bounce" />
-                                  <span className="text-xs font-black text-white uppercase tracking-widest block mb-1">
-                                    {isEn ? "Master/Admin Image Console" : "마스터/관리자 실물사진 제어부"}
-                                  </span>
-                                  <p className="text-[10px] text-slate-400 mb-4 max-w-xs leading-normal">
-                                    {isEn 
-                                      ? "Upload a high-fidelity front photo for this business domain." 
-                                      : "본 사업영역의 고품격 실물 전면 사진을 등록하거나 원본 복원할 수 있습니다."}
-                                  </p>
+                                <div className={`absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center transition-all duration-300 ${pendingImages[item.id] ? 'opacity-100 z-30' : 'opacity-0 group-hover:opacity-100'}`}>
+                                  {pendingImages[item.id] ? (
+                                    <div className="flex flex-col items-center justify-center max-w-xs px-2">
+                                      <div className="p-1 px-3 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center gap-1.5 mb-2.5 animate-pulse">
+                                        <AlertTriangle className="w-3.5 h-3.5" />
+                                        <span className="text-[9px] font-mono font-black uppercase tracking-wider">
+                                          {isEn ? "Preview Mode" : "미리보기 모드"}
+                                        </span>
+                                      </div>
+                                      
+                                      <span className="text-xs font-black text-white uppercase tracking-widest block mb-1">
+                                        {isEn ? "Confirm Photo Apply" : "업로드 적용 확인"}
+                                      </span>
+                                      
+                                      <p className="text-[10px] text-slate-300 mb-4 leading-relaxed">
+                                        {isEn 
+                                          ? "The selected photo is previewed. Click 'Confirm & Apply' to save changes." 
+                                          : "선택하신 사진이 임시 적용되었습니다. 최종 저장하시려면 아래 '적용 확인'을 클릭해 주세요."}
+                                      </p>
 
-                                  {/* Guidelines Section */}
-                                  <div className="w-full max-w-xs bg-slate-900/60 border border-white/5 rounded-xl p-3 mb-4 space-y-1.5 text-left text-[10px] text-slate-300">
-                                    <div className="font-bold text-cyan-400 border-b border-white/5 pb-1">
-                                      {isEn ? "Image Upload Specifications" : "이미지 업로드 가이드라인"}
+                                      <div className="flex items-center gap-2 w-full justify-center">
+                                        <button
+                                          onClick={() => handleImageConfirm(item.id)}
+                                          className="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-[11px] font-black flex items-center gap-1.5 transition-all shadow-md shadow-emerald-500/20 cursor-pointer"
+                                        >
+                                          <Check className="w-3.5 h-3.5" />
+                                          {isEn ? "Confirm" : "적용 확인"}
+                                        </button>
+                                        
+                                        <button
+                                          onClick={() => handleImageCancel(item.id)}
+                                          className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-slate-200 text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                                        >
+                                          <X className="w-3.5 h-3.5" />
+                                          {isEn ? "Cancel" : "취소"}
+                                        </button>
+                                      </div>
                                     </div>
-                                    <div>
-                                      <span className="text-slate-500 font-bold mr-1">• {isEn ? "Formats:" : "지원 포맷:"}</span>
-                                      <span className="font-mono text-white">JPG, PNG, WEBP, GIF</span>
-                                    </div>
-                                    <div>
-                                      <span className="text-slate-500 font-bold mr-1">• {isEn ? "Resolution:" : "권장 사이즈:"}</span>
-                                      <span className="font-mono text-white">{isEn ? "800x600 px or higher (4:3 / 16:9)" : "800x600 px 이상 (4:3 또는 16:9 비율)"}</span>
-                                    </div>
-                                    <div>
-                                      <span className="text-slate-500 font-bold mr-1">• {isEn ? "File Size:" : "파일 크기:"}</span>
-                                      <span className="text-emerald-400 font-medium">{isEn ? "Up to 10MB (Auto compressed on upload)" : "최대 10MB (업로드 시 자동 압축 및 초고속 최적화)"}</span>
-                                    </div>
-                                  </div>
+                                  ) : (
+                                    <>
+                                      <Sliders className="w-7 h-7 text-cyan-400 mb-1.5 animate-bounce" />
+                                      <span className="text-xs font-black text-white uppercase tracking-widest block mb-1 text-center">
+                                        {isEn ? "Master/Admin Image Console" : "마스터/관리자 실물사진 제어부"}
+                                      </span>
+                                      <p className="text-[9px] text-slate-400 mb-3 max-w-xs leading-normal">
+                                        {isEn 
+                                          ? "Upload a high-fidelity front photo for this business domain." 
+                                          : "본 사업영역의 고품격 실물 전면 사진을 등록하거나 원본 복원할 수 있습니다."}
+                                      </p>
 
-                                  <div className="flex flex-wrap items-center justify-center gap-2">
-                                    <label className="px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-600 text-slate-950 text-[11px] font-black cursor-pointer flex items-center gap-1.5 transition-all shadow-md shadow-cyan-500/20">
-                                      <Upload className="w-3.5 h-3.5" />
-                                      {isEn ? "Upload Photo" : "사진 등록/수정"}
-                                      <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        onChange={(e) => handleImageUpload(item.id, e)}
-                                      />
-                                    </label>
+                                      {/* Guidelines Section */}
+                                      <div className="w-full max-w-xs bg-slate-900/60 border border-white/5 rounded-xl p-2.5 mb-3.5 space-y-1 text-left text-[9px] text-slate-300">
+                                        <div className="font-bold text-cyan-400 border-b border-white/5 pb-0.5 mb-1">
+                                          {isEn ? "Image Upload Specifications" : "이미지 업로드 가이드라인"}
+                                        </div>
+                                        <div>
+                                          <span className="text-slate-500 font-bold mr-1">• {isEn ? "Formats:" : "지원 포맷:"}</span>
+                                          <span className="font-mono text-white">JPG, PNG, WEBP, GIF</span>
+                                        </div>
+                                        <div>
+                                          <span className="text-slate-500 font-bold mr-1">• {isEn ? "Resolution:" : "권장 사이즈:"}</span>
+                                          <span className="font-mono text-white">{isEn ? "800x600 px or higher (4:3 / 16:9)" : "800x600 px 이상 (4:3 또는 16:9 비율)"}</span>
+                                        </div>
+                                        <div>
+                                          <span className="text-slate-500 font-bold mr-1">• {isEn ? "File Size:" : "파일 크기:"}</span>
+                                          <span className="text-emerald-400 font-medium">{isEn ? "Up to 10MB (Auto compressed)" : "최대 10MB (업로드 시 자동 압축)"}</span>
+                                        </div>
+                                      </div>
 
-                                    {customImages[item.id] && (
-                                      <button
-                                        onClick={() => handleImageDelete(item.id)}
-                                        className="px-3.5 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-400 text-[11px] font-black flex items-center gap-1.5 transition-all"
-                                      >
-                                        <Trash2 className="w-3.5 h-3.5" />
-                                        {isEn ? "Restore Default" : "원본 복원"}
-                                      </button>
-                                    )}
-                                  </div>
+                                      <div className="flex flex-wrap items-center justify-center gap-2">
+                                        <label className="px-3.5 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-600 text-slate-950 text-[11px] font-black cursor-pointer flex items-center gap-1.5 transition-all shadow-md shadow-cyan-500/20">
+                                          <Upload className="w-3.5 h-3.5" />
+                                          {isEn ? "Upload Photo" : "사진 등록/수정"}
+                                          <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={(e) => handleImageUpload(item.id, e)}
+                                          />
+                                        </label>
+
+                                        {customImages[item.id] && (
+                                          <button
+                                            onClick={() => handleImageDelete(item.id)}
+                                            className="px-3.5 py-1.5 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-400 text-[11px] font-black flex items-center gap-1.5 transition-all cursor-pointer"
+                                          >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                            {isEn ? "Restore Default" : "원본 복원"}
+                                          </button>
+                                        )}
+                                      </div>
+                                    </>
+                                  )}
                                 </div>
                               )}
                             </div>
