@@ -171,7 +171,7 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
 
   const checkIsMaster = (): boolean => {
     // 1. Check moasd_partner_user
-    const partnerUserStr = localStorage.getItem('moasd_partner_user');
+    const partnerUserStr = sessionStorage.getItem('moasd_partner_user');
     if (partnerUserStr) {
       try {
         const u = JSON.parse(partnerUserStr);
@@ -261,7 +261,7 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
         role: 'partner',
         partnerCode: 'MOASD_PARTNER'
       };
-      localStorage.setItem('moasd_partner_user', JSON.stringify(masterUser));
+      sessionStorage.setItem('moasd_partner_user', JSON.stringify(masterUser));
       
       alert(language === 'en' ? 'Master Admin Mode authorized successfully!' : '최고 마스터 관리자 권한이 성공적으로 해제되었습니다!');
     } else {

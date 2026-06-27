@@ -274,7 +274,7 @@ export const Admin: React.FC<AdminProps> = ({
           role: 'partner',
           partnerCode: 'MOASD_PARTNER'
         };
-        localStorage.setItem('moasd_partner_user', JSON.stringify(masterUser));
+        sessionStorage.setItem('moasd_partner_user', JSON.stringify(masterUser));
         setRegisteredUser(masterUser);
         setIsSignedUp(true);
 
@@ -312,7 +312,7 @@ export const Admin: React.FC<AdminProps> = ({
           role: 'partner',
           partnerCode: 'MOASD_PARTNER'
         };
-        localStorage.setItem('moasd_partner_user', JSON.stringify(subUser));
+        sessionStorage.setItem('moasd_partner_user', JSON.stringify(subUser));
         setRegisteredUser(subUser);
         setIsSignedUp(true);
       } else {
@@ -324,8 +324,8 @@ export const Admin: React.FC<AdminProps> = ({
   // Logout handler
   const handleLogout = () => {
     sessionStorage.removeItem('moasd_admin_session');
-    localStorage.removeItem('moasd_admin_manual_toggle');
-    localStorage.removeItem('moasd_partner_user');
+    sessionStorage.removeItem('moasd_admin_manual_toggle');
+    sessionStorage.removeItem('moasd_partner_user');
     setRegisteredUser(null);
     setIsSignedUp(false);
     setCurrentAdmin(null);
@@ -449,7 +449,7 @@ export const Admin: React.FC<AdminProps> = ({
          // If this matches currently logged in user on home screen, sync their state
          if (registeredUser && registeredUser.email === memberEmail) {
            const updatedUser = { ...registeredUser, role: nextRole as 'general' | 'partner', partnerCode };
-           localStorage.setItem('moasd_partner_user', JSON.stringify(updatedUser));
+           sessionStorage.setItem('moasd_partner_user', JSON.stringify(updatedUser));
            setRegisteredUser(updatedUser);
            setIsSignedUp(true);
          }
@@ -481,7 +481,7 @@ export const Admin: React.FC<AdminProps> = ({
 
       // If matches currently logged in user, log them out
       if (registeredUser && registeredUser.email === memberEmail) {
-        localStorage.removeItem('moasd_partner_user');
+        sessionStorage.removeItem('moasd_partner_user');
         setRegisteredUser(null);
         setIsSignedUp(false);
       }

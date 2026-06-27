@@ -294,7 +294,7 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
   // Sync admin mode and storage modifications
   const [isAdminMode, setIsAdminMode] = useState<boolean>(() => {
     const activeSession = sessionStorage.getItem('moasd_admin_session') !== null;
-    const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
+    const manualToggle = sessionStorage.getItem('moasd_admin_manual_toggle') === 'true';
     return activeSession || manualToggle;
   });
 
@@ -311,7 +311,7 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
       const activeSession = sessionStorage.getItem('moasd_admin_session') !== null;
       setHasAdminSession(activeSession);
 
-      const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
+      const manualToggle = sessionStorage.getItem('moasd_admin_manual_toggle') === 'true';
       setIsAdminMode(activeSession || manualToggle);
 
       const saved = localStorage.getItem('moasd_custom_business_images');

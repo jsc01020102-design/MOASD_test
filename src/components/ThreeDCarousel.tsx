@@ -53,7 +53,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
 
   const [isAdminMode, setIsAdminMode] = useState<boolean>(() => {
     const activeSession = sessionStorage.getItem('moasd_admin_session') !== null;
-    const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
+    const manualToggle = sessionStorage.getItem('moasd_admin_manual_toggle') === 'true';
     return activeSession && manualToggle;
   });
 
@@ -65,7 +65,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
       const activeSession = sessionStorage.getItem('moasd_admin_session') !== null;
       setHasAdminSession(activeSession);
 
-      const manualToggle = localStorage.getItem('moasd_admin_manual_toggle') === 'true';
+      const manualToggle = sessionStorage.getItem('moasd_admin_manual_toggle') === 'true';
       setIsAdminMode(activeSession && manualToggle);
 
       const saved = localStorage.getItem('moasd_custom_services');
@@ -282,7 +282,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
             onClick={() => {
               const nextMode = !isAdminMode;
               setIsAdminMode(nextMode);
-              localStorage.setItem('moasd_admin_manual_toggle', nextMode ? 'true' : 'false');
+              sessionStorage.setItem('moasd_admin_manual_toggle', nextMode ? 'true' : 'false');
             }}
             className={`px-4 py-2 rounded-xl text-xs font-black transition-all border flex items-center gap-2 cursor-pointer w-full md:w-auto justify-center ${
               isAdminMode

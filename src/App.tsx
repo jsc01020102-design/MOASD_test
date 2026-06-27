@@ -193,7 +193,7 @@ export default function App() {
   const [signUpError, setSignUpError] = useState<string>('');
   const [downloadApprovals, setDownloadApprovals] = useState<Record<string, 'none' | 'pending' | 'approved'>>({});
   const [isSignedUp, setIsSignedUp] = useState<boolean>(() => {
-    return localStorage.getItem('moasd_partner_user') !== null;
+    return sessionStorage.getItem('moasd_partner_user') !== null;
   });
   const [registeredUser, setRegisteredUser] = useState<{
     email: string;
@@ -204,7 +204,7 @@ export default function App() {
     role: 'general' | 'partner';
     partnerCode?: string;
   } | null>(() => {
-    const saved = localStorage.getItem('moasd_partner_user');
+    const saved = sessionStorage.getItem('moasd_partner_user');
     return saved ? JSON.parse(saved) : null;
   });
 
@@ -371,7 +371,7 @@ export default function App() {
       partnerCode: validatedPartnerCode || undefined
     };
 
-    localStorage.setItem('moasd_partner_user', JSON.stringify(newUser));
+    sessionStorage.setItem('moasd_partner_user', JSON.stringify(newUser));
     localStorage.setItem('moasd_partner_user_backup', JSON.stringify(newUser));
     
     // Store password
@@ -429,7 +429,7 @@ export default function App() {
       };
       sessionStorage.setItem('moasd_admin_session', JSON.stringify(adminSession));
       
-      localStorage.setItem('moasd_partner_user', JSON.stringify(masterUser));
+      sessionStorage.setItem('moasd_partner_user', JSON.stringify(masterUser));
       setRegisteredUser(masterUser);
       setIsSignedUp(true);
       setDownloadApprovals({});
@@ -472,7 +472,7 @@ export default function App() {
       };
 
       sessionStorage.setItem('moasd_admin_session', JSON.stringify(matchingSub));
-      localStorage.setItem('moasd_partner_user', JSON.stringify(subUser));
+      sessionStorage.setItem('moasd_partner_user', JSON.stringify(subUser));
       setRegisteredUser(subUser);
       setIsSignedUp(true);
       setDownloadApprovals({});
@@ -515,7 +515,7 @@ export default function App() {
     if (matchedMember) {
       const savedPass = userPasses[matchedMember.email];
       if (savedPass && savedPass === inputPass) {
-        localStorage.setItem('moasd_partner_user', JSON.stringify(matchedMember));
+        sessionStorage.setItem('moasd_partner_user', JSON.stringify(matchedMember));
         setRegisteredUser(matchedMember);
         setIsSignedUp(true);
         setDownloadApprovals({});
@@ -537,7 +537,7 @@ export default function App() {
       ) {
         const savedPass = userPasses[storedLocalUser.email];
         if (!savedPass || savedPass === inputPass) {
-          localStorage.setItem('moasd_partner_user', JSON.stringify(storedLocalUser));
+          sessionStorage.setItem('moasd_partner_user', JSON.stringify(storedLocalUser));
           setRegisteredUser(storedLocalUser);
           setIsSignedUp(true);
           setDownloadApprovals({});
@@ -556,8 +556,8 @@ export default function App() {
 
   const handleLogOut = () => {
     sessionStorage.removeItem('moasd_admin_session');
-    localStorage.removeItem('moasd_admin_manual_toggle');
-    localStorage.removeItem('moasd_partner_user');
+    sessionStorage.removeItem('moasd_admin_manual_toggle');
+    sessionStorage.removeItem('moasd_partner_user');
     setRegisteredUser(null);
     setIsSignedUp(false);
     // Reset all form fields
@@ -637,7 +637,7 @@ export default function App() {
         role: 'partner' as const,
         partnerCode: trimmed
       };
-      localStorage.setItem('moasd_partner_user', JSON.stringify(updatedUser));
+      sessionStorage.setItem('moasd_partner_user', JSON.stringify(updatedUser));
       setRegisteredUser(updatedUser);
       setIsSignedUp(true);
       return { success: true };
@@ -2358,7 +2358,7 @@ export default function App() {
                     loginTime: new Date().toISOString()
                   };
                   sessionStorage.setItem('moasd_admin_session', JSON.stringify(adminSession));
-                  localStorage.setItem('moasd_partner_user', JSON.stringify(masterUser));
+                  sessionStorage.setItem('moasd_partner_user', JSON.stringify(masterUser));
                   setRegisteredUser(masterUser);
                   setIsSignedUp(true);
                   setDownloadApprovals({});
@@ -2382,7 +2382,7 @@ export default function App() {
                   if (matchedMember) {
                     const savedPass = userPasses[matchedMember.email];
                     if (savedPass && savedPass === inputPass) {
-                      localStorage.setItem('moasd_partner_user', JSON.stringify(matchedMember));
+                      sessionStorage.setItem('moasd_partner_user', JSON.stringify(matchedMember));
                       setRegisteredUser(matchedMember);
                       setIsSignedUp(true);
                       setDownloadApprovals({});
@@ -2402,7 +2402,7 @@ export default function App() {
                     if (storedLocalUser.partnerCode && storedLocalUser.partnerCode.toUpperCase() === searchCode.toUpperCase()) {
                       const savedPass = userPasses[storedLocalUser.email];
                       if (!savedPass || savedPass === inputPass) {
-                        localStorage.setItem('moasd_partner_user', JSON.stringify(storedLocalUser));
+                        sessionStorage.setItem('moasd_partner_user', JSON.stringify(storedLocalUser));
                         setRegisteredUser(storedLocalUser);
                         setIsSignedUp(true);
                         setDownloadApprovals({});
@@ -2432,7 +2432,7 @@ export default function App() {
                   if (matchedMember) {
                     const savedPass = userPasses[matchedMember.email];
                     if (savedPass && savedPass === inputPass) {
-                      localStorage.setItem('moasd_partner_user', JSON.stringify(matchedMember));
+                      sessionStorage.setItem('moasd_partner_user', JSON.stringify(matchedMember));
                       setRegisteredUser(matchedMember);
                       setIsSignedUp(true);
                       setDownloadApprovals({});
@@ -2452,7 +2452,7 @@ export default function App() {
                     if (storedLocalUser.email && storedLocalUser.email.toLowerCase() === inputVal.toLowerCase()) {
                       const savedPass = userPasses[storedLocalUser.email];
                       if (!savedPass || savedPass === inputPass) {
-                        localStorage.setItem('moasd_partner_user', JSON.stringify(storedLocalUser));
+                        sessionStorage.setItem('moasd_partner_user', JSON.stringify(storedLocalUser));
                         setRegisteredUser(storedLocalUser);
                         setIsSignedUp(true);
                         setDownloadApprovals({});
