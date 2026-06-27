@@ -117,7 +117,7 @@ const DEFAULT_VIDEOS: VideoItem[] = [
     titleEn: 'Sustainable Hybrid Smart Micro-Grid Assembly',
     description: '대표적인 스마트 파워 제너레이터 HGE3D00의 자동화 공정, 친환경 모빌리티 섀시 매팅 기술, 고탄도 분자 소재(SAM)를 주축으로 한 차세대 에너지 그리드 허브의 핵심 성과를 집대성한 공식 미디어입니다.',
     descriptionEn: 'This presentation traces the integration path of (주)MOASD high-tech assembly lines including smart generators HGE3D00, carbon-free mobility chassis systems, SAM nano materials and our green tower headquarters.',
-    videoUrl: 'https://youtu.be/yqgMhS6hdcE'
+    videoUrl: 'https://youtu.be/vM02hJe6ZM0'
   },
   {
     id: 'vid-default-2',
@@ -205,6 +205,17 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
       if (stored) {
         try {
           loaded = JSON.parse(stored);
+          let changed = false;
+          loaded = loaded.map(v => {
+            if (v.videoUrl === 'https://youtu.be/yqgMhS6hdcE') {
+              changed = true;
+              return { ...v, videoUrl: 'https://youtu.be/vM02hJe6ZM0' };
+            }
+            return v;
+          });
+          if (changed) {
+            localStorage.setItem('moasd_media_center_videos', JSON.stringify(loaded));
+          }
           setVideos(loaded);
         } catch (e) {
           console.error(e);
@@ -814,7 +825,7 @@ export const MediaCenter: React.FC<{ language: 'ko' | 'en' }> = ({ language }) =
                     required
                     value={formUrl}
                     onChange={(e) => setFormUrl(e.target.value)}
-                    placeholder="https://youtu.be/yqgMhS6hdcE"
+                    placeholder="https://youtu.be/vM02hJe6ZM0"
                     className="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-slate-200 focus:outline-none focus:border-cyan-400 transition-colors text-xs font-mono"
                   />
                   <p className="text-[10px] text-slate-400">

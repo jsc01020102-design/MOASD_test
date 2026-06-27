@@ -90,7 +90,7 @@ const DESIGN_SLIDES: Slide[] = [
 
 export const MainHeroSlider: React.FC = () => {
   const { language, t } = useLanguage();
-  const [videoUrl, setVideoUrl] = useState<string | null>('https://youtu.be/yqgMhS6hdcE');
+  const [videoUrl, setVideoUrl] = useState<string | null>('https://youtu.be/vM02hJe6ZM0');
   const [activeSlide, setActiveSlide] = useState<number>(0);
   const [dragActive, setDragActive] = useState<boolean>(false);
   const [notification, setNotification] = useState<string | null>(null);
@@ -99,11 +99,19 @@ export const MainHeroSlider: React.FC = () => {
 
   // Load user video from IndexedDB cache or static deployment fallback on mount
   useEffect(() => {
-    loadVideoFromDB().then((url) => {
-      if (url) {
-        setVideoUrl(url);
+    // Clear previous custom video cache in IndexedDB to enforce the new official YouTube video
+    const clearRequest = indexedDB.open(DB_NAME, 1);
+    clearRequest.onsuccess = (e) => {
+      const db = (e.target as IDBOpenDBRequest).result;
+      if (db.objectStoreNames.contains(STORE_NAME)) {
+        try {
+          const transaction = db.transaction(STORE_NAME, 'readwrite');
+          const store = transaction.objectStore(STORE_NAME);
+          store.delete('hero-video');
+        } catch (err) {}
       }
-    });
+    };
+    setVideoUrl('https://youtu.be/vM02hJe6ZM0');
   }, []);
 
   // Sync video play

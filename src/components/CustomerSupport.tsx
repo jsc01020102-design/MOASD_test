@@ -46,70 +46,9 @@ interface Material {
   uploadedContent?: string;
 }
 
-const DEFAULT_MATERIALS: Material[] = [
-  {
-    id: 'mat-2',
-    title: '고성능 그래핀 파워뱅크(ESS) 극전하 물리 흡착 성능 비교 분석 보고서',
-    titleEn: 'High-Capacity Graphene Power Bank (ESS) Polar Adsorption Performance Comparison Report',
-    source: '(주)MOASD 신소재에너지융합연구소',
-    sourceEn: '(주)MOASD Advanced Materials Research Lab',
-    description: '기존 리튬 배터리 대비 고성능 파워뱅크의 수명, 충방전 속도, 기온 변화에 따른 보존율 비교 데이터 파일입니다.',
-    descriptionEn: 'Comparative performance files covering cycle life, charge-discharge speed, and temperature efficiency of advanced power banks vs lithium batteries.',
-    fileSize: '8.2 MB',
-    fileName: 'MOASD_Graphene_Power_Bank_Performance_Comparison.pdf',
-    fileUrl: 'pdf_data_placeholder',
-    date: '2026.06.24'
-  },
-  {
-    id: 'mat-3',
-    title: '전기자전거 및 오토바이 자체충전 자가동력 발전 1:1 시뮬레이터 구동 매뉴얼',
-    titleEn: 'E-Bicycle & E-Motorcycle Self-Charging Powertrain 1:1 Simulator Guide',
-    source: '(주)MOASD 모빌리티개발사업부',
-    sourceEn: '(주)MOASD Mobility Engineering Division',
-    description: '자체 동력 회생 제동 및 그래핀 버퍼 저장 루프 시스템의 조립 구조 및 시뮬레이터 제어 가이드 문서입니다.',
-    descriptionEn: 'Assembly structure and simulation control guide document for self-charging regenerative powertrain loops and graphene storage.',
-    fileSize: '5.1 MB',
-    fileName: 'Self_Charging_Ebike_Simulator_User_Manual.pdf',
-    fileUrl: 'pdf_data_placeholder',
-    date: '2026.06.25'
-  }
-];
+const DEFAULT_MATERIALS: Material[] = [];
 
-const DEFAULT_NOTICES: Notice[] = [
-  {
-    id: 'notice-1',
-    title: '[(주)MOASD 공식] 고전압 하이브리드 배전 설비 HGE3D00 정식 취급 설명서 공람',
-    titleEn: '[(주)MOASD Official] HGE3D00 Smart Power Distribution Manual Release',
-    content: '당사에서 생산하는 초정밀 배전 모듈 HGE3D00 솔루션의 안전 가동 지침 및 로봇공학 그리드 정비 관련 2차 승인 기술 문서를 전력 배전 실사 부서 대상으로 정식 배포합니다. 자세한 사항은 스마트 팩토리 대시보드를 방문하여 주십시오.',
-    contentEn: 'We officially deliver the safe operation guidelines and robotic grid maintenance specs of HGE3D00 modules. For detailed blueprints, please consult our smart factory control board.',
-    author: '안전관제기술팀',
-    authorEn: 'Safety Control Dept',
-    date: '2026.06.20',
-    isPinned: true
-  },
-  {
-    id: 'notice-2',
-    title: '[(주)MOASD 공지] 글로벌 R&D 환경 실사 전 연구원 보도보안 서약 실시의 건',
-    titleEn: '[(주)MOASD Notice] Pre-Security Vow for Global SAM Laboratory Site Inspection',
-    content: 'SAM 신소재 시뮬레이터 및 고전도 축전 구조물 융합 레이어를 보존하기 위하여, 본사 사옥 5층 실험실 출입 협력업체 정기 실사단 보안 패스 카드 발급용 사전 서약을 진행하여 주시기 바랍니다.',
-    contentEn: 'To protect the SAM superconductive layers, we coordinate mandatory pre-clearance procedures for delegates visiting R&D clean rooms. Please verify registration details.',
-    author: '최고경영자국 (S)',
-    authorEn: 'Founder Office (S)',
-    date: '2026.06.15',
-    isPinned: true
-  },
-  {
-    id: 'notice-3',
-    title: '[안내] 메인 화면 대용량 기업 동영상 적용 지원 안내 (IndexedDB)',
-    titleEn: '[Guide] Main Visual Cinematic MP4 Video Playback Support',
-    content: '이제 웹사이트 메인 비주얼에 자체 촬영하신 동영상 파일을 드래그&드롭으로 간편하게 적용할 수 있습니다. 업로드된 동영상은 브라우저 보안 샌드박스 내부(IndexedDB)에 완벽 무손실 인코딩되어 새로고침 후에도 자동 재생됩니다.',
-    contentEn: 'You can drag and drop your corporate video directly on the main visual background! The file is cached locally so it persists automatically.',
-    author: '서비스운영팀',
-    authorEn: 'Web Operations',
-    date: '2026.06.22',
-    isPinned: false
-  }
-];
+const DEFAULT_NOTICES: Notice[] = [];
 
 const DEFAULT_INQUIRIES: Inquiry[] = [
   {
@@ -163,12 +102,14 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
   const [notices, setNotices] = useState<Notice[]>(() => {
     const saved = localStorage.getItem('moasd_support_notices');
     const loaded: Notice[] = saved ? JSON.parse(saved) : DEFAULT_NOTICES;
-    return loaded.map(n => {
-      if (n.author === '최고경영자국 (장세창)') {
-        return { ...n, author: '최고경영자국 (S)', authorEn: 'Founder Office (S)' };
-      }
-      return n;
-    });
+    return loaded
+      .filter(n => n.id !== 'notice-1' && n.id !== 'notice-2' && n.id !== 'notice-3')
+      .map(n => {
+        if (n.author === '최고경영자국 (장세창)') {
+          return { ...n, author: '최고경영자국 (S)', authorEn: 'Founder Office (S)' };
+        }
+        return n;
+      });
   });
   const [inquiries, setInquiries] = useState<Inquiry[]>(() => {
     const saved = localStorage.getItem('moasd_support_inquiries');
@@ -177,7 +118,7 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
   const [materials, setMaterials] = useState<Material[]>(() => {
     const saved = localStorage.getItem('moasd_support_materials');
     const list = saved ? JSON.parse(saved) : DEFAULT_MATERIALS;
-    return list.filter((m: Material) => m.id !== 'mat-1');
+    return list.filter((m: Material) => m.id !== 'mat-1' && m.id !== 'mat-2' && m.id !== 'mat-3');
   });
 
   // State for UI toggles
@@ -244,7 +185,8 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
       const savedNotices = localStorage.getItem('moasd_support_notices');
       if (savedNotices) {
         try {
-          const parsed = JSON.parse(savedNotices);
+          const raw = JSON.parse(savedNotices);
+          const parsed = Array.isArray(raw) ? raw.filter((n: Notice) => n.id !== 'notice-1' && n.id !== 'notice-2' && n.id !== 'notice-3') : [];
           if (JSON.stringify(parsed) !== JSON.stringify(notices)) {
             setNotices(parsed);
           }
@@ -264,7 +206,8 @@ export const CustomerSupport: React.FC<CustomerSupportProps> = ({
       const savedMaterials = localStorage.getItem('moasd_support_materials');
       if (savedMaterials) {
         try {
-          const parsed = JSON.parse(savedMaterials);
+          const raw = JSON.parse(savedMaterials);
+          const parsed = Array.isArray(raw) ? raw.filter((m: Material) => m.id !== 'mat-1' && m.id !== 'mat-2' && m.id !== 'mat-3') : [];
           if (JSON.stringify(parsed) !== JSON.stringify(materials)) {
             setMaterials(parsed);
           }
