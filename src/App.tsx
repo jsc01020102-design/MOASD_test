@@ -1357,103 +1357,107 @@ export default function App() {
       <BusinessDomain />
     </div>
   ) : currentTab === 'about' ? (
-    <div className="pt-24 min-h-[85vh] bg-slate-950">
-      {/* 3. Company Introduction Section (Bento Grid of 3D Glassmorphic Cards) */}
-      <section id="strengths-section" className="py-12 max-w-7xl mx-auto px-6 relative">
-        <div className="text-center mb-16 space-y-3">
-          <div className="inline-flex items-center gap-1 text-xs text-cyan-400 font-mono font-bold tracking-widest uppercase bg-cyan-950/40 border border-cyan-400/20 px-3 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /> COMPANY GENERAL OVERVIEW
-          </div>
-          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight animate-fade-in">
-            {t('about.title', 'About MOASD', '회사소개')}
-          </h2>
-          <p className="text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
-            {t(
-              'about.desc',
-              'MOASD Co., Ltd. integrates peerless US CAS-registered SAM new material intellectual properties, high-density power bank manufacturing lines, and eco-friendly electric mobility manufacturing infrastructures to demonstrate tomorrow\'s green energy patterns today.',
-              '(주)MOASD는 독보적인 미국 CAS 등재 SAM 신소재 지적재산권과 고성능 파워뱅크 양산 팹 라인, 그리고 친환경 전기 모빌리티 제조 인프라를 통합하여 내일의 녹색 에너지를 오늘 실증 선포합니다.'
+    <div className="pt-28 pb-20 min-h-[85vh] bg-slate-950 text-slate-100 animate-fade-in select-text">
+      <article className="max-w-3xl mx-auto px-6 space-y-12 leading-relaxed">
+        
+        {/* Title Block */}
+        <div className="space-y-4 pb-6 border-b border-white/5">
+          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+            {language === 'en' ? 'Saving the Environment, MOASD Co., Ltd.' : '환경을 살리는 기업, (주)모아에스디'}
+          </h1>
+          <p className="text-base sm:text-lg text-slate-300 font-medium">
+            {language === 'en' ? (
+              <>
+                MOASD Co., Ltd. is an eco-friendly enterprise dedicated to researching and developing <strong className="text-cyan-400 font-bold">SAM materials</strong>.
+              </>
+            ) : (
+              <>
+                (주)모아에스디는 <strong className="text-cyan-400 font-bold">SAM 소재</strong>를 전문적으로 연구·발전시켜 온 친환경 기업입니다.
+              </>
             )}
           </p>
         </div>
 
-        {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-          {MOASD_STRENGTHS.map((strength) => {
-            // Pick a matching icon for the strength
-            const getIcon = (id: string) => {
-              if (id === 'cas-auth') return <Sparkles className="w-6 h-6 text-emerald-400" />;
-              if (id === 'supercapacitor-tech') return <Cpu className="w-6 h-6 text-cyan-400" />;
-              if (id === 'eco-ev-mass') return <Layers className="w-6 h-6 text-purple-400" />;
-              return <Compass className="w-6 h-6 text-indigo-400" />;
-            };
-
-            const getAccentColor = (id: string) => {
-              if (id === 'cas-auth') return 'emerald-500/10';
-              if (id === 'supercapacitor-tech') return 'cyan-500/10';
-              if (id === 'eco-ev-mass') return 'purple-500/10';
-              return 'indigo-500/10';
-            };
-
-            return (
-              <ThreeDCard 
-                key={strength.id}
-                maxRotation={10}
-                scaleOnHover={1.03}
-                glowColor={getAccentColor(strength.id)}
-                className={`h-full relative overflow-hidden group/card ${strength.id === 'cas-auth' ? 'border-emerald-500/20 hover:border-emerald-400/40' : ''}`}
-                onClick={() => {
-                  if (strength.id === 'cas-auth') {
-                    setIsCasVideoOpen(true);
-                  }
-                }}
-              >
-                <div className="flex flex-col h-full justify-between">
-                  <div className="space-y-4">
-                    {/* Icon + Badge */}
-                    <div className="flex items-center justify-between">
-                      <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-white/5 shadow-inner">
-                        {getIcon(strength.id)}
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        {strength.id === 'cas-auth' && (
-                          <span className="flex items-center gap-1 text-[9px] font-mono font-bold uppercase py-1 px-2.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-450/25 shadow-sm animate-pulse select-none">
-                            <Play className="w-2.5 h-2.5 fill-current" /> Play Video
-                          </span>
-                        )}
-                        <span className="text-[10px] font-mono font-extrabold tracking-widest text-cyan-400 bg-slate-900 px-3 py-1.5 rounded-full border border-white/5">
-                          {strength.badge}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Content text */}
-                    <div className="space-y-2">
-                      <h3 className="text-lg font-bold text-white tracking-tight">
-                        {language === 'en' && strength.titleEn ? strength.titleEn : strength.title}
-                      </h3>
-                      <p className="text-xs leading-relaxed text-slate-400">
-                        {language === 'en' && strength.descriptionEn ? strength.descriptionEn : strength.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Visual Grid Marker bottom right of each strength */}
-                  <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-500">
-                    {strength.id === 'cas-auth' ? (
-                      <span className="text-emerald-400 font-bold flex items-center gap-1.5 transition-colors">
-                        <Play className="w-3.5 h-3.5 fill-current" /> {language === 'en' ? 'WATCH INTRODUCTION VIDEO' : '미국 CAS 소개 영상 재생'}
-                      </span>
-                    ) : (
-                      <span>MOASD FOCUS CRITERIA</span>
-                    )}
-                    <ArrowUpRight className={`w-4 h-4 transition-transform ${strength.id === 'cas-auth' ? 'text-emerald-400 group-hover/card:translate-x-0.5 group-hover/card:-translate-y-0.5' : 'text-slate-600'}`} />
-                  </div>
-                </div>
-              </ThreeDCard>
-            );
-          })}
+        {/* Section 1: Reality */}
+        <div className="space-y-4">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+            {language === 'en' ? 'The Reality We Face' : '우리가 직면한 현실'}
+          </h2>
+          <p className="text-sm text-slate-400">
+            {language === 'en'
+              ? 'Today, our planet is confronted with escalating climate crises and diverse environmental challenges:'
+              : '현재 지구는 기후 위기와 다양한 환경 문제에 직면해 있습니다.'}
+          </p>
+          <ul className="space-y-3.5 text-sm text-slate-300 pl-4 list-disc marker:text-cyan-400">
+            <li>
+              <strong>{language === 'en' ? 'Climate Crisis: ' : '기후 위기: '}</strong>
+              {language === 'en'
+                ? 'Rising carbon dioxide emissions have intensified global warming and extreme weather.'
+                : '이산화탄소 배출 증가로 인한 지구온난화와 이상기온이 심화되고 있습니다.'}
+            </li>
+            <li>
+              <strong>{language === 'en' ? 'Natural Disasters: ' : '자연 재해: '}</strong>
+              {language === 'en'
+                ? 'Glaciers are melting rapidly, and worldwide hazards like floods, heatwaves, and earthquakes threaten our daily lives.'
+                : '빙하가 빠르게 녹아내리며, 홍수, 폭염, 지진 등 전 세계적인 자연재해가 일상을 위협하고 있습니다.'}
+            </li>
+            <li>
+              <strong>{language === 'en' ? 'Health Threats: ' : '건강 위협: '}</strong>
+              {language === 'en'
+                ? 'Harmful elements such as fossil fuels, microplastics, fine dust, air pollution, and processed foods are pervasive, yet viable alternatives remain scarce.'
+                : '화석연료, 미세플라스틱, 미세먼지, 대기오염, 인스턴트 식품 등 우리의 건강을 해치는 요소들이 우리 주변에 만연해 있으나, 마땅한 대안이 부족한 실정입니다.'}
+            </li>
+          </ul>
         </div>
-      </section>
+
+        {/* Section 2: Promise */}
+        <div className="space-y-4 pt-4">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+            {language === 'en' ? "MOASD's Promise" : '모아에스디의 약속'}
+          </h2>
+          <p className="text-sm text-slate-400">
+            {language === 'en'
+              ? 'MOASD Co., Ltd. aims to achieve the following through innovative SAM material technology:'
+              : '(주)모아에스디는 혁신적인 SAM 소재 기술을 통해 다음을 실현하고자 합니다.'}
+          </p>
+          <ol className="space-y-3.5 text-sm text-slate-300 pl-4 list-decimal marker:text-cyan-400 font-medium">
+            <li>
+              <span className="text-white font-bold">{language === 'en' ? 'Promoting Human Health: ' : '인류의 건강 증진: '}</span>
+              <span className="text-slate-350 font-normal">
+                {language === 'en'
+                  ? 'Reducing environmental pollutants to build a healthier living environment.'
+                  : '환경 오염원을 줄여 보다 건강한 삶의 터전을 만듭니다.'}
+              </span>
+            </li>
+            <li>
+              <span className="text-white font-bold">{language === 'en' ? 'Protecting Earth\'s Environment: ' : '지구 환경 보호: '}</span>
+              <span className="text-slate-350 font-normal">
+                {language === 'en'
+                  ? 'Proposing practical solutions to mitigate severe environmental pollution.'
+                  : '심각한 환경 오염을 줄이기 위한 실질적인 해결책을 제시합니다.'}
+              </span>
+            </li>
+            <li>
+              <span className="text-white font-bold">{language === 'en' ? 'Practicing Carbon Neutrality: ' : '탄소 중립 실천: '}</span>
+              <span className="text-slate-350 font-normal">
+                {language === 'en'
+                  ? 'Leading the way in cutting carbon emissions to build a sustainable future.'
+                  : '이산화탄소 배출 절감에 앞장서 지속 가능한 미래를 구축합니다.'}
+              </span>
+            </li>
+          </ol>
+        </div>
+
+        {/* Footer/Motto Block */}
+        <div className="pt-8 border-t border-white/5">
+          <p className="text-sm sm:text-base font-bold text-slate-200 text-center italic">
+            {language === 'en'
+              ? '“MOASD Co., Ltd. will continue to conduct endless research and do its utmost for a better planet and a healthier tomorrow.”'
+              : '“(주)모아에스디는 더 나은 지구와 건강한 내일을 위해 끊임없이 연구하고 최선을 다하겠습니다.”'}
+          </p>
+        </div>
+
+      </article>
     </div>
   ) : currentTab === 'solutions' ? (
     <div className="pt-24 min-h-[85vh] bg-slate-950">
