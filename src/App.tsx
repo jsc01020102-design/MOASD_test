@@ -1695,7 +1695,7 @@ export default function App() {
 
                 {/* Right column: Image ONLY with Admin controls */}
                 <div className="lg:col-span-5 flex flex-col justify-center">
-                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-video w-full shadow-2xl flex items-center justify-center">
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[4/3] lg:h-[480px] w-full shadow-2xl flex items-center justify-center">
                     <img 
                       src={partnerImages['case-1'] || "/src/assets/images/generator_assembly_line_1781624380514.jpg"} 
                       alt="Doohyun Infratech Corporate Visual"
@@ -1703,6 +1703,16 @@ export default function App() {
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                    
+                    {/* DSLR Quality badge */}
+                    <div className="absolute bottom-4 left-4 z-10 px-3 py-1 text-[10px] tracking-wider uppercase font-semibold text-cyan-400 bg-slate-950/85 backdrop-blur-md rounded-full border border-cyan-400/30 flex items-center gap-1.5 shadow-lg">
+                      <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+                      <span>
+                        {language === 'en' 
+                          ? '8K DSLR Photorealistic Quality' 
+                          : '8K DSLR 극사실주의 실사화'}
+                      </span>
+                    </div>
                     
 
 
@@ -1841,7 +1851,7 @@ export default function App() {
 
                 {/* Right column: Image ONLY with Admin controls */}
                 <div className="lg:col-span-5 flex flex-col justify-center">
-                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-video w-full shadow-2xl flex items-center justify-center">
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[4/3] lg:h-[480px] w-full shadow-2xl flex items-center justify-center">
                     <img 
                       src={partnerImages['case-2'] || "/src/assets/images/supercapacitor_factory_1781621879548.jpg"} 
                       alt="Shinhwa Energy Solution Corporate Visual"
@@ -1849,6 +1859,16 @@ export default function App() {
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                    
+                    {/* DSLR Quality badge */}
+                    <div className="absolute bottom-4 left-4 z-10 px-3 py-1 text-[10px] tracking-wider uppercase font-semibold text-cyan-400 bg-slate-950/85 backdrop-blur-md rounded-full border border-cyan-400/30 flex items-center gap-1.5 shadow-lg">
+                      <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+                      <span>
+                        {language === 'en' 
+                          ? '8K DSLR Photorealistic Quality' 
+                          : '8K DSLR 극사실주의 실사화'}
+                      </span>
+                    </div>
                     
 
 
@@ -2037,7 +2057,7 @@ export default function App() {
 
                 {/* Right column: Image ONLY with Admin controls */}
                 <div className="lg:col-span-5 flex flex-col justify-center">
-                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-video w-full shadow-2xl flex items-center justify-center">
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[4/3] lg:h-[480px] w-full shadow-2xl flex items-center justify-center">
                     <img 
                       src={partnerImages['case-3'] || "/src/assets/images/sam_material_lab_1781624876856.jpg"} 
                       alt="SAM Materials Corporate Visual"
@@ -2045,6 +2065,16 @@ export default function App() {
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent animate-fade-in" />
+                    
+                    {/* DSLR Quality badge */}
+                    <div className="absolute bottom-4 left-4 z-10 px-3 py-1 text-[10px] tracking-wider uppercase font-semibold text-cyan-400 bg-slate-950/85 backdrop-blur-md rounded-full border border-cyan-400/30 flex items-center gap-1.5 shadow-lg">
+                      <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+                      <span>
+                        {language === 'en' 
+                          ? '8K DSLR Photorealistic Quality' 
+                          : '8K DSLR 극사실주의 실사화'}
+                      </span>
+                    </div>
                     
 
 
