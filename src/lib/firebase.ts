@@ -35,7 +35,8 @@ export const SYNC_KEYS = [
   "moasd_support_materials",
   "moasd_member_list",
   "moasd_sub_admins",
-  "moasd_user_passwords"
+  "moasd_user_passwords",
+  "moasd_product_attachments"
 ];
 
 // Helper to check if a key should be synced

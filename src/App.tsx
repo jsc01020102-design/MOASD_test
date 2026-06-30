@@ -17,6 +17,7 @@ import { Admin } from './components/Admin';
 import { MediaCenter } from './components/MediaCenter';
 import { CustomerSupport } from './components/CustomerSupport';
 import { BusinessDomain } from './components/BusinessDomain';
+import { Products } from './components/Products';
 import { 
   Building2, 
   Sparkles, 
@@ -104,7 +105,7 @@ export default function App() {
     document.title = "(주)모아에스디";
   }, []);
 
-  const [currentTab, setCurrentTab] = useState<'home' | 'about' | 'business' | 'solutions' | 'partners' | 'mediacenter' | 'support' | 'admin'>('home');
+  const [currentTab, setCurrentTab] = useState<'home' | 'about' | 'business' | 'solutions' | 'partners' | 'mediacenter' | 'products' | 'support' | 'admin'>('home');
   const [purchaseSmsToast, setPurchaseSmsToast] = useState<{
     show: boolean;
     itemName: string;
@@ -664,6 +665,12 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const navigateToProducts = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    setCurrentTab('products');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const navigateToSupport = (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
     setCurrentTab('support');
@@ -971,6 +978,13 @@ export default function App() {
               className={`font-semibold transition-colors ${currentTab === 'mediacenter' ? 'text-cyan-400 border-b-2 border-cyan-400 pb-0.5 animate-pulse' : 'text-slate-300 hover:text-cyan-400 font-medium'}`}
             >
               {language === 'en' ? 'Media Center' : '미디어센터'}
+            </a>
+            <a 
+              href="#products" 
+              onClick={(e) => navigateToProducts(e)}
+              className={`font-semibold transition-colors ${currentTab === 'products' ? 'text-cyan-400 border-b-2 border-cyan-400 pb-0.5 animate-pulse' : 'text-slate-300 hover:text-cyan-400 font-medium'}`}
+            >
+              {language === 'en' ? 'Products' : '제품'}
             </a>
             <a 
               href="#customer-support" 
@@ -1303,6 +1317,16 @@ export default function App() {
                   className={`py-2 block border-b border-white/5 whitespace-nowrap ${currentTab === 'mediacenter' ? 'text-cyan-400 font-bold' : 'text-slate-300 hover:text-cyan-400'}`}
                 >
                   {language === 'en' ? 'Media Center' : '미디어센터'}
+                </a>
+                <a 
+                  href="#products" 
+                  onClick={(e) => {
+                    setMobileMenuOpen(false);
+                    navigateToProducts(e);
+                  }}
+                  className={`py-2 block border-b border-white/5 whitespace-nowrap ${currentTab === 'products' ? 'text-cyan-400 font-bold' : 'text-slate-300 hover:text-cyan-400'}`}
+                >
+                  {language === 'en' ? 'Products' : '제품'}
                 </a>
                 <a 
                   href="#customer-support" 
@@ -2073,6 +2097,10 @@ export default function App() {
   ) : currentTab === 'mediacenter' ? (
     <div className="pt-16 min-h-[85vh] bg-slate-950">
       <MediaCenter language={language} />
+    </div>
+  ) : currentTab === 'products' ? (
+    <div className="pt-16 min-h-[85vh] bg-slate-950">
+      <Products language={language} />
     </div>
   ) : currentTab === 'support' ? (
     <div className="pt-16 min-h-[85vh] bg-slate-950">
