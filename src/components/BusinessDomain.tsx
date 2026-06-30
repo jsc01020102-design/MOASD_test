@@ -737,16 +737,6 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
                                 referrerPolicy="no-referrer"
                               />
 
-                              {/* DSLR Quality badge */}
-                              <div className="absolute bottom-4 left-4 z-10 px-2.5 py-1 text-[9px] tracking-wider uppercase font-semibold text-cyan-400 bg-slate-950/85 backdrop-blur-md rounded-full border border-cyan-400/30 flex items-center gap-1.5 shadow-lg">
-                                <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
-                                <span>
-                                  {isEn 
-                                    ? '8K DSLR Photorealistic Quality' 
-                                    : '8K DSLR 극사실주의 실사화'}
-                                </span>
-                              </div>
-
                               {/* Admin overlay control bar */}
                               {isAdminMode && (
                                 <div className={`absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center transition-all duration-300 ${pendingImages[item.id] ? 'opacity-100 z-30' : 'opacity-0 group-hover:opacity-100'}`}>
