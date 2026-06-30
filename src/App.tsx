@@ -1695,7 +1695,7 @@ export default function App() {
 
                 {/* Right column: Image ONLY with Admin controls */}
                 <div className="lg:col-span-5 flex flex-col justify-center">
-                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[4/3] lg:h-[480px] w-full shadow-2xl flex items-center justify-center">
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-video w-full shadow-2xl flex items-center justify-center">
                     <img 
                       src={partnerImages['case-1'] || "/src/assets/images/generator_assembly_line_1781624380514.jpg"} 
                       alt="Doohyun Infratech Corporate Visual"
@@ -1841,7 +1841,7 @@ export default function App() {
 
                 {/* Right column: Image ONLY with Admin controls */}
                 <div className="lg:col-span-5 flex flex-col justify-center">
-                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[4/3] lg:h-[480px] w-full shadow-2xl flex items-center justify-center">
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-video w-full shadow-2xl flex items-center justify-center">
                     <img 
                       src={partnerImages['case-2'] || "/src/assets/images/supercapacitor_factory_1781621879548.jpg"} 
                       alt="Shinhwa Energy Solution Corporate Visual"
@@ -2037,7 +2037,7 @@ export default function App() {
 
                 {/* Right column: Image ONLY with Admin controls */}
                 <div className="lg:col-span-5 flex flex-col justify-center">
-                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[4/3] lg:h-[480px] w-full shadow-2xl flex items-center justify-center">
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-video w-full shadow-2xl flex items-center justify-center">
                     <img 
                       src={partnerImages['case-3'] || "/src/assets/images/sam_material_lab_1781624876856.jpg"} 
                       alt="SAM Materials Corporate Visual"

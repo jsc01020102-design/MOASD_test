@@ -694,8 +694,8 @@ export const BusinessDomain: React.FC<BusinessDomainProps> = ({ isMainScreen = f
                           </div>
 
                           {/* Image Section with Admin capability */}
-                          <div className={`order-2 ${isEven ? 'order-2' : 'order-2 lg:order-1'}`}>
-                            <div className={`relative h-[240px] sm:h-[300px] lg:h-[320px] rounded-2xl overflow-hidden border border-white/10 bg-slate-950 flex items-center justify-center ${activeStyle.glow}`}>
+                          <div className={`order-2 ${isEven ? 'order-2' : 'order-2 lg:order-1'} w-full`}>
+                            <div className={`relative w-full aspect-video rounded-2xl overflow-hidden border border-white/10 bg-slate-950 flex items-center justify-center ${activeStyle.glow}`}>
                               <img
                                 src={pendingImages[item.id] || imageUrl}
                                 alt={item.title}

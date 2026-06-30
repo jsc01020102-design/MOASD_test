@@ -493,7 +493,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
               </div>
 
               {/* Centered Image Card */}
-              <div className="relative w-full h-[320px] sm:h-[400px] md:h-[500px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-gradient-to-b from-slate-950/90 to-slate-900 flex items-center justify-center p-4">
+              <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-gradient-to-b from-slate-950/90 to-slate-900 flex items-center justify-center p-4">
                 {/* Sub-atmospheric subtle glow */}
                 <div className="absolute inset-0 bg-radial-at-c from-cyan-500/5 via-transparent to-transparent pointer-events-none" />
                 
