@@ -209,11 +209,14 @@ export default function App() {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const [partnerImages, setPartnerImages] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    localStorage.removeItem('moasd_partner_images');
-  }, []);
+  const [partnerImages, setPartnerImages] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem('moasd_partner_images');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
 
   const [isAdminUser, setIsAdminUser] = useState<boolean>(() => {
     return sessionStorage.getItem('moasd_admin_session') !== null;
@@ -240,35 +243,39 @@ export default function App() {
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
-        // High-quality canvas compression & auto-downscaling to guarantee performance & bypass localStorage/Firestore quota limitations
+        // High-quality vertical crop and compression for exactly 9:16 aspect ratio
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 800;
-        const MAX_HEIGHT = 600;
-        let width = img.width;
-        let height = img.height;
+        const targetWidth = 450;
+        const targetHeight = 800; // 9:16 ratio
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
 
-        if (width > height) {
-          if (width > MAX_WIDTH) {
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
-          }
+        const targetRatio = 9 / 16;
+        const currentRatio = img.width / img.height;
+
+        let sx = 0;
+        let sy = 0;
+        let sWidth = img.width;
+        let sHeight = img.height;
+
+        if (currentRatio > targetRatio) {
+          // Source is wider than 9:16 (center-crop horizontally)
+          sWidth = img.height * targetRatio;
+          sx = (img.width - sWidth) / 2;
         } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height;
-            height = MAX_HEIGHT;
-          }
+          // Source is taller than 9:16 (center-crop vertically)
+          sHeight = img.width / targetRatio;
+          sy = (img.height - sHeight) / 2;
         }
 
-        canvas.width = width;
-        canvas.height = height;
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+          ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
           const updated = { ...partnerImages, [caseId]: compressedBase64 };
           setPartnerImages(updated);
           localStorage.setItem('moasd_partner_images', JSON.stringify(updated));
-          alert(isEn ? "🎉 Image uploaded and applied successfully!" : "🎉 이미지가 성공적으로 업로드 및 적용되었습니다.");
+          alert(isEn ? "🎉 Image uploaded, auto-cropped to 9:16 and applied successfully!" : "🎉 이미지가 성공적으로 업로드 및 9:16 비율로 크롭되어 적용되었습니다.");
         }
       };
       img.src = event.target?.result as string;
@@ -1692,7 +1699,7 @@ export default function App() {
 
                 {/* Right column: Image ONLY with Admin controls */}
                 <div className="lg:col-span-5 flex flex-col justify-center">
-                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[4/3] lg:h-[480px] w-full shadow-2xl flex items-center justify-center">
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[9/16] max-w-[340px] mx-auto w-full shadow-2xl flex items-center justify-center">
                     <img 
                       src={partnerImages['case-1'] || "/src/assets/images/generator_assembly_line_1781624380514.jpg"} 
                       alt="Doohyun Infratech Corporate Visual"
@@ -1701,6 +1708,15 @@ export default function App() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
                     
+                    {/* 9:16 Ratio badge */}
+                    <div className="absolute bottom-4 left-4 z-10 px-2.5 py-1 text-[9px] tracking-wider uppercase font-semibold text-cyan-400 bg-slate-950/85 backdrop-blur-md rounded-full border border-cyan-400/30 flex items-center gap-1.5 shadow-lg">
+                      <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+                      <span>
+                        {language === 'en' 
+                          ? '9:16 Portrait Ratio' 
+                          : '9:16 버티컬 규격'}
+                      </span>
+                    </div>
 
 
                     {/* Admin Image control overlay */}
@@ -1838,7 +1854,7 @@ export default function App() {
 
                 {/* Right column: Image ONLY with Admin controls */}
                 <div className="lg:col-span-5 flex flex-col justify-center">
-                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[4/3] lg:h-[480px] w-full shadow-2xl flex items-center justify-center">
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[9/16] max-w-[340px] mx-auto w-full shadow-2xl flex items-center justify-center">
                     <img 
                       src={partnerImages['case-2'] || "/src/assets/images/supercapacitor_factory_1781621879548.jpg"} 
                       alt="Shinhwa Energy Solution Corporate Visual"
@@ -1847,6 +1863,15 @@ export default function App() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
                     
+                    {/* 9:16 Ratio badge */}
+                    <div className="absolute bottom-4 left-4 z-10 px-2.5 py-1 text-[9px] tracking-wider uppercase font-semibold text-cyan-400 bg-slate-950/85 backdrop-blur-md rounded-full border border-cyan-400/30 flex items-center gap-1.5 shadow-lg">
+                      <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+                      <span>
+                        {language === 'en' 
+                          ? '9:16 Portrait Ratio' 
+                          : '9:16 버티컬 규격'}
+                      </span>
+                    </div>
 
 
                     {/* Admin Image control overlay */}
@@ -2034,7 +2059,7 @@ export default function App() {
 
                 {/* Right column: Image ONLY with Admin controls */}
                 <div className="lg:col-span-5 flex flex-col justify-center">
-                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[4/3] lg:h-[480px] w-full shadow-2xl flex items-center justify-center">
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 group bg-slate-900/60 aspect-[9/16] max-w-[340px] mx-auto w-full shadow-2xl flex items-center justify-center">
                     <img 
                       src={partnerImages['case-3'] || "/src/assets/images/sam_material_lab_1781624876856.jpg"} 
                       alt="SAM Materials Corporate Visual"
@@ -2043,6 +2068,15 @@ export default function App() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent animate-fade-in" />
                     
+                    {/* 9:16 Ratio badge */}
+                    <div className="absolute bottom-4 left-4 z-10 px-2.5 py-1 text-[9px] tracking-wider uppercase font-semibold text-cyan-400 bg-slate-950/85 backdrop-blur-md rounded-full border border-cyan-400/30 flex items-center gap-1.5 shadow-lg">
+                      <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+                      <span>
+                        {language === 'en' 
+                          ? '9:16 Portrait Ratio' 
+                          : '9:16 버티컬 규격'}
+                      </span>
+                    </div>
 
 
                     {/* Admin Image control overlay */}
