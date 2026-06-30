@@ -123,36 +123,67 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
-        // High-quality canvas compression & auto-downscaling to guarantee performance & bypass localStorage quota limitations
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 800;
-        const MAX_HEIGHT = 600;
-        let width = img.width;
-        let height = img.height;
+        const isTargetItem = [0, 1, 2, 4].includes(idx);
 
-        if (width > height) {
-          if (width > MAX_WIDTH) {
-            height *= MAX_WIDTH / width;
-            width = MAX_WIDTH;
+        let targetWidth = 800;
+        let targetHeight = 600;
+        let sx = 0;
+        let sy = 0;
+        let sWidth = img.width;
+        let sHeight = img.height;
+
+        if (isTargetItem) {
+          // Strictly force 16:9 ratio (800x450 px) for the target solutions: generator, power bank, two-wheeler, e-bicycle
+          targetWidth = 800;
+          targetHeight = 450;
+          const targetRatio = 16 / 9;
+          const currentRatio = img.width / img.height;
+
+          if (currentRatio > targetRatio) {
+            // Source is wider than 16:9, center-crop horizontally
+            sWidth = img.height * targetRatio;
+            sx = (img.width - sWidth) / 2;
+          } else {
+            // Source is taller than 16:9, center-crop vertically
+            sHeight = img.width / targetRatio;
+            sy = (img.height - sHeight) / 2;
           }
         } else {
-          if (height > MAX_HEIGHT) {
-            width *= MAX_HEIGHT / height;
-            height = MAX_HEIGHT;
+          // Standard resizing logic for other items
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 600;
+          let w = img.width;
+          let h = img.height;
+
+          if (w > h) {
+            if (w > MAX_WIDTH) {
+              h *= MAX_WIDTH / w;
+              w = MAX_WIDTH;
+            }
+          } else {
+            if (h > MAX_HEIGHT) {
+              w *= MAX_HEIGHT / h;
+              h = MAX_HEIGHT;
+            }
           }
+          targetWidth = w;
+          targetHeight = h;
+          sWidth = img.width;
+          sHeight = img.height;
         }
 
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+          ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
           
           setStagedImage(compressedBase64);
           alert(isEn 
-            ? "🎉 Image loaded for preview. Please click the 'Complete' (적용 완료) button below to finalize and register!" 
-            : "🎉 이미지가 성공적으로 업로드되어 미리보기 상태입니다. 아래 '적용 완료' 버튼을 클릭하면 최종 저장됩니다.");
+            ? "🎉 Image loaded for preview. 16:9 ratio auto-crop applied! Please click the 'Complete' (적용 완료) button below to finalize." 
+            : "🎉 이미지가 성공적으로 업로드 및 16:9 비율 자동 크롭되었습니다. 아래 '적용 완료' 버튼을 클릭하면 최종 저장됩니다.");
         }
       };
       img.src = event.target?.result as string;
@@ -501,7 +532,7 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
                   <img 
                     src={stagedImage || service.imageUrl} 
                     alt={serviceTitle}
-                    className="w-full h-full object-contain filter brightness-105 contrast-105 hover:scale-[1.02] transition-transform duration-700 select-all"
+                    className={`w-full h-full ${[0, 1, 2, 4].includes(activeIndex) ? 'object-cover' : 'object-contain'} filter brightness-105 contrast-105 hover:scale-[1.02] transition-transform duration-700 select-all`}
                     style={{ imageRendering: '-webkit-optimize-contrast' }}
                     referrerPolicy="no-referrer"
                   />
@@ -518,9 +549,14 @@ export const ThreeDCarousel: React.FC<ThreeDCarouselProps> = ({
               {/* Image control panel (Upload, Modify, Delete) */}
               {isAdminMode && (
                 <div className="flex flex-wrap items-center justify-end gap-3 p-3 rounded-2xl bg-slate-950/60 border border-white/5">
-                  <span className="text-xs font-mono text-slate-400 mr-auto pl-2 font-bold uppercase flex items-center gap-1.5">
+                  <span className="text-xs font-mono text-slate-400 mr-auto pl-2 font-bold uppercase flex flex-wrap items-center gap-1.5">
                     <span className="w-2 h-2 bg-cyan-500 rounded-full animate-ping" />
                     {isEn ? "ACTIONS:" : "편집 기능:"}
+                    {[0, 1, 2, 4].includes(activeIndex) && (
+                      <span className="px-1.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-400/20 text-[9px] font-sans font-bold text-cyan-400 uppercase tracking-wider animate-pulse">
+                        {isEn ? "16:9 Ratio" : "16:9 규격 전용"}
+                      </span>
+                    )}
                   </span>
                   
                   {/* Staged State: Show 완료 (Complete) and 취소 (Cancel) buttons */}
