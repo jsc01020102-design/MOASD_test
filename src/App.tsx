@@ -209,14 +209,11 @@ export default function App() {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const [partnerImages, setPartnerImages] = useState<Record<string, string>>(() => {
-    try {
-      const saved = localStorage.getItem('moasd_partner_images');
-      return saved ? JSON.parse(saved) : {};
-    } catch (e) {
-      return {};
-    }
-  });
+  const [partnerImages, setPartnerImages] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    localStorage.removeItem('moasd_partner_images');
+  }, []);
 
   const [isAdminUser, setIsAdminUser] = useState<boolean>(() => {
     return sessionStorage.getItem('moasd_admin_session') !== null;
